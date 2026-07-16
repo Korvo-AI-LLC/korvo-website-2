@@ -124,7 +124,8 @@ nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.07); }
 .hero-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
 .hero-brand-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; color: var(--white); }
 .hero-tagline { font-size: 1rem; color: rgba(255,255,255,0.78); margin-bottom: 24px; font-style: italic; }
-.hero h1 { color: var(--white); margin-bottom: 40px; max-width: 560px; font-size: 65px; }
+.hero h1 { color: var(--white); margin-bottom: 20px; max-width: 560px; font-size: 65px; }
+.hero-subtitle { color: rgba(255,255,255,.82); font-size: 1.15rem; line-height: 1.5; max-width: 500px; margin-bottom: 40px; }
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 .hero-visual {
   display: flex; align-items: center; justify-content: center;
