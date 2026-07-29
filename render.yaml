@@ -13,6 +13,9 @@ services:
         sync: false
       - key: ADMIN_PASS
         sync: false
+      # Shared secret the Trillet post-call webhook must present to POST /api/calls.
+      - key: CALL_WEBHOOK_SECRET
+        sync: false
       # Discovery-call storage. Set DATABASE_URL to use Postgres, or DATA_DIR
       # (a mounted persistent disk) to keep the JSON fallback across deploys.
       - key: DATABASE_URL
