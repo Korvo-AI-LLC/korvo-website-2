@@ -252,6 +252,19 @@
       </div>
     </section>
 
+    <!-- PATIENT CALLS (Trillet voice agent) -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Patient Calls <span class="panel-count" id="callCount"></span></h2>
+      </div>
+      <div class="table-wrap">
+        <table class="appt-table">
+          <thead><tr><th>Received</th><th>Name</th><th>DOB</th><th>Appointment</th><th>Source</th><th>Summary</th><th></th></tr></thead>
+          <tbody id="callBody"><tr><td colspan="7" class="td-note">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- DISCOVERY INTAKE / CLIENTS -->
     <section class="panel">
       <div class="panel-head">
@@ -663,6 +676,7 @@ function showList(){
   window.scrollTo(0,0);
   loadList();
   loadAppointments();
+  loadCalls();
 }
 
 async function loadAppointments(){
@@ -684,6 +698,41 @@ async function loadAppointments(){
     </tr>`).join('');
   }catch(e){ tbody.innerHTML='<tr><td colspan="6" class="td-note">Could not load requests.</td></tr>'; }
 }
+
+async function loadCalls(){
+  const tbody = document.getElementById('callBody');
+  const count = document.getElementById('callCount');
+  if(!tbody) return;
+  try{
+    const res = await fetch('/api/calls', {headers:authHeaders()});
+    if(res.status===401){ logout(); return; }
+    if(!res.ok){ tbody.innerHTML='<tr><td colspan="7" class="td-note">Could not load calls.</td></tr>'; return; }
+    const calls = await res.json();
+    if(count) count.textContent = calls.length ? `${calls.length} call${calls.length===1?'':'s'}` : '';
+    if(!calls.length){ tbody.innerHTML='<tr><td colspan="7" class="td-note">No calls captured yet.</td></tr>'; return; }
+    tbody.innerHTML = calls.map(c=>`<tr>
+      <td>${esc(c.createdAt ? new Date(c.createdAt).toLocaleString() : '—')}</td>
+      <td>${esc(c.patientName||'—')}</td>
+      <td>${esc(c.dob||'—')}</td>
+      <td>${esc(c.appointmentAt||'—')}</td>
+      <td>${esc(c.source||'—')}</td>
+      <td class="td-msg" title="${esc(c.summary||'')}">${esc(c.summary||'—')}</td>
+      <td><button class="rep-del" title="Delete" onclick="deleteCallRecord('${c.id}')">&times;</button></td>
+    </tr>`).join('');
+  }catch(e){ tbody.innerHTML='<tr><td colspan="7" class="td-note">Could not load calls.</td></tr>'; }
+}
+
+async function deleteCallRecord(id){
+  if(!confirm('Delete this call record? This cannot be undone.')) return;
+  try{
+    const res = await fetch('/api/calls/'+id, {method:'DELETE', headers:authHeaders()});
+    if(res.status===401){ logout(); return; }
+    if(!res.ok){ toast('Delete failed'); return; }
+    loadCalls();
+    toast('Deleted');
+  }catch(e){ toast('Delete failed'); }
+}
+
 function showForm(){
   document.getElementById('listView').style.display='none';
   document.getElementById('formView').style.display='';

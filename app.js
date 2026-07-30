@@ -7,12 +7,25 @@ const fs      = require('fs');
 const { Resend } = require('resend');
 const resend  = new Resend(process.env.RESEND_API_KEY);
 const discoveryStore = require('./lib/discoveryStore');
+const callStore = require('./lib/callStore');
 const ADMIN_PASS = process.env.ADMIN_PASS || 'korvo2026';
+// Shared secret the Trillet webhook (and the email-fallback job) must present.
+const CALL_WEBHOOK_SECRET = process.env.CALL_WEBHOOK_SECRET || '';
 
 // Simple admin auth — accepts the password via query (?adminKey=) or x-admin-key header.
 function requireAdmin(req, res, next) {
   const key = req.query.adminKey || req.headers['x-admin-key'];
   if (key !== ADMIN_PASS) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}
+
+// Webhook auth — a shared secret via ?token= or the x-webhook-secret header. Trillet
+// can't send the admin password, so the ingest endpoint uses this instead. When no
+// secret is configured we fall back to requiring the admin key (safe default).
+function requireWebhookSecret(req, res, next) {
+  if (!CALL_WEBHOOK_SECRET) return requireAdmin(req, res, next);
+  const token = req.query.token || req.headers['x-webhook-secret'];
+  if (token !== CALL_WEBHOOK_SECRET) return res.status(401).json({ error: 'Unauthorized' });
   next();
 }
 
@@ -55,6 +68,8 @@ app.get('/book',       (req, res) => res.sendFile(path.join(__dirname, 'public',
 app.get('/admin',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 // Old separate intake URL now folds into the single admin page.
 app.get('/admin/discovery', (req, res) => res.redirect('/admin'));
+// Patient calls live in a panel on the single admin page too.
+app.get('/admin/calls', (req, res) => res.redirect('/admin'));
 
 // API: Contact / booking form
 app.post('/api/contact', async (req, res) => {
@@ -156,6 +171,103 @@ app.delete('/api/discovery/:id', requireAdmin, async (req, res) => {
   }
 });
 
+// API: Patient calls (Trillet voice agent)
+
+// Webhook ingest — Trillet POSTs here at the end of each completed call. Secret-gated.
+// Body is mapped tolerantly in callStore.shape(); the whole payload is kept as data.raw.
+app.post('/api/calls', requireWebhookSecret, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const rec = await callStore.create({ ...body, source: body.source || 'webhook', raw: body });
+    res.status(201).json(rec);
+  } catch (err) {
+    console.error('Call ingest error:', err.message);
+    res.status(500).json({ error: 'Could not save call.' });
+  }
+});
+
+// List (admin) — optional ?since=ISO or YYYY-MM-DD to limit to recent calls.
+app.get('/api/calls', requireAdmin, async (req, res) => {
+  try {
+    res.json(await callStore.list({ since: req.query.since }));
+  } catch (err) {
+    console.error('Call list error:', err.message);
+    res.status(500).json({ error: 'Could not load calls.' });
+  }
+});
+
+app.get('/api/calls/:id', requireAdmin, async (req, res) => {
+  try {
+    const rec = await callStore.get(req.params.id);
+    if (!rec) return res.status(404).json({ error: 'Not found' });
+    res.json(rec);
+  } catch (err) {
+    console.error('Call get error:', err.message);
+    res.status(500).json({ error: 'Could not load that call.' });
+  }
+});
+
+app.delete('/api/calls/:id', requireAdmin, async (req, res) => {
+  try {
+    const ok = await callStore.remove(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Not found' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Call delete error:', err.message);
+    res.status(500).json({ error: 'Could not delete call.' });
+  }
+});
+
+// Daily digest — build a summary of recent calls and email it via Resend. Triggered by
+// the daily job (after the email-fallback back-fills any misses). ?since= defaults to
+// midnight today (local server time). Admin-gated so only trusted callers can send mail.
+app.post('/api/calls/digest', requireAdmin, async (req, res) => {
+  try {
+    const since = req.query.since || new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
+    const calls = await callStore.list({ since });
+    const dayLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+    const lines = calls.length
+      ? calls.map((c, i) => {
+          const bits = [
+            c.patientName || '(no name)',
+            c.dob ? `DOB ${c.dob}` : null,
+            c.appointmentAt ? `Appt ${c.appointmentAt}` : null,
+          ].filter(Boolean).join(' · ');
+          return `${i + 1}. ${bits}${c.summary ? `\n   ${c.summary}` : ''}`;
+        })
+      : ['No calls captured in this window.'];
+
+    const text = [
+      `Korvo AI — Daily Call Summary`,
+      dayLabel,
+      ``,
+      `${calls.length} call${calls.length === 1 ? '' : 's'} captured.`,
+      ``,
+      ...lines,
+      ``,
+      `— Review or manage these at ${req.protocol}://${req.get('host')}/admin`,
+    ].join('\n');
+
+    let emailed = false;
+    if (process.env.RESEND_API_KEY && process.env.MAIL_TO) {
+      await resend.emails.send({
+        from: 'Korvo AI <onboarding@resend.dev>',
+        to: process.env.MAIL_TO,
+        subject: `Daily call summary — ${calls.length} call${calls.length === 1 ? '' : 's'} (${new Date().toLocaleDateString()})`,
+        text,
+      });
+      emailed = true;
+    } else {
+      console.log('Digest (not emailed — RESEND_API_KEY/MAIL_TO not set):\n' + text);
+    }
+    res.json({ success: true, emailed, count: calls.length, since, text });
+  } catch (err) {
+    console.error('Call digest error:', err.message);
+    res.status(500).json({ error: 'Could not build digest.' });
+  }
+});
+
 // API: Newsletter
 app.post('/api/newsletter', (req, res) => {
   const { email } = req.body;
@@ -169,6 +281,10 @@ app.post('/api/newsletter', (req, res) => {
 discoveryStore.init()
   .then(() => console.log(`Discovery store ready (${discoveryStore.usingPostgres ? 'Postgres' : 'file'})`))
   .catch((err) => console.error('Discovery store init failed:', err.message));
+
+callStore.init()
+  .then(() => console.log(`Call store ready (${callStore.usingPostgres ? 'Postgres' : 'file'})`))
+  .catch((err) => console.error('Call store init failed:', err.message));
 
 app.listen(PORT, () => {
   console.log(`Korvo AI running at http://localhost:${PORT}`);
