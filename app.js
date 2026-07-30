@@ -174,11 +174,21 @@ app.delete('/api/discovery/:id', requireAdmin, async (req, res) => {
 // API: Patient calls (Trillet voice agent)
 
 // Webhook ingest — Trillet POSTs here at the end of each completed call. Secret-gated.
-// Body is mapped tolerantly in callStore.shape(); the whole payload is kept as data.raw.
+// Accepts either a flat custom JSON body OR Trillet's native payload (call fields under
+// conversation_data.gathered_information, plus a transcript object). We flatten both into
+// one object, then callStore.shape() maps field names tolerantly. Full payload -> data.raw.
 app.post('/api/calls', requireWebhookSecret, async (req, res) => {
   try {
     const body = req.body || {};
-    const rec = await callStore.create({ ...body, source: body.source || 'webhook', raw: body });
+    const gathered = (body.conversation_data && body.conversation_data.gathered_information) || {};
+    const transcript = body.transcript || {};
+    const flat = {
+      ...body,        // flat custom-JSON keys (patient_name, booked_datetime, …)
+      ...gathered,    // Trillet's nested gathered_information, lifted to the top level
+    };
+    if (transcript.summary && !flat.transcript_summary) flat.transcript_summary = transcript.summary;
+    if (transcript.recordingUrl && !flat.recording_url) flat.recording_url = transcript.recordingUrl;
+    const rec = await callStore.create({ ...flat, source: flat.source || 'webhook', raw: body });
     res.status(201).json(rec);
   } catch (err) {
     console.error('Call ingest error:', err.message);
