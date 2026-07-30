@@ -29,6 +29,17 @@ function requireWebhookSecret(req, res, next) {
   next();
 }
 
+// Test-call filter. Practice test calls should never reach the log or the daily
+// summary, so we drop any payload with "test" in its content. Matched at a word
+// boundary (test, Test, testing, "test call") so real words like "latest" or
+// "greatest" don't trigger it. Walks string values only, at any depth.
+function mentionsTest(v) {
+  if (typeof v === 'string') return /\btest/i.test(v);
+  if (Array.isArray(v)) return v.some(mentionsTest);
+  if (v && typeof v === 'object') return Object.values(v).some(mentionsTest);
+  return false;
+}
+
 const APPTS_FILE = path.join(__dirname, 'data', 'appointments.json');
 function getAppts() {
   if (!fs.existsSync(APPTS_FILE)) return { appointments: [] };
@@ -180,6 +191,10 @@ app.delete('/api/discovery/:id', requireAdmin, async (req, res) => {
 app.post('/api/calls', requireWebhookSecret, async (req, res) => {
   try {
     const body = req.body || {};
+    // Skip practice test calls entirely — kept out of the log and the daily summary.
+    if (mentionsTest(body)) {
+      return res.json({ skipped: true, reason: 'test call (contains "test")' });
+    }
     const gathered = (body.conversation_data && body.conversation_data.gathered_information) || {};
     const transcript = body.transcript || {};
     const flat = {
