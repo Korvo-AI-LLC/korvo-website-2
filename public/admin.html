@@ -158,6 +158,9 @@
   .client-card .cc-name{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;color:var(--pine);line-height:1.15;margin-bottom:10px;padding-right:26px;}
   .client-card .cc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:4px;}
   .client-card .cc-tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--pine);background:rgba(94,139,111,.14);border-radius:3px;padding:4px 8px;}
+  .client-card .cc-tag.complete{color:var(--cream);background:var(--pine);}
+  .client-card .cc-tag.incomplete{color:var(--terracotta);background:rgba(184,92,58,.12);}
+  .client-card .cc-tag.discovery{color:var(--ink-soft);background:rgba(122,115,112,.13);}
   .client-card .cc-meta{font-size:12.5px;color:var(--ink-soft);line-height:1.7;}
   .client-card .cc-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--ink-soft);font-size:20px;cursor:pointer;padding:2px 7px;border-radius:3px;line-height:1;}
   .client-card .cc-del:hover{color:var(--terracotta);background:rgba(184,92,58,.1);}
@@ -388,8 +391,10 @@ const SCHEMA = [
 
   { id:'handoff', num:'vii', title:'Where the Booking Goes', sub:'Plus the fallback.', fields:[
     { id:'pointPerson',     type:'text', label:'Front-desk point person' },
-    { id:'sendRequestsTo',  type:'text', label:'Where captured requests are sent (email/SMS — copy to you)', default:'hello@korvo.ai' },
-    { id:'morningRoutine',  type:'textarea', label:'Morning routine: who reviews overnight requests and books them', default:'Korvo reviews each morning and enters into the EHR. Practice does nothing.' },
+    { id:'sendRequestsTo',  type:'text', label:'Where captured requests are sent (email/SMS — copy to you)', default:'hello@korvo.ai',
+                            hint:'Destination must be BAA-covered. Do not route PHI to any inbox or calendar not named in section x.' },
+    { id:'morningRoutine',  type:'textarea', label:'Morning routine: who reviews overnight requests and books them', default:'Named per client in section xii. Do not assume Korvo absorbs the reconciliation labor — '+
+                                     'if Korvo owns it, the attention cost per client per month must be stated in the record.' },
     { id:'cantHelpFallback',type:'textarea', label:'If the agent can’t help, what should it do?', default:'Take a message and promise a callback by a set time.' },
   ]},
 
@@ -405,10 +410,112 @@ const SCHEMA = [
     { id:'hipaaBasics',  type:'checkgroup', label:'HIPAA basics in place', options:['BAA signed','Named Korvo login','Confidentiality / PHI policy'] },
     { id:'nextSteps',    type:'textarea', label:'Open notes / next steps' },
   ]},
+
+  /* ── Pre-build handoff packet (schema v2) ─────────────────────────────
+     Sections x–xiv convert the discovery record into the packet an engineer
+     can build from without having spoken to the client. */
+
+  { id:'execution', num:'x', title:'Execution & Money', sub:'Gate i. No build starts with a blank in this section.', fields:[
+    { id:'csaSigned',        type:'check',  label:'Client Service Agreement signed by both parties' },
+    { id:'csaDate',          type:'date',   label:'CSA signature date' },
+    { id:'baaClient',        type:'check',  label:'BAA executed with the practice' },
+    { id:'baaDownstream',    type:'check',  label:'Downstream stack BAA-covered (calendar, storage, voice platform)',
+                                            hint:'Hard gate. If this is false, no PHI may enter the system.' },
+    { id:'baaDate',          type:'date',   label:'BAA execution date' },
+    { id:'setupFee',         type:'number', prefix:'$', label:'Setup fee' },
+    { id:'performanceRate',  type:'number', suffix:'%', label:'Performance rate on agent-sourced bookings' },
+    { id:'smsModule',        type:'radio',  label:'SMS confirmation module included?', options:['Yes','No'] },
+    { id:'paymentMethod',    type:'radio',  label:'Payment method on file', options:['ACH','Card'], default:'ACH' },
+    { id:'setupFeeInitiated',type:'check',  label:'Setup fee payment initiated',
+                                            hint:'Initiation is the gate, not settlement. ACH clears later.' },
+    { id:'setupFeeDate',     type:'date',   label:'Payment initiated on' },
+    { id:'billingContact',   type:'text',   label:'Billing contact (name + email)' },
+    { id:'invoiceTerms',     type:'text',   label:'Invoice terms', default:'Monthly in arrears, auto-debit, net 10' },
+  ]},
+
+  { id:'baselineAttestation', num:'xi', title:'Signed Baseline Attestation', sub:'Gate iv. From their report, not their memory. This is what the fee and the case study rest on.', fields:[
+    { id:'baselineSource',      type:'text',     label:'Source document', hint:'e.g. Practice Mate appointment report, carrier call log' },
+    { id:'baselinePeriod',      type:'text',     label:'Period covered', hint:'e.g. Jun 1 – Aug 31, 2026' },
+    { id:'baseCallVolume',      type:'number',   label:'Monthly call volume' },
+    { id:'baseAfterHoursShare', type:'number',   suffix:'%', label:'Share of calls arriving after hours' },
+    { id:'baseBookingRate',     type:'number',   suffix:'%', label:'Current after-hours booking rate' },
+    { id:'baseNoShowRate',      type:'number',   suffix:'%', label:'Current no-show rate' },
+    { id:'baseApptValue',       type:'number',   prefix:'$', label:'Blended appointment value' },
+    { id:'baseNewPatientValue', type:'number',   prefix:'$', label:'New-patient appointment value' },
+    { id:'baseApptMix',         type:'repeater', label:'Appointment type mix at baseline',
+      columns:[{key:'name',type:'text',ph:'Type'},{key:'share',type:'text',ph:'% of vol'},{key:'afterHours',type:'check',ph:'Skews after-hours',pill:'After hrs',onLabel:'skews after-hours',offLabel:''}],
+      default:[
+        {name:'New patient', share:'', afterHours:true},
+        {name:'Emergency',   share:'', afterHours:true},
+        {name:'Follow-up',   share:'', afterHours:false},
+        {name:'Routine',     share:'', afterHours:false},
+      ]},
+    { id:'attestedBy',       type:'text',  label:'Attested by (name + role at practice)' },
+    { id:'attestedDate',     type:'date',  label:'Attestation date' },
+    { id:'attestationSigned',type:'check', label:'Signed attestation received and filed' },
+  ]},
+
+  { id:'reconciliation', num:'xii', title:'Reconciliation Model', sub:'Gate iii. Decided on the kickoff call, not assumed.', fields:[
+    { id:'reconModel', type:'radio', label:'Selected model',
+      options:['A — Practice-side push (daily report emailed to Korvo)',
+               'B — Korvo-side pull (PMS API)',
+               'C — Calendar is the system of record (practice books directly)'] },
+    { id:'reconOwnerPractice', type:'text',     label:'Named owner at the practice (name + role + email)',
+                                                hint:'A model without a named human is a hope, not a model.' },
+    { id:'reconBackup',        type:'text',     label:'Backup owner (vacation, illness, turnover)' },
+    { id:'reconOwnerKorvo',    type:'text',     label:'Korvo-side owner' },
+    { id:'reconDeliveryTo',    type:'text',     label:'Where the daily report is sent' },
+    { id:'reconDeliveryTime',  type:'text',     label:'Expected delivery time each day', default:'By close of business, daily' },
+    { id:'reconSLA',           type:'text',     label:'Freshness standard', default:'Snapshot no older than 24 hours' },
+    { id:'reconDegradation',   type:'textarea', label:'Degradation rule when the snapshot is stale',
+      default:'Agent takes the request and promises a callback rather than confirming a time. No hard bookings against a stale calendar.' },
+    { id:'reconEscalation',    type:'text',     label:'Who gets called after two missed days' },
+  ]},
+
+  { id:'attribution', num:'xiii', title:'Attribution & Billing Mechanics', sub:'Gate iv. Settle the counting rules while everyone is happy.', fields:[
+    { id:'attrMarker',      type:'text',     label:'How an agent-sourced booking is marked',
+                                             hint:'Must survive being read months later by someone who was not here.' },
+    { id:'attrVerifier',    type:'text',     label:'Who verifies the monthly count' },
+    { id:'billableDef',     type:'textarea', label:'Definition of a billable booking',
+      default:'Agent-logged, present in the practice management system, and not cancelled within 7 days of booking.' },
+    { id:'countCadence',    type:'text',     label:'Count and invoice cadence', default:'Monthly, first business day' },
+    { id:'disputeWindow',   type:'text',     label:'Dispute window', default:'10 days from invoice date' },
+    { id:'trackApptType',   type:'check',    label:'Appointment type recorded per agent booking',
+                                             hint:'After-hours skews to emergency and new-patient. Without type data you cannot reprice at renewal.' },
+  ]},
+
+  { id:'handoffGate', num:'xiv', title:'Handoff Gate', sub:'All five gates cleared. The engineer builds from this record alone.', fields:[
+    { id:'gate1', type:'check', label:'Gate i — CSA, BAA both directions, setup fee initiated' },
+    { id:'gate2', type:'check', label:'Gate ii — Technical intake complete, every field answered or marked N/A' },
+    { id:'gate3', type:'check', label:'Gate iii — Reconciliation model selected, owner and backup named' },
+    { id:'gate4', type:'check', label:'Gate iv — Baseline attestation signed, attribution convention set' },
+    { id:'buildOwner',   type:'text', label:'Build owner (named person)' },
+    { id:'kickoffDate',  type:'date', label:'Kickoff call date' },
+    { id:'goLiveDate',   type:'date', label:'Committed go-live date' },
+    { id:'packetFiled',  type:'check', label:'Packet exported and filed in the client Drive folder' },
+    { id:'strangerTest', type:'check',
+      label:'Stranger test passed — a contractor who never spoke to this client could build from this record',
+      hint:'If you are filling a gap from memory, that gap is in the packet. Write it down before ticking this.' },
+    { id:'openQuestions', type:'textarea', label:'Known unknowns handed to the engineer',
+      hint:'Better named than discovered mid-build.' },
+  ]},
 ];
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const META_IDS = SCHEMA.find(s=>s.id==='meta').fields.map(f=>f.id);
+
+/* A record is a finished handoff packet when every field in the gate section
+   (xiv) is answered. Derived from SCHEMA so the gate list has one home. */
+const GATE_IDS = (SCHEMA.find(s=>s.id==='handoffGate')||{fields:[]}).fields.map(f=>f.id);
+function isPacketComplete(rec){
+  const a = (rec && rec.answers) || {};
+  return GATE_IDS.length>0 && GATE_IDS.every(id=>{
+    const v = a[id];
+    if(Array.isArray(v)) return v.length>0;
+    if(typeof v==='string') return v.trim()!=='';
+    return !!v;
+  });
+}
 
 /* ───────────────────────── RENDER ───────────────────────── */
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -427,7 +534,7 @@ function renderField(f){
     inner = `<select data-field="${f.id}">` + f.options.map(o=>`<option value="${esc(o)}" ${f.default===o?'selected':''}>${esc(o)}</option>`).join('') + `</select>`;
   } else if(f.type==='radio'){
     inner = `<div class="opts" data-field="${f.id}" data-kind="radio">` + f.options.map(o=>
-      `<label class="opt"><input type="radio" name="${f.id}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join('') + `</div>`;
+      `<label class="opt"><input type="radio" name="${f.id}" value="${esc(o)}" ${f.default===o?'checked':''}><span>${esc(o)}</span></label>`).join('') + `</div>`;
   } else if(f.type==='checkgroup'){
     const def = f.default||[];
     inner = `<div class="opts" data-field="${f.id}" data-kind="checkgroup">` + f.options.map(o=>
@@ -456,7 +563,7 @@ function renderRepRow(repId, cols, row){
   return `<div class="rep-row">
     <input type="text" data-col="${c0.key}" placeholder="${esc(c0.ph)}" value="${row[c0.key]?esc(row[c0.key]):''}">
     <input type="text" data-col="${c1.key}" placeholder="${esc(c1.ph)}" value="${row[c1.key]?esc(row[c1.key]):''}">
-    <div class="rep-toggle"><label class="opt check"><input type="checkbox" data-col="${c2.key}" ${row[c2.key]?'checked':''}><span>AI</span></label></div>
+    <div class="rep-toggle"><label class="opt check"><input type="checkbox" data-col="${c2.key}" ${row[c2.key]?'checked':''}><span>${esc(c2.pill||'AI')}</span></label></div>
     <button type="button" class="rep-del" title="Remove">&times;</button>
   </div>`;
 }
@@ -514,7 +621,7 @@ function readField(f){
         o[c.key] = c.type==='check' ? i.checked : i.value.trim();
       });
       return o;
-    }).filter(o=> o.name || o.length);
+    }).filter(o=> f.columns.some(c=> c.type!=='check' && o[c.key]));
   }
   if(f.type==='number'){ return node.value; }
   return node.value;
@@ -559,7 +666,15 @@ function fmtVal(f,v){
   if(f.type==='checkgroup') return (v&&v.length)? v.join(', ') : '—';
   if(f.type==='repeater'){
     if(!v||!v.length) return '—';
-    return '\n'+v.map(r=>`    - ${r.name||'(unnamed)'}${r.length?` — ${r.length}`:''}${r.aiBookable?'  [AI may book]':'  [human callback]'}`).join('\n');
+    // Column-driven so every repeater serialises its own columns. The label
+    // defaults keep section iii's output byte-identical to schema v1.
+    const [c0,c1,c2] = f.columns;
+    const on  = c2 && ('onLabel'  in c2) ? c2.onLabel  : 'AI may book';
+    const off = c2 && ('offLabel' in c2) ? c2.offLabel : 'human callback';
+    return '\n'+v.map(r=>{
+      const flag = c2 ? (r[c2.key] ? on : off) : '';
+      return `    - ${r[c0.key]||'(unnamed)'}${r[c1.key]?` — ${r[c1.key]}`:''}${flag?`  [${flag}]`:''}`;
+    }).join('\n');
   }
   return (v===''||v==null)? '—' : v;
 }
@@ -759,6 +874,13 @@ function renderList(list){
   c.innerHTML = list.map(r=>{
     const name = r.practiceName || '(unnamed client)';
     const tag  = r.vertical ? `<span class="cc-tag">${esc(r.vertical)}</span>` : '';
+    // Records saved against schema v1 predate the handoff sections — they can
+    // never satisfy the gate, so label them for what they are.
+    const packet = (r.schemaVersion||1) < SCHEMA_VERSION
+      ? '<span class="cc-tag discovery">Discovery only</span>'
+      : (isPacketComplete(r)
+          ? '<span class="cc-tag complete">Packet complete</span>'
+          : '<span class="cc-tag incomplete">Packet incomplete</span>');
     const bits = [];
     if(r.contactName) bits.push(esc(r.contactName));
     if(r.callDate)    bits.push('Call: ' + esc(r.callDate));
@@ -766,7 +888,7 @@ function renderList(list){
     return `<div class="client-card" onclick="openCall('${r.id}')">
       <button class="cc-del" title="Delete" onclick="event.stopPropagation();deleteCall('${r.id}')">&times;</button>
       <div class="cc-name">${esc(name)}</div>
-      <div class="cc-tags">${tag}</div>
+      <div class="cc-tags">${tag}${packet}</div>
       <div class="cc-meta">${bits.join('<br>') || '&mdash;'}</div>
     </div>`;
   }).join('');
