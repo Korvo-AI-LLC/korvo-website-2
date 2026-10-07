@@ -8,6 +8,32 @@ const { Resend } = require('resend');
 const resend  = new Resend(process.env.RESEND_API_KEY);
 const discoveryStore = require('./lib/discoveryStore');
 const callStore = require('./lib/callStore');
+const signupStore = require('./lib/signupStore');
+// Sender for all site email. onboarding@resend.dev only delivers to the Resend account
+// owner's own address; set MAIL_FROM to an address on a domain verified in Resend
+// (e.g. "Korvo AI <notify@korvo.ai>") so mail can reach any inbox, including hello@korvo.ai.
+const MAIL_FROM = process.env.MAIL_FROM || 'Korvo AI <onboarding@resend.dev>';
+// Where new-signup notifications go. Owner's requirement: hello@korvo.ai.
+const SIGNUP_NOTIFY_TO = process.env.SIGNUP_NOTIFY_TO || 'hello@korvo.ai';
+
+// Send one email through Resend and report what actually happened. The Resend SDK does
+// NOT throw on most failures (bad key, unverified sender, rejected recipient) — it returns
+// { data, error }. So success means: no error AND Resend handed back a message id.
+async function sendMail({ to, subject, text, replyTo }) {
+  if (!process.env.RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not set' };
+  if (!to) return { ok: false, error: 'No recipient configured' };
+  try {
+    const { data, error } = await resend.emails.send({
+      from: MAIL_FROM, to, subject, text,
+      ...(replyTo ? { replyTo } : {}),
+    });
+    if (error) return { ok: false, error: `${error.name || 'error'}: ${error.message || 'unknown'}` };
+    if (!data || !data.id) return { ok: false, error: 'Resend returned no message id' };
+    return { ok: true, id: data.id };
+  } catch (err) {
+    return { ok: false, error: err.message || String(err) };
+  }
+}
 const ADMIN_PASS = process.env.ADMIN_PASS || 'korvo2026';
 // Shared secret the Trillet webhook (and the email-fallback job) must present.
 const CALL_WEBHOOK_SECRET = process.env.CALL_WEBHOOK_SECRET || '';
@@ -49,6 +75,7 @@ function saveAppts(d) { fs.writeFileSync(APPTS_FILE, JSON.stringify(d, null, 2))
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+app.set('trust proxy', 1); // Railway sits in front; needed for real client IPs (signup rate limit)
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -73,7 +100,7 @@ app.use(express.urlencoded({ extended: true }));
 // so the old multi-offer pages (SMS, AI research/creation, ROI pricing, consultations)
 // send visitors to the single landing page instead. Registered BEFORE express.static so
 // the .html paths are caught too. 302 (not 301) so this is easy to reverse.
-// The files are still in public/ — delete them once this direction is confirmed.
+// about/learn-more/pricing .html files are still in public/; book.html has been deleted.
 const RETIRED_PAGES = {
   '/about': '/',        '/about.html': '/',
   '/learn-more': '/',   '/learn-more.html': '/',
@@ -97,46 +124,147 @@ app.get('/admin/discovery', (req, res) => res.redirect('/admin'));
 // Patient calls live in a panel on the single admin page too.
 app.get('/admin/calls', (req, res) => res.redirect('/admin'));
 
-// API: Contact / booking form
+// API: Contact form (legacy; the landing page uses /api/signup). Saves first, then emails,
+// and only reports success if Resend actually accepted the email.
 app.post('/api/contact', async (req, res) => {
-  const { name, email, phone, service, preferred_time, message } = req.body;
+  const { name, email, phone, service, preferred_time, message } = req.body || {};
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email, and message are required.' });
   }
   try {
-    await resend.emails.send({
-      from: 'Korvo AI <onboarding@resend.dev>',
-      to:   process.env.MAIL_TO,
-      reply_to: email,
-      subject: `New inquiry from ${name}`,
-      text: [
-        `Name: ${name}`,
-        `Email: ${email}`,
-        `Phone: ${phone || 'not provided'}`,
-        `Service: ${service || 'not specified'}`,
-        `Preferred time: ${preferred_time || 'not specified'}`,
-        ``,
-        `Message:`,
-        message,
-      ].join('\n'),
+    const appts = getAppts();
+    appts.appointments.unshift({
+      id: Date.now().toString(),
+      name, email,
+      phone: phone || '',
+      service: service || '',
+      preferred_time: preferred_time || '',
+      message,
+      submitted: new Date().toISOString(),
     });
-    try {
-      const appts = getAppts();
-      appts.appointments.unshift({
-        id: Date.now().toString(),
-        name, email,
-        phone: phone || '',
-        service: service || '',
-        preferred_time: preferred_time || '',
-        message,
-        submitted: new Date().toISOString(),
-      });
-      saveAppts(appts);
-    } catch (_) { /* don't block response */ }
-    res.json({ success: true, message: "Thanks! We'll be in touch within one business day." });
+    saveAppts(appts);
   } catch (err) {
-    console.error('Mail error:', err.message);
-    res.status(500).json({ error: 'Could not send message. Please email hello@korvo.ai directly.' });
+    console.error('Contact save error:', err.message);
+  }
+  const sent = await sendMail({
+    to: process.env.MAIL_TO,
+    replyTo: email,
+    subject: `New inquiry from ${name}`,
+    text: [
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Phone: ${phone || 'not provided'}`,
+      `Service: ${service || 'not specified'}`,
+      `Preferred time: ${preferred_time || 'not specified'}`,
+      ``,
+      `Message:`,
+      message,
+    ].join('\n'),
+  });
+  if (!sent.ok) {
+    console.error('Contact mail error:', sent.error);
+    return res.status(502).json({ error: 'We couldn’t send your message. Please email hello@korvo.ai directly.' });
+  }
+  res.json({ success: true, message: "Thanks. We'll be in touch within one business day." });
+});
+
+// API: Signup (landing page #signup form).
+// 1) validate  2) save the lead (so it's never lost)  3) email hello@korvo.ai
+// 4) if that send is rejected, retry once to MAIL_TO so the owner still hears about it
+// 5) respond success ONLY if a notification email was accepted by Resend.
+const SIGNUP_LIMIT = { windowMs: 10 * 60 * 1000, max: 5 };
+const signupHits = new Map(); // ip -> [timestamps]; in-memory, resets on deploy
+function rateLimited(ip) {
+  const now = Date.now();
+  const hits = (signupHits.get(ip) || []).filter((t) => now - t < SIGNUP_LIMIT.windowMs);
+  hits.push(now);
+  signupHits.set(ip, hits);
+  if (signupHits.size > 5000) signupHits.clear();
+  return hits.length > SIGNUP_LIMIT.max;
+}
+const clean = (v, max) => String(v == null ? '' : v).replace(/[\r\n\t]+/g, ' ').trim().slice(0, max);
+
+app.post('/api/signup', async (req, res) => {
+  const body = req.body || {};
+  // Spam trap: real people never see or fill the hidden "website" field.
+  if (clean(body.website, 200)) return res.json({ success: true });
+  if (rateLimited(req.ip)) {
+    return res.status(429).json({ error: 'Too many attempts. Wait a few minutes, or email hello@korvo.ai.' });
+  }
+
+  const lead = {
+    name: clean(body.name, 120),
+    business: clean(body.business, 160),
+    phone: clean(body.phone, 40),
+    email: clean(body.email, 200),
+  };
+  const missing = [];
+  if (!lead.name) missing.push('your name');
+  if (!lead.business) missing.push('business name');
+  if (lead.phone.replace(/\D/g, '').length < 7) missing.push('a phone number');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(lead.email)) missing.push('a valid email');
+  if (missing.length) return res.status(400).json({ error: `Please add ${missing.join(', ')}.` });
+
+  // 2) Save first. A storage failure must not block the notification email.
+  let saved = null;
+  try {
+    saved = await signupStore.create({ ...lead, ip: req.ip, userAgent: clean(req.headers['user-agent'], 300) });
+  } catch (err) {
+    console.error('Signup save error:', err.message);
+  }
+
+  // 3) Notify the owner.
+  const at = new Date();
+  const mountain = at.toLocaleString('en-US', { timeZone: 'America/Denver', dateStyle: 'medium', timeStyle: 'short' });
+  const text = [
+    'New signup on korvo.ai',
+    '',
+    `Name:      ${lead.name}`,
+    `Business:  ${lead.business}`,
+    `Phone:     ${lead.phone}`,
+    `Email:     ${lead.email}`,
+    `Signed up: ${mountain} Mountain (${at.toISOString()})`,
+    '',
+    'They were shown the $997/month payment link right after submitting.',
+    'Next step: call them to write their greeting. The 72-hour guarantee clock is running.',
+    '',
+    saved ? `Lead ID: ${saved.id} (saved; list all at /api/signups with the admin key)` : 'WARNING: this lead could NOT be saved to the database. This email is the only record.',
+  ].join('\n');
+  const message = { subject: `New signup: ${lead.business} (${lead.name})`, text, replyTo: lead.email };
+
+  let sent = await sendMail({ to: SIGNUP_NOTIFY_TO, ...message });
+  let route = 'primary';
+  if (!sent.ok) {
+    console.error(`Signup notify to ${SIGNUP_NOTIFY_TO} failed:`, sent.error);
+    const fallback = process.env.MAIL_TO;
+    if (fallback && fallback.toLowerCase() !== SIGNUP_NOTIFY_TO.toLowerCase()) {
+      const retry = await sendMail({ to: fallback, ...message, subject: `[fallback] ${message.subject}` });
+      if (retry.ok) { route = 'fallback'; sent = retry; }
+      else console.error('Signup notify fallback failed:', retry.error);
+    }
+  }
+
+  if (saved) {
+    signupStore.setNotify(saved.id, sent.ok ? (route === 'primary' ? 'sent' : 'sent-fallback') : 'failed', sent.ok ? '' : sent.error)
+      .catch((err) => console.error('Signup notify-status update error:', err.message));
+  }
+
+  if (!sent.ok) {
+    return res.status(502).json({
+      error: 'We couldn’t confirm your signup went through. Please email hello@korvo.ai and we’ll get you started.',
+      saved: !!saved,
+    });
+  }
+  res.json({ success: true, notified: route, saved: !!saved });
+});
+
+// API: Signups list (admin) — every saved lead, newest first, with notification status.
+app.get('/api/signups', requireAdmin, async (req, res) => {
+  try {
+    res.json(await signupStore.list());
+  } catch (err) {
+    console.error('Signup list error:', err.message);
+    res.status(500).json({ error: 'Could not load signups.' });
   }
 });
 
@@ -290,18 +418,19 @@ app.post('/api/calls/digest', requireAdmin, async (req, res) => {
     ].join('\n');
 
     let emailed = false;
+    let mailError = null;
     if (process.env.RESEND_API_KEY && process.env.MAIL_TO) {
-      await resend.emails.send({
-        from: 'Korvo AI <onboarding@resend.dev>',
+      const sent = await sendMail({
         to: process.env.MAIL_TO,
         subject: `Daily call summary — ${calls.length} call${calls.length === 1 ? '' : 's'} (${new Date().toLocaleDateString()})`,
         text,
       });
-      emailed = true;
+      emailed = sent.ok;
+      if (!sent.ok) { mailError = sent.error; console.error('Digest mail error:', sent.error); }
     } else {
       console.log('Digest (not emailed — RESEND_API_KEY/MAIL_TO not set):\n' + text);
     }
-    res.json({ success: true, emailed, count: calls.length, since, text });
+    res.json({ success: true, emailed, mailError, count: calls.length, since, text });
   } catch (err) {
     console.error('Call digest error:', err.message);
     res.status(500).json({ error: 'Could not build digest.' });
@@ -325,6 +454,10 @@ discoveryStore.init()
 callStore.init()
   .then(() => console.log(`Call store ready (${callStore.usingPostgres ? 'Postgres' : 'file'})`))
   .catch((err) => console.error('Call store init failed:', err.message));
+
+signupStore.init()
+  .then(() => console.log(`Signup store ready (${signupStore.usingPostgres ? 'Postgres' : 'file'})`))
+  .catch((err) => console.error('Signup store init failed:', err.message));
 
 app.listen(PORT, () => {
   console.log(`Korvo AI running at http://localhost:${PORT}`);

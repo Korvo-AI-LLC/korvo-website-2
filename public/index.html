@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Korvo AI — After-hours AI receptionist for dental &amp; medical practices</title>
-  <meta name="description" content="Korvo answers your practice's phone after hours. Picks up in under 2 rings, live in 48 hours, $997 a month flat. Hear it now: (270) 241-9200." />
+  <meta name="description" content="Korvo answers your practice's phone after hours. Picks up in under 2 rings, live in 72 hours, $997 a month flat. Hear it now: (270) 241-9200." />
   <meta property="og:title" content="Never miss an after-hours call again." />
-  <meta property="og:description" content="After-hours AI receptionist for dental and medical practices. $997 a month, flat. Live in 48 hours." />
+  <meta property="og:description" content="After-hours AI receptionist for dental and medical practices. $997 a month, flat. Live in 72 hours." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://korvo.ai/" />
   <meta name="theme-color" content="#132F1E" />
@@ -157,7 +157,6 @@
     .demo-number .area { color: var(--sage); font-weight: 600; }
     .demo-number:hover { color: var(--kiln); }
     .callcard p { color: var(--ink-mid); font-size: 16px; line-height: 1.55; }
-    .callcard .btn { margin-top: 20px; }
     .callcard-foot { margin-top: 14px; font-size: 13px; color: var(--ink-soft); }
 
     /* ── Section scaffolding ── */
@@ -271,6 +270,7 @@
     .form-msg { margin-top: 12px; font-size: 15px; min-height: 1.5em; }
     .form-msg.ok { color: var(--pine); font-weight: 700; }
     .form-msg.err { color: #9B2C1F; font-weight: 700; }
+    .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
     .divider { margin: 28px 0 24px; border: 0; border-top: 1px solid var(--rule); }
     .pay-note { margin-top: 12px; font-size: 14px; color: var(--ink-soft); }
     .pay-fallback { margin-top: 12px; padding: 12px 14px; background: var(--linen); border-radius: var(--r); font-size: 15px; color: var(--ink); }
@@ -377,7 +377,7 @@
         </div>
         <ul class="trust" aria-label="What you get">
           <li><strong>Answers in under 2 rings</strong></li>
-          <li><strong>Live in 48 hours</strong></li>
+          <li><strong>Live in 72 hours</strong></li>
           <li><strong>Cancel anytime</strong></li>
         </ul>
       </div>
@@ -385,8 +385,7 @@
       <aside class="callcard" aria-labelledby="demo-title">
         <p class="callcard-head" id="demo-title"><span class="live-dot" aria-hidden="true"></span>Hear it answer right now.</p>
         <a class="demo-number" href="tel:+12702419200" aria-label="Call the demo line, 270 241 9200"><span class="area">(270)</span><span>241&#8209;9200</span></a>
-        <p>This is our demo practice, Bright Smile Dental. Call it the way a patient would. Ask about hours, try to book a cleaning, try to trip it up.</p>
-        <a class="btn btn-pine" href="tel:+12702419200">Call the demo</a>
+        <p>Tap the number to call our demo practice, Bright Smile Dental. Call it the way a patient would. Ask about hours, try to book a cleaning, try to trip it up.</p>
         <p class="callcard-foot">Live 24/7. Standard call rates apply. It's a pretend practice, so nothing you book is real.</p>
       </aside>
     </div>
@@ -395,7 +394,7 @@
   <!-- ═══ HOW IT STARTS ═══ -->
   <section class="section" id="how-it-starts" aria-labelledby="start-title">
     <div class="wrap">
-      <h2 class="h2" id="start-title">Sign up tonight. Live <span data-golive>in 48 hours</span>.</h2>
+      <h2 class="h2" id="start-title">Sign up tonight. Live in 72 hours.</h2>
       <p class="lede">No kickoff meetings, no six-week rollout. Here is the whole first week.</p>
 
       <ol class="steps">
@@ -405,17 +404,17 @@
           <p>Four fields and a payment. About two minutes, from your couch.</p>
         </li>
         <li class="step">
-          <p class="step-when">Tomorrow morning</p>
+          <p class="step-when">Tomorrow</p>
           <h3>We record your greeting</h3>
           <p>We call you and write it together: your hours, your services, what to say about emergencies. You approve every word.</p>
         </li>
         <li class="step">
-          <p class="step-when">Tomorrow afternoon</p>
+          <p class="step-when">Day two</p>
           <h3>You make a test call</h3>
           <p>Call it yourself. Ask the hard questions. Anything you don't like, we fix the same day.</p>
         </li>
         <li class="step">
-          <p class="step-when" data-golive-day>48 hours in</p>
+          <p class="step-when">Within 72 hours</p>
           <h3>It goes live</h3>
           <p>Your after-hours calls forward to Korvo. You keep your number. Your front desk goes home at 5.</p>
         </li>
@@ -477,20 +476,12 @@
               </div>
             </figure>
 
-            <!--
-              ╔══════════════════════════════════════════════════════════════╗
-              ║ DRAFT — NEEDS OWNER APPROVAL BEFORE GOING LIVE.              ║
-              ║ Guarantee wording + fine print below are proposed, not       ║
-              ║ approved. If this branch is deployed as-is, this guarantee   ║
-              ║ is shown publicly. Remove this block or approve the wording. ║
-              ╚══════════════════════════════════════════════════════════════╝
-            -->
-            <aside class="guarantee" data-draft="owner-approval-required" aria-labelledby="g1">
+            <!-- Guarantee: owner-approved wording (Oct 7, 2026). Testable: the clock starts at signup. -->
+            <aside class="guarantee" aria-labelledby="g1">
               <p class="guarantee-label" id="g1">Our guarantee</p>
-              <p class="guarantee-line">If it misses a call in your first 30 days, month two is free.</p>
-              <small>Counts after-hours calls that reach your Korvo line. Every call is logged, so you can check us.</small>
+              <p class="guarantee-line">If your agent isn't answering calls within 72 hours of signup, your first month is free.</p>
+              <small>The clock starts when you sign up. Easy to check, and on us if we're late.</small>
             </aside>
-            <!-- /DRAFT -->
           </div>
         </article>
 
@@ -549,7 +540,7 @@
 
       <div class="cta-row">
         <a class="btn" href="#signup">Get started</a>
-        <span class="cta-note">Two minutes to sign up. Live in 48 hours.</span>
+        <span class="cta-note">Two minutes to sign up. Live in 72 hours.</span>
       </div>
     </div>
   </section>
@@ -563,38 +554,37 @@
         <p class="signup-price">$997<small>a month</small></p>
         <ul class="recap">
           <li><span><strong>Answers in under 2 rings</strong>, every night, weekend, and holiday</span></li>
-          <li><span><strong>Live in 48 hours</strong>, and you keep your phone number</span></li>
+          <li><span><strong>Live in 72 hours</strong>, and you keep your phone number</span></li>
           <li><span><strong>Cancel anytime</strong> by emailing hello@korvo.ai</span></li>
         </ul>
       </div>
 
       <div class="panel" id="signupPanel">
-        <!-- Step 1: intake. Posts to the existing POST /api/contact (no new backend).
-             Field map: name → name, email → email, phone → phone,
-             business name → message (the endpoint requires "message"; JS prefixes it with "Business:"),
-             service → fixed offer label (hidden). -->
+        <!-- Step 1: intake → POST /api/signup. The server saves the lead first, then emails
+             hello@korvo.ai, and only reports success if that email was accepted. -->
         <div class="panel-step"><b>1</b><h3>Your details</h3></div>
-        <form id="signupForm" action="/api/contact" method="post" novalidate>
-          <input type="hidden" name="service" value="After-hours AI receptionist ($997/mo)" />
+        <form id="signupForm" action="/api/signup" method="post" novalidate>
           <div class="fields">
             <div class="field">
               <label for="f-name">Your name</label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required />
+              <input id="f-name" name="name" type="text" autocomplete="name" maxlength="120" required />
             </div>
             <div class="field">
               <label for="f-biz">Business name</label>
-              <input id="f-biz" name="message" type="text" autocomplete="organization" required />
+              <input id="f-biz" name="business" type="text" autocomplete="organization" maxlength="160" required />
             </div>
             <div class="field">
               <label for="f-phone">Phone</label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" required />
             </div>
             <div class="field">
               <label for="f-email">Email</label>
-              <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+              <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="200" required />
             </div>
           </div>
-          <button class="btn btn-pine btn-block" type="submit" id="signupBtn">Send my details</button>
+          <!-- Spam trap: hidden from people, filled in by bots. Not a visible field. -->
+          <div class="trap" aria-hidden="true"><label for="f-web">Website</label><input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+          <button class="btn btn-block" type="submit" id="signupBtn">Get started</button>
           <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
         </form>
 
@@ -603,7 +593,7 @@
         <!-- Step 2: payment. URL comes from PAYMENT_URL in /js/config.js (placeholder '#' for now). -->
         <div class="step-two" id="stepTwo">
           <div class="panel-step"><b>2</b><h3>Pay and start setup</h3></div>
-          <a class="btn btn-block" id="payLink" href="#signup" style="margin-top: 16px;">Pay $997 and start</a>
+          <a class="btn btn-pine btn-block" id="payLink" href="#signup" style="margin-top: 16px;">Pay $997/month</a>
           <p class="pay-note">Secure checkout through Stripe. Billed monthly. Cancel anytime.</p>
           <p class="pay-fallback" id="payFallback" hidden>Online checkout isn't switched on yet. Send your details above and we'll email you a secure checkout link.</p>
         </div>
@@ -682,15 +672,6 @@
 (function () {
   'use strict';
 
-  /* Go-live day: "Live in 48 hours" made concrete. Sign up today → live two days out. */
-  try {
-    var d = new Date();
-    d.setDate(d.getDate() + 2);
-    var day = d.toLocaleDateString('en-US', { weekday: 'long' });
-    document.querySelectorAll('[data-golive]').forEach(function (el) { el.textContent = 'by ' + day; });
-    document.querySelectorAll('[data-golive-day]').forEach(function (el) { el.textContent = day; });
-  } catch (_) { /* static fallback text stays */ }
-
   /* Step 2: payment link from config.js (PAYMENT_URL). Placeholder '#' shows a fallback note. */
   var pay = document.getElementById('payLink');
   var payFallback = document.getElementById('payFallback');
@@ -704,11 +685,19 @@
     });
   }
 
-  /* Step 1: intake → existing POST /api/contact */
+  /* Step 1: intake → POST /api/signup (saves the lead, emails hello@korvo.ai) */
   var form = document.getElementById('signupForm');
   var btn = document.getElementById('signupBtn');
   var msg = document.getElementById('formMsg');
   var stepTwo = document.getElementById('stepTwo');
+  var LABEL = 'Get started';
+
+  function fail(text) {
+    msg.className = 'form-msg err';
+    msg.textContent = text;
+    btn.disabled = false;
+    btn.textContent = LABEL;
+  }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -716,55 +705,47 @@
     msg.textContent = '';
 
     if (!form.checkValidity()) {
-      var bad = form.querySelector(':invalid');
+      var bad = form.querySelector('.fields :invalid');
       var label = bad && form.querySelector('label[for="' + bad.id + '"]');
       msg.className = 'form-msg err';
-      msg.textContent = label ? (label.textContent + ' is missing or doesn’t look right.') : 'Check the fields above.';
+      msg.textContent = label ? (label.textContent + ' is missing or doesn\u2019t look right.') : 'Check the fields above.';
       if (bad) bad.focus();
       return;
     }
 
     var fd = new FormData(form);
-    var business = String(fd.get('message') || '').trim();
     var payload = {
       name: String(fd.get('name') || '').trim(),
-      email: String(fd.get('email') || '').trim(),
+      business: String(fd.get('business') || '').trim(),
       phone: String(fd.get('phone') || '').trim(),
-      service: String(fd.get('service') || ''),
-      preferred_time: '',
-      message: 'Business: ' + business + '\nSource: korvo.ai signup (step 1 of 2: details sent, payment next)'
+      email: String(fd.get('email') || '').trim(),
+      website: String(fd.get('website') || '')
     };
 
     btn.disabled = true;
-    btn.textContent = 'Sending…';
+    btn.textContent = 'Sending\u2026';
 
-    fetch('/api/contact', {
+    fetch('/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(function (res) { return res.json().catch(function () { return {}; }).then(function (data) { return { ok: res.ok, data: data }; }); })
       .then(function (r) {
-        if (r.ok) {
+        if (r.ok && r.data && r.data.success) {
           msg.className = 'form-msg ok';
           msg.textContent = 'Got it, ' + payload.name.split(' ')[0] + '. Last step: pay below so we can start your setup.';
           form.reset();
           stepTwo.classList.add('ready');
-          btn.textContent = 'Details sent';
+          btn.textContent = 'Sent';
           pay.focus({ preventScroll: true });
           stepTwo.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
         } else {
-          msg.className = 'form-msg err';
-          msg.textContent = (r.data && r.data.error) || 'That didn’t go through. Try again, or email hello@korvo.ai.';
-          btn.disabled = false;
-          btn.textContent = 'Send my details';
+          fail((r.data && r.data.error) || 'That didn\u2019t go through. Try again, or email hello@korvo.ai.');
         }
       })
       .catch(function () {
-        msg.className = 'form-msg err';
-        msg.textContent = 'Couldn’t reach our server. Try again, or email hello@korvo.ai.';
-        btn.disabled = false;
-        btn.textContent = 'Send my details';
+        fail('Couldn\u2019t reach our server. Try again, or email hello@korvo.ai.');
       });
   });
 })();

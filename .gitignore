@@ -5,3 +5,4 @@ data/discovery.json
 data/calls.json
 *.log
 .DS_Store
+data/signups.json
