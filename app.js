@@ -61,7 +61,6 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       connectSrc: ["'self'"],
       imgSrc:     ["'self'", "data:", "https:"],
-      frameSrc:   ["https://forms.office.com"],
     },
   },
 }));
@@ -76,6 +75,8 @@ app.get('/learn-more', (req, res) => res.sendFile(path.join(__dirname, 'public',
 app.get('/about',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'about.html')));
 app.get('/pricing',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
 app.get('/book',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'book.html')));
+app.get('/privacy',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
+app.get('/terms',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
 app.get('/admin',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 // Old separate intake URL now folds into the single admin page.
 app.get('/admin/discovery', (req, res) => res.redirect('/admin'));
@@ -291,16 +292,6 @@ app.post('/api/calls/digest', requireAdmin, async (req, res) => {
     console.error('Call digest error:', err.message);
     res.status(500).json({ error: 'Could not build digest.' });
   }
-});
-
-// API: Newsletter
-app.post('/api/newsletter', (req, res) => {
-  const { email } = req.body;
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ error: 'A valid email is required.' });
-  }
-  console.log('Newsletter signup:', email);
-  res.json({ success: true, message: "You're subscribed!" });
 });
 
 discoveryStore.init()
