@@ -132,7 +132,7 @@ app.use(express.urlencoded({ extended: true }));
 // the .html paths are caught too. 302 (not 301) so this is easy to reverse.
 // about/learn-more/pricing .html files are still in public/; book.html has been deleted.
 const RETIRED_PAGES = {
-  '/about': '/',        '/about.html': '/',
+
   '/learn-more': '/',   '/learn-more.html': '/',
   '/pricing': '/#signup', '/pricing.html': '/#signup',
   '/book': '/#signup',  '/book.html': '/#signup',
@@ -145,7 +145,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Pages
-app.get('/',           (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/',           (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'))); app.get('/about',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'about.html'))); app.get('/join',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'join.html')));
 app.get('/privacy',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
 app.get('/terms',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
 app.get('/intake',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'intake.html')));
@@ -243,7 +243,8 @@ function signupMessage(lead, saved = true) {
   };
 }
 
-function intakeMessage(rec, saved = true) {
+// Job application email (/join). Stored in the same signups store with kind='apply', // notes = "What would you do at Korvo?" answer, notified like a signup lead. function applyMessage(rec) {   const answer = (rec.notes || '').trim();   return {     subject: `New job application: ${rec.name} <${rec.email}>`,     text: [       'A new job application came in from the Korvo site.',       '',       `Name:    ${rec.name}`,       `Email:   ${rec.email}`,       `Phone:   ${rec.phone || '(not given)'}`,       '',       'What would you do at Korvo?',       answer || '(no answer given)',       '',       `Application saved: ${rec.id}.`,     ].join('
+'),   }; }  function intakeMessage(rec, saved = true) {
   const who = (rec.answers && rec.answers._contact) || {};
   const at = rec.createdAt || new Date().toISOString();
   return {
@@ -272,9 +273,9 @@ const notifyTargets = {
     state: (r) => ({ status: r.notifyStatus, attempts: r.notifyAttempts || 0 }),
     message: (r) => signupMessage(r),
     save: (id, info) => signupStore.setNotify(id, info),
-    pending: (opts) => signupStore.listPending(opts),
+    pending: (opts) => signupStore.listPending({ ...opts, kind: 'signup' }),
   },
-  intake: {
+  apply: { load: (id) => signupStore.get(id), state: (r) => ({ status: r.notifyStatus, attempts: r.notifyAttempts || 0 }), message: (r) => applyMessage(r), save: (id, info) => signupStore.setNotify(id, info), pending: (opts) => signupStore.listPending({ ...opts, kind: 'apply' }), },  intake: {
     load: (id) => discoveryStore.get(id),
     state: (r) => { const n = (r.answers && r.answers._notify) || {}; return { status: n.status, attempts: n.attempts || 0 }; },
     message: (r) => intakeMessage(r),
@@ -378,7 +379,7 @@ app.post('/api/signup', async (req, res) => {
   return res.status(500).json({ error: 'We couldn’t record your signup just now. Please try again in a minute, or email hello@korvo.ai.' });
 });
 
-// API: Signups list (admin) — every saved lead, newest first, each with notifyStatus
+const applyLimiter = makeLimiter({ windowMs: 60 * 1000, max: 3 }); app.post('/api/apply', async (req, res) => { if (applyLimiter(clientIp(req))) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again in a minute.' }); const { name, phone, email, role, website } = req.body || {}; if (website) return res.json({ ok: true, error: null }); const emailOk = typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()); const nameOk = typeof name === 'string' && name.trim().length >= 2; if (!nameOk || !emailOk) return res.status(400).json({ ok: false, error: 'Please provide your name and a valid email address.' }); const rec = await signupStore.create({ kind: 'apply', name: name.trim(), business: '', phone: (phone || '').toString().trim(), email: email.trim(), notes: (role || '').toString().trim(), ip: clientIp(req), userAgent: req.get('user-agent') || '', }); setImmediate(() => deliverNotification('apply', rec.id)); res.json({ ok: true, error: null, id: rec.id }); }); // API: Signups list (admin) — every saved lead, newest first, each with notifyStatus
 // ('pending' = owner email not delivered yet), notifyError, notifyAttempts, notifyLastAttemptAt.
 // ?notify=pending → only leads whose notification hasn't gone out.
 app.get('/api/signups', requireAdmin, async (req, res) => {
