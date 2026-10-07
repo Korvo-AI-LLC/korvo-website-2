@@ -3,271 +3,771 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Korvo AI — AI Solutions for Small Business</title>
-  <meta name="description" content="Korvo AI eliminates small business pain points with AI research, creation, and implementation — at a fraction of traditional costs." />
-  <meta property="og:title" content="Korvo AI — AI Solutions for Small Business" />
-  <meta property="og:description" content="Lean, ROI-driven AI services designed specifically for small businesses." />
+  <title>Korvo AI — After-hours AI receptionist for dental &amp; medical practices</title>
+  <meta name="description" content="Korvo answers your practice's phone after hours. Picks up in under 2 rings, live in 48 hours, $997 a month flat. Hear it now: (270) 241-9200." />
+  <meta property="og:title" content="Never miss an after-hours call again." />
+  <meta property="og:description" content="After-hours AI receptionist for dental and medical practices. $997 a month, flat. Live in 48 hours." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://korvo.ai/" />
+  <meta name="theme-color" content="#132F1E" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+  <style>
+    /* Tokens: Korvo Brand System v3 (draft) — see /brand-system-v3-draft.html in repo root */
+    :root {
+      --pine: #1A4A2E;
+      --pine-deep: #132F1E;
+      --teal: #1A5C50;
+      --sage: #5E8B6F;
+      --terracotta: #B85C3A;
+      --kiln: #9A4A2C;      /* terracotta for small text on light grounds + hover */
+      --clay: #C96B47;
+      --ember: #E08A63;     /* terracotta-family text on dark grounds */
+      --cream: #F0EBE2;
+      --linen: #E8DFD0;
+      --paper: #FAF6ED;
+      --ink: #1E1E1E;
+      --ink-mid: #4A4542;
+      --ink-soft: #68615E;
+      --rule: #CEC5B8;
+      --on-dark: #F0EBE2;
+      --on-dark-mid: rgba(240, 235, 226, 0.76);
+      --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --sans: 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --wrap: 1140px;
+      --gutter: clamp(16px, 4.5vw, 48px);
+      --r: 4px;
+      --nav-h: 64px;
+      --focus: var(--pine);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-h) + 12px); }
+    @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font: 400 17px/1.6 var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    h1, h2, h3, p, ul, ol, dl, dd, figure, blockquote { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    img, svg { display: block; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+
+    .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+    .dark { background: var(--pine-deep); color: var(--on-dark); --focus: var(--ember); }
+
+    .skip {
+      position: absolute; left: 12px; top: -60px; z-index: 100;
+      background: var(--paper); color: var(--pine); padding: 10px 16px; border-radius: var(--r);
+      font-weight: 700; text-decoration: none;
+    }
+    .skip:focus { top: 12px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      min-height: 52px; padding: 0 28px;
+      background: var(--terracotta); color: #FFFFFF;
+      font: 700 17px/1 var(--sans); letter-spacing: 0.01em;
+      text-decoration: none; border: 0; border-radius: var(--r); cursor: pointer;
+      transition: background-color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover { background: var(--kiln); }
+    .btn-sm { min-height: 42px; padding: 0 18px; font-size: 15px; }
+    .btn-pine { background: var(--pine); color: var(--on-dark); }
+    .btn-pine:hover { background: var(--pine-deep); }
+    .btn-block { width: 100%; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      height: var(--nav-h);
+      background: var(--pine-deep);
+      border-bottom: 1px solid rgba(240, 235, 226, 0.1);
+    }
+    .nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; color: var(--on-dark); }
+    .brand svg { width: 30px; height: 30px; flex-shrink: 0; }
+    .wordmark { font: 700 22px/1 var(--serif); letter-spacing: -0.01em; }
+    .wordmark em { font-style: italic; font-weight: 400; color: var(--ember); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: clamp(28px, 6vw, 88px) 0 clamp(56px, 8vw, 112px);
+      background:
+        radial-gradient(ellipse 60% 70% at 82% 46%, rgba(201, 107, 71, 0.16), transparent 70%),
+        var(--pine-deep);
+    }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+    .hero h1 {
+      font: 700 clamp(40px, 6.2vw, 78px)/1.02 var(--serif);
+      letter-spacing: -0.025em;
+      color: var(--on-dark);
+      max-width: 13ch;
+      text-wrap: balance;
+    }
+    .hero-sub { margin-top: 18px; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.55; color: var(--on-dark-mid); max-width: 34em; }
+    .hero-sub strong { color: var(--on-dark); font-weight: 700; }
+    .disqualify { margin-top: 10px; font-size: 14px; color: var(--on-dark-mid); font-style: italic; }
+    .buy-row { margin-top: 26px; display: flex; align-items: center; flex-wrap: wrap; gap: 14px 20px; }
+    .price { font: 700 30px/1 var(--serif); color: var(--on-dark); font-variant-numeric: lining-nums; white-space: nowrap; }
+    .price small { font: 400 16px/1 var(--sans); color: var(--on-dark-mid); margin-left: 4px; }
+    .trust { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px 0; font-size: 15px; color: var(--on-dark-mid); }
+    .trust li { padding-right: 16px; margin-right: 16px; border-right: 1px solid rgba(240, 235, 226, 0.22); line-height: 1.3; }
+    .trust li:last-child { border-right: 0; margin-right: 0; padding-right: 0; }
+    .trust strong { color: var(--on-dark); font-weight: 700; }
+
+    /* The demo line — the one loud thing on the page */
+    .callcard {
+      --focus: var(--pine);
+      position: relative;
+      background: var(--paper);
+      color: var(--pine);
+      border-radius: 6px;
+      padding: clamp(24px, 3vw, 36px);
+      box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(240, 235, 226, 0.08);
+    }
+    .callcard-head { display: flex; align-items: center; gap: 12px; font: 700 17px/1.3 var(--sans); color: var(--ink); }
+    .live-dot { position: relative; width: 12px; height: 12px; border-radius: 50%; background: var(--terracotta); flex-shrink: 0; }
+    .live-dot::after {
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid var(--terracotta); opacity: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .live-dot::after { animation: ring 1.6s ease-out 0.6s 4; }
+    }
+    @keyframes ring { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(2.1); opacity: 0; } }
+    .demo-number {
+      display: block; margin: 20px 0 14px;
+      font: 700 clamp(48px, 5.6vw, 72px)/0.98 var(--serif);
+      letter-spacing: -0.02em;
+      font-variant-numeric: lining-nums tabular-nums;
+      color: var(--pine); text-decoration: none;
+    }
+    .demo-number span { display: block; white-space: nowrap; }
+    .demo-number .area { color: var(--sage); font-weight: 600; }
+    .demo-number:hover { color: var(--kiln); }
+    .callcard p { color: var(--ink-mid); font-size: 16px; line-height: 1.55; }
+    .callcard .btn { margin-top: 20px; }
+    .callcard-foot { margin-top: 14px; font-size: 13px; color: var(--ink-soft); }
+
+    /* ── Section scaffolding ── */
+    .section { padding: clamp(64px, 9vw, 120px) 0; }
+    .h2 { font: 700 clamp(32px, 4.4vw, 52px)/1.08 var(--serif); letter-spacing: -0.02em; color: var(--pine); max-width: 20ch; text-wrap: balance; }
+    .dark .h2 { color: var(--on-dark); }
+    .lede { margin-top: 16px; font-size: 19px; line-height: 1.6; color: var(--ink-mid); max-width: 36em; }
+    .dark .lede { color: var(--on-dark-mid); }
+    .cta-row { margin-top: clamp(40px, 5vw, 56px); display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+    .cta-note { font-size: 15px; color: var(--ink-soft); }
+    .dark .cta-note { color: var(--on-dark-mid); }
+
+    /* ── How it starts ── */
+    .steps { margin-top: clamp(40px, 5vw, 64px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; position: relative; }
+    .steps::before {
+      content: ''; position: absolute; left: 0; right: 0; top: 7px; height: 2px;
+      background: linear-gradient(90deg, var(--pine-deep) 0%, var(--sage) 55%, var(--clay) 100%);
+    }
+    .step { position: relative; padding: 34px 24px 0 0; }
+    .step::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--cream); border: 2px solid var(--pine);
+    }
+    .step:last-child::before { background: var(--terracotta); border-color: var(--terracotta); }
+    .step-when { font: italic 600 19px/1.2 var(--serif); color: var(--kiln); }
+    .step h3 { margin-top: 8px; font: 700 19px/1.3 var(--sans); color: var(--ink); }
+    .step p { margin-top: 8px; font-size: 16px; line-height: 1.55; color: var(--ink-mid); }
+
+    .one-thing {
+      margin-top: clamp(48px, 6vw, 72px);
+      display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 56px); align-items: end;
+      padding: clamp(28px, 4vw, 48px);
+      background: var(--linen); border-radius: 6px;
+    }
+    .one-thing-line { font: 700 clamp(28px, 3.6vw, 44px)/1.12 var(--serif); letter-spacing: -0.015em; color: var(--pine); }
+    .one-thing-copy p { font-size: 17px; color: var(--ink-mid); }
+    .one-thing-copy p + p { margin-top: 10px; }
+    .home-at-5 { margin-top: clamp(40px, 5vw, 56px); font: italic 400 clamp(24px, 2.8vw, 32px)/1.3 var(--serif); color: var(--pine); }
+
+    /* ── Proof ── */
+    .proof { background: var(--paper); }
+    .claims { margin-top: clamp(40px, 5vw, 64px); border-top: 1px solid var(--rule); }
+    .claim {
+      display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(24px, 4vw, 64px);
+      padding: clamp(36px, 5vw, 56px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .claim-title { font: 600 clamp(26px, 2.8vw, 34px)/1.15 var(--serif); letter-spacing: -0.01em; color: var(--pine); }
+    .claim-text { margin-top: 14px; font-size: 17px; color: var(--ink-mid); max-width: 30em; }
+    .evidence { display: grid; gap: 20px; align-content: start; }
+    @media (min-width: 961px) {
+      .claim > :first-child { position: sticky; top: calc(var(--nav-h) + 32px); align-self: start; }
+    }
+
+    .transcript { background: #FFFFFF; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+    .transcript-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 20px; background: var(--linen); font-size: 14px; color: var(--ink-mid); }
+    .transcript-head strong { color: var(--ink); }
+    .transcript-head > span:last-child { white-space: nowrap; }
+    .lines { padding: 18px 20px 6px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 16px; font-size: 15.5px; line-height: 1.5; }
+    .lines dt { font-weight: 700; color: var(--pine); }
+    .lines dt.caller { color: var(--kiln); }
+    .lines dd { color: var(--ink); }
+    .inbox { margin: 12px 20px 20px; padding: 14px 16px; border-left: 3px solid var(--sage); background: var(--cream); font-size: 14.5px; color: var(--ink-mid); }
+    .inbox strong { display: block; color: var(--ink); margin-bottom: 4px; }
+
+    .guarantee { background: var(--pine); color: var(--on-dark); border-radius: 6px; padding: clamp(22px, 3vw, 30px); }
+    .guarantee-label { font-size: 14px; font-weight: 700; color: var(--ember); }
+    .guarantee-line { margin-top: 8px; font: italic 400 clamp(22px, 2.4vw, 27px)/1.3 var(--serif); }
+    .guarantee small { display: block; margin-top: 12px; font-size: 13.5px; line-height: 1.5; color: var(--on-dark-mid); }
+
+    .qa { border-left: 3px solid var(--terracotta); padding: 4px 0 4px 20px; }
+    .qa h3 { font: 700 18px/1.35 var(--sans); color: var(--ink); }
+    .qa p { margin-top: 8px; font-size: 16px; color: var(--ink-mid); }
+    .qa p + p { margin-top: 8px; }
+
+    .dial { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; padding: 20px 22px; background: var(--cream); border-radius: 6px; border: 1px solid var(--rule); }
+    .dial a { font: 700 30px/1 var(--serif); color: var(--pine); text-decoration: none; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+    .dial a:hover { color: var(--kiln); }
+    .dial span { font-size: 15px; color: var(--ink-mid); }
+
+    .math { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; font: 700 clamp(30px, 3.6vw, 44px)/1.1 var(--serif); color: var(--pine); font-variant-numeric: lining-nums; }
+    .math .op { color: var(--ink-soft); font-weight: 400; }
+    .math .total { color: var(--kiln); }
+    .math-note { font-size: 16px; color: var(--ink-mid); }
+
+    /* ── Signup ── */
+    .signup-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
+    .recap { margin-top: 28px; display: grid; gap: 12px; }
+    .recap li { display: flex; gap: 12px; align-items: baseline; color: var(--on-dark-mid); font-size: 16.5px; }
+    .recap li::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ember); flex-shrink: 0; transform: translateY(-2px); }
+    .recap strong { color: var(--on-dark); }
+    .signup-price { margin-top: 32px; font: 700 clamp(44px, 5vw, 60px)/1 var(--serif); color: var(--on-dark); font-variant-numeric: lining-nums; }
+    .signup-price small { font: 400 18px/1 var(--sans); color: var(--on-dark-mid); margin-left: 6px; }
+
+    .panel { --focus: var(--pine); background: var(--paper); color: var(--ink); border-radius: 6px; padding: clamp(22px, 3.2vw, 40px); box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.5); }
+    .panel-step { display: flex; align-items: baseline; gap: 12px; }
+    .panel-step b { font: italic 600 20px/1 var(--serif); color: var(--kiln); }
+    .panel-step h3 { font: 700 20px/1.3 var(--sans); color: var(--ink); }
+    .fields { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .field input {
+      width: 100%; min-height: 50px; padding: 12px 14px;
+      font: 400 17px/1.3 var(--sans); color: var(--ink);
+      background: #FFFFFF; border: 1px solid #B9AF9F; border-radius: var(--r);
+      -webkit-appearance: none; appearance: none;
+    }
+    .field input:focus { outline: 3px solid var(--pine); outline-offset: 0; border-color: var(--pine); }
+    .panel form .btn { margin-top: 20px; }
+    .form-msg { margin-top: 12px; font-size: 15px; min-height: 1.5em; }
+    .form-msg.ok { color: var(--pine); font-weight: 700; }
+    .form-msg.err { color: #9B2C1F; font-weight: 700; }
+    .divider { margin: 28px 0 24px; border: 0; border-top: 1px solid var(--rule); }
+    .pay-note { margin-top: 12px; font-size: 14px; color: var(--ink-soft); }
+    .pay-fallback { margin-top: 12px; padding: 12px 14px; background: var(--linen); border-radius: var(--r); font-size: 15px; color: var(--ink); }
+    .step-two.ready .panel-step b { color: var(--terracotta); }
+    .fine { margin-top: 18px; font-size: 13.5px; color: var(--ink-soft); }
+    .fine a { color: var(--kiln); }
+
+    /* ── Life ── */
+    .life { background: var(--cream); }
+    .life-quote { font: italic 400 clamp(34px, 5vw, 64px)/1.1 var(--serif); letter-spacing: -0.02em; color: var(--pine); max-width: 18ch; text-wrap: balance; }
+    .life-who { margin-top: 18px; font-size: 15px; color: var(--ink-soft); }
+    .life-body { margin-top: 28px; font-size: 19px; line-height: 1.65; color: var(--ink-mid); max-width: 36em; }
+    .life-body + .life-body { margin-top: 14px; }
+    .core { margin-top: clamp(48px, 6vw, 72px); display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 2px; background: var(--rule); border: 2px solid var(--rule); border-radius: 6px; overflow: hidden; }
+    .core li { background: var(--paper); padding: 24px 22px; }
+    .core h3 { font: 700 22px/1.2 var(--serif); color: var(--pine); }
+    .core em { display: block; margin-top: 2px; font: italic 400 16px/1.3 var(--serif); color: var(--kiln); }
+    .core p { margin-top: 10px; font-size: 15px; line-height: 1.55; color: var(--ink-mid); }
+    .core .is-life { background: var(--pine); }
+    .core .is-life h3 { font-size: 34px; color: var(--on-dark); }
+    .core .is-life em { color: var(--ember); font-size: 18px; }
+    .core .is-life p { color: var(--on-dark-mid); font-size: 16.5px; }
+
+    /* ── Footer ── */
+    .foot { padding: 40px 0 32px; }
+    .foot-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px 32px; }
+    .foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 15px; }
+    .foot-links a { color: var(--on-dark-mid); text-decoration: none; }
+    .foot-links a:hover { color: var(--on-dark); text-decoration: underline; }
+    .foot-base { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(240, 235, 226, 0.12); font-size: 13.5px; color: var(--on-dark-mid); }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 36px; }
+      .steps::before { display: none; }
+      .claim { grid-template-columns: 1fr; }
+      .signup-grid { grid-template-columns: 1fr; }
+      .core { grid-template-columns: 1fr 1fr; }
+      .core .is-life { grid-column: 1 / -1; grid-row: 1; }
+    }
+    @media (max-width: 820px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .one-thing { grid-template-columns: 1fr; align-items: start; }
+    }
+    @media (max-width: 560px) {
+      :root { --nav-h: 58px; }
+      body { font-size: 16.5px; }
+      .wordmark { font-size: 20px; }
+      .brand svg { width: 26px; height: 26px; }
+      .hero { padding-top: 22px; }
+      .hero-sub { margin-top: 14px; }
+      .buy-row { margin-top: 20px; }
+      .buy-row .btn { flex: 1 1 auto; }
+      .trust { margin-top: 20px; font-size: 14px; }
+      .trust { gap: 6px 18px; }
+      .trust li { border-right: 0; padding-right: 0; margin-right: 0; }
+      .steps { grid-template-columns: 1fr; padding-left: 28px; row-gap: 28px; }
+      .steps::after { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(180deg, var(--pine-deep), var(--sage) 55%, var(--clay)); }
+      .step { padding: 0; }
+      .step::before { left: -28px; top: 2px; z-index: 1; }
+      .fields { grid-template-columns: 1fr; }
+      .core { grid-template-columns: 1fr; }
+      .lines { grid-template-columns: 1fr; gap: 2px; }
+      .lines dd { margin-bottom: 10px; }
+      .foot-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="container nav-inner">
-    <a href="/" class="nav-logo">
-      <svg width="36" height="36" viewBox="0 0 100 100" aria-hidden="true">
-        <polygon points="50,2 98,50 50,50" fill="#2d6b4f"/>
-        <polygon points="50,2 2,50 50,50" fill="#4a9970"/>
-        <polygon points="2,50 50,98 50,50" fill="#1a5c3a"/>
-        <polygon points="98,50 50,98 50,50" fill="#b85c45"/>
+<a class="skip" href="#signup">Skip to sign up</a>
+
+<!-- NAV: logo + one CTA. No other links in the buyer path. -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Korvo AI, back to top">
+      <!-- Mark, reversed variant for dark grounds (v3): pine facets become cream, cross knocks out to the ground -->
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+        <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+        <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+        <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+        <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+        <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
       </svg>
-      Korvo AI
+      <span class="wordmark">Korvo<em> AI</em></span>
     </a>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/learn-more">Services</a></li>
-      <li><a href="/pricing">Pricing</a></li>
-      <li><a href="/book" class="btn btn-green">Free Consultation</a></li>
-    </ul>
-    <button class="hamburger" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </button>
+    <a class="btn btn-sm" href="#signup">Get started</a>
   </div>
-</nav>
+</header>
 
-<!-- MOBILE NAV -->
-<div class="mobile-nav">
-  <ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="/about">About</a></li>
-    <li><a href="/learn-more">Services</a></li>
-    <li><a href="/pricing">Pricing</a></li>
-  </ul>
-  <a href="/book" class="btn btn-green mt-16">Free Consultation</a>
-</div>
+<main>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div class="hero-content">
-        <h1>Less busywork. More of what matters.</h1>
-        <p class="hero-subtitle">Eliminating small business pain points with AI research, creation, and implementation.</p>
-        <div class="hero-actions">
-          <a href="/about" class="btn btn-primary btn-lg">About Korvo</a>
-          <a href="/book" class="btn btn-secondary btn-lg">Free Consultation</a>
+  <!-- ═══ HERO ═══ -->
+  <section class="hero dark" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div>
+        <h1 id="hero-title">Never miss an after-hours call again.</h1>
+        <p class="hero-sub"><strong>Built for dental and medical practices that close at 5.</strong> When your front desk goes home, Korvo answers the phone, books what it can, and has every call in your inbox by morning.</p>
+        <p class="disqualify">Not for businesses needing daytime coverage.</p>
+        <div class="buy-row">
+          <a class="btn" href="#signup">Get started</a>
+          <p class="price">$997<small>a month, flat</small></p>
+        </div>
+        <ul class="trust" aria-label="What you get">
+          <li><strong>Answers in under 2 rings</strong></li>
+          <li><strong>Live in 48 hours</strong></li>
+          <li><strong>Cancel anytime</strong></li>
+        </ul>
+      </div>
+
+      <aside class="callcard" aria-labelledby="demo-title">
+        <p class="callcard-head" id="demo-title"><span class="live-dot" aria-hidden="true"></span>Hear it answer right now.</p>
+        <a class="demo-number" href="tel:+12702419200" aria-label="Call the demo line, 270 241 9200"><span class="area">(270)</span><span>241&#8209;9200</span></a>
+        <p>This is our demo practice, Bright Smile Dental. Call it the way a patient would. Ask about hours, try to book a cleaning, try to trip it up.</p>
+        <a class="btn btn-pine" href="tel:+12702419200">Call the demo</a>
+        <p class="callcard-foot">Live 24/7. Standard call rates apply. It's a pretend practice, so nothing you book is real.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT STARTS ═══ -->
+  <section class="section" id="how-it-starts" aria-labelledby="start-title">
+    <div class="wrap">
+      <h2 class="h2" id="start-title">Sign up tonight. Live <span data-golive>in 48 hours</span>.</h2>
+      <p class="lede">No kickoff meetings, no six-week rollout. Here is the whole first week.</p>
+
+      <ol class="steps">
+        <li class="step">
+          <p class="step-when">Tonight</p>
+          <h3>You sign up</h3>
+          <p>Four fields and a payment. About two minutes, from your couch.</p>
+        </li>
+        <li class="step">
+          <p class="step-when">Tomorrow morning</p>
+          <h3>We record your greeting</h3>
+          <p>We call you and write it together: your hours, your services, what to say about emergencies. You approve every word.</p>
+        </li>
+        <li class="step">
+          <p class="step-when">Tomorrow afternoon</p>
+          <h3>You make a test call</h3>
+          <p>Call it yourself. Ask the hard questions. Anything you don't like, we fix the same day.</p>
+        </li>
+        <li class="step">
+          <p class="step-when" data-golive-day>48 hours in</p>
+          <h3>It goes live</h3>
+          <p>Your after-hours calls forward to Korvo. You keep your number. Your front desk goes home at 5.</p>
+        </li>
+      </ol>
+
+      <div class="one-thing">
+        <p class="one-thing-line">No SMS. No chatbots. No websites. One thing, done right.</p>
+        <div class="one-thing-copy">
+          <p>Korvo does one job: answer your phone when nobody else can. We don't upsell you a texting tool, a chat widget, or a new website.</p>
+          <p>That's not a limitation. It's why we can stand behind it.</p>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="hero-photo-wrap">
-          <!-- Replace hero.jpg inside public/images/ to update this photo -->
-          <img src="/images/hero.jpg" alt="Small business owner served by Korvo AI" onerror="this.parentElement.innerHTML='<div class=\'hero-photo-placeholder\' style=\'color:rgba(255,255,255,.4);text-align:center;padding:40px;font-size:.9rem;\'>Add hero.jpg to public/images/</div>'" />
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- CTA + SURVEY -->
-<section class="cta-banner">
-  <div class="container">
-    <h2>Ready to let AI work for your business?</h2>
-    <p>Take our 2-minute survey so we know exactly how to help — or book a free consultation directly.</p>
-    <a href="/book" class="btn btn-secondary btn-lg" style="margin-bottom:40px;">Book Free Consultation</a>
-    <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);overflow:hidden;max-width:700px;margin:0 auto;">
-      <iframe
-        src="https://forms.office.com/pages/responsepage.aspx?id=DsSU_sCCqUurnhtPox0fF7kld5jhjItAvxn5SlMC6SRUMTY5RjY2UE5QUUpUSUpRMTZFWUNPNjBOTi4u&embed=true"
-        width="100%"
-        height="520"
-        frameborder="0"
-        marginwidth="0"
-        marginheight="0"
-        style="border:none;display:block;"
-        allowfullscreen
-        title="Korvo AI Quick Survey">
-      </iframe>
-    </div>
-  </div>
-</section>
+      <p class="home-at-5">Go home at 5. Actually go home.</p>
 
-<!-- SERVICES PREVIEW -->
-<section class="section">
-  <div class="container">
-    <div class="section-label">What We Do</div>
-    <h2 class="section-title">AI that works as hard as you do</h2>
-    <p class="section-subtitle">We handle the heavy lifting — research, build, and implement AI tools tailored to your business so you can focus on growth.</p>
-    <div class="cards">
-      <div class="card">
-        <div class="card-icon">
-          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-        </div>
-        <h3>AI Research</h3>
-        <p>We dig deep into the latest AI tools and capabilities to identify exactly what will move the needle for your specific business needs.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">
-          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-          </svg>
-        </div>
-        <h3>AI Creation</h3>
-        <p>From AI voice receptionists to custom automation pipelines, we build solutions using the most current technology.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">
-          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-          </svg>
-        </div>
-        <h3>AI Implementation</h3>
-        <p>We don't just hand you software — we integrate it into your workflow, train your team, and stick around to ensure it delivers real ROI.</p>
+      <div class="cta-row">
+        <a class="btn" href="#signup">Get started</a>
+        <span class="cta-note">$997 a month. Cancel anytime.</span>
       </div>
     </div>
-    <div class="text-center mt-48">
-      <a href="/learn-more" class="btn btn-outline">Explore All Services</a>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- WHO WE SERVE -->
-<section class="section section-green">
-  <div class="container">
-    <div class="section-label">Who We Serve</div>
-    <h2 class="section-title">Built for small businesses that want to compete</h2>
-    <p class="section-subtitle" style="color:rgba(255,255,255,.78)">Whether you run a medical office, a retail shop, or a service business — if you want AI that actually works, we're built for you.</p>
-    <div class="stats-row">
-      <div class="stat-item">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">AI receptionist coverage</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">ROI</div>
-        <div class="stat-label">Based pricing model</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">$0</div>
-        <div class="stat-label">Consultation fee</div>
-      </div>
-    </div>
-    <div class="text-center mt-48">
-      <a href="/book" class="btn btn-primary btn-lg">Schedule Free Consultation</a>
-    </div>
-  </div>
-</section>
+  <!-- ═══ PROOF: each claim carries its own evidence ═══ -->
+  <section class="section proof" id="proof" aria-labelledby="proof-title">
+    <div class="wrap">
+      <h2 class="h2" id="proof-title">Every promise, with the proof next to it.</h2>
+      <p class="lede">A call you can make, a transcript you can read, and a guarantee you can hold us to.</p>
 
-<!-- BUSINESS MODEL -->
-<section class="section">
-  <div class="container">
-    <div style="max-width:680px;margin:0 auto;text-align:center;">
-      <div class="section-label">Our Model</div>
-      <h2 class="section-title">You only pay for results</h2>
-      <p style="color:var(--text-muted);margin-bottom:24px;">Risk free and results first</p>
-      <ul class="feature-list" style="display:inline-block;text-align:left;">
-        <li>One-time implementation fee to get everything set up</li>
-        <li>Monthly subscription calculated as a percentage of your Korvo AI ROI</li>
-        <li>If you're not benefiting, you're not paying full price</li>
-        <li>Access to the latest AI tools — always up to date</li>
-        <li>A direct line to the developers building your tools</li>
+      <div class="claims">
+
+        <!-- Claim 1: reliability → transcript + guarantee -->
+        <article class="claim" aria-labelledby="c1">
+          <div>
+            <h3 class="claim-title" id="c1">It picks up before the second ring. Every call.</h3>
+            <p class="claim-text">At 9 PM on a Tuesday or 6 AM on a holiday, your caller hears a calm voice, not a voicemail beep. Here's what that sounds like on paper.</p>
+          </div>
+          <div class="evidence">
+            <figure class="transcript">
+              <figcaption class="transcript-head"><span><strong>Sample call</strong>, Bright Smile Dental (demo)</span><span>Tue, 8:47 PM</span></figcaption>
+              <dl class="lines">
+                <dt>Korvo</dt>
+                <dd>Thanks for calling Bright Smile Dental. The office is closed for the night. I'm the office's AI assistant. How can I help?</dd>
+                <dt class="caller">Caller</dt>
+                <dd>Hi, I chipped a tooth at dinner. It doesn't hurt much, but I want someone to look at it.</dd>
+                <dt>Korvo</dt>
+                <dd>Sorry to hear that. If you're in severe pain or bleeding that won't stop, please call 911. Otherwise I can get you in. Are you a current patient?</dd>
+                <dt class="caller">Caller</dt>
+                <dd>Yes. Maria Chen.</dd>
+                <dt>Korvo</dt>
+                <dd>Thanks, Maria. The first opening is Thursday at 9:30 AM. Does that work?</dd>
+                <dt class="caller">Caller</dt>
+                <dd>Perfect.</dd>
+                <dt>Korvo</dt>
+                <dd>You're set for Thursday at 9:30. I've noted the chipped tooth for the team.</dd>
+              </dl>
+              <div class="inbox">
+                <strong>In the office inbox, 8:49 PM</strong>
+                Maria Chen, existing patient. Chipped front tooth at dinner, mild pain. Booked Thu 9:30 AM.
+              </div>
+            </figure>
+
+            <!--
+              ╔══════════════════════════════════════════════════════════════╗
+              ║ DRAFT — NEEDS OWNER APPROVAL BEFORE GOING LIVE.              ║
+              ║ Guarantee wording + fine print below are proposed, not       ║
+              ║ approved. If this branch is deployed as-is, this guarantee   ║
+              ║ is shown publicly. Remove this block or approve the wording. ║
+              ╚══════════════════════════════════════════════════════════════╝
+            -->
+            <aside class="guarantee" data-draft="owner-approval-required" aria-labelledby="g1">
+              <p class="guarantee-label" id="g1">Our guarantee</p>
+              <p class="guarantee-line">If it misses a call in your first 30 days, month two is free.</p>
+              <small>Counts after-hours calls that reach your Korvo line. Every call is logged, so you can check us.</small>
+            </aside>
+            <!-- /DRAFT -->
+          </div>
+        </article>
+
+        <!-- Claim 2: voice → live demo + "Will callers know it's AI?" -->
+        <article class="claim" aria-labelledby="c2">
+          <div>
+            <h3 class="claim-title" id="c2">It sounds like your front desk on a calm day.</h3>
+            <p class="claim-text">Warm, unhurried, and it knows your hours, services, and policies. No "press 1." No hold music. Callers just talk.</p>
+          </div>
+          <div class="evidence">
+            <div class="dial">
+              <a href="tel:+12702419200">(270)&nbsp;241&#8209;9200</a>
+              <span>Don't take our word for it. Call the demo and listen.</span>
+            </div>
+            <div class="qa">
+              <h3>Will callers know it's AI?</h3>
+              <p>Yes, because we tell them. The greeting says it's an AI assistant, and it will say so again if anyone asks. Hiding it wouldn't be honest, and in some states it isn't legal.</p>
+              <p>People calling at 9 PM aren't hoping for a person. They're hoping not to get voicemail.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Claim 3: coverage → "What if it can't answer something?" -->
+        <article class="claim" aria-labelledby="c3">
+          <div>
+            <h3 class="claim-title" id="c3">Every hour you're closed. Nights, weekends, holidays.</h3>
+            <p class="claim-text">It covers the hours your team is gone, and only those. During the day, your people answer. They're better at it, and we'd rather tell you that now.</p>
+          </div>
+          <div class="evidence">
+            <div class="qa">
+              <h3>What if it can't answer something?</h3>
+              <p>It says so. It won't guess about insurance, prices, or anything clinical. It takes the caller's name, number, and reason, and tells them the office will call back. Every one of those lands in your inbox with a summary.</p>
+              <p>If it can't reach your schedule, it takes the appointment request and your front desk confirms it in the morning. If someone describes an emergency, it tells them to call 911.</p>
+            </div>
+            <div class="cta-row" style="margin-top: 8px;">
+              <a class="btn" href="#signup">Get started</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Claim 4: the money -->
+        <article class="claim" aria-labelledby="c4">
+          <div>
+            <h3 class="claim-title" id="c4">$997 a month. Four appointments pays for it.</h3>
+            <p class="claim-text">One flat price. No setup fee, no per-minute charges, no long-term contract.</p>
+          </div>
+          <div class="evidence">
+            <p class="math" aria-label="4 appointments times 250 dollars equals 1,000 dollars">
+              <span>4</span><span class="op">×</span><span>$250</span><span class="op">=</span><span class="total">$1,000</span>
+            </p>
+            <p class="math-note">At $250 a visit, four booked appointments a month covers the bill. Everything after that is yours. Your call summaries will show you exactly how many after-hours calls you used to miss.</p>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="cta-row">
+        <a class="btn" href="#signup">Get started</a>
+        <span class="cta-note">Two minutes to sign up. Live in 48 hours.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SIGNUP: curiosity → details → paid, one scroll ═══ -->
+  <section class="section dark" id="signup" aria-labelledby="signup-title">
+    <div class="wrap signup-grid">
+      <div>
+        <h2 class="h2" id="signup-title">Start tonight. Get your evenings back.</h2>
+        <p class="lede">Two steps, about two minutes. We call you tomorrow morning to write your greeting.</p>
+        <p class="signup-price">$997<small>a month</small></p>
+        <ul class="recap">
+          <li><span><strong>Answers in under 2 rings</strong>, every night, weekend, and holiday</span></li>
+          <li><span><strong>Live in 48 hours</strong>, and you keep your phone number</span></li>
+          <li><span><strong>Cancel anytime</strong> by emailing hello@korvo.ai</span></li>
+        </ul>
+      </div>
+
+      <div class="panel" id="signupPanel">
+        <!-- Step 1: intake. Posts to the existing POST /api/contact (no new backend).
+             Field map: name → name, email → email, phone → phone,
+             business name → message (the endpoint requires "message"; JS prefixes it with "Business:"),
+             service → fixed offer label (hidden). -->
+        <div class="panel-step"><b>1</b><h3>Your details</h3></div>
+        <form id="signupForm" action="/api/contact" method="post" novalidate>
+          <input type="hidden" name="service" value="After-hours AI receptionist ($997/mo)" />
+          <div class="fields">
+            <div class="field">
+              <label for="f-name">Your name</label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="f-biz">Business name</label>
+              <input id="f-biz" name="message" type="text" autocomplete="organization" required />
+            </div>
+            <div class="field">
+              <label for="f-phone">Phone</label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
+            </div>
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+            </div>
+          </div>
+          <button class="btn btn-pine btn-block" type="submit" id="signupBtn">Send my details</button>
+          <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+        </form>
+
+        <hr class="divider" />
+
+        <!-- Step 2: payment. URL comes from PAYMENT_URL in /js/config.js (placeholder '#' for now). -->
+        <div class="step-two" id="stepTwo">
+          <div class="panel-step"><b>2</b><h3>Pay and start setup</h3></div>
+          <a class="btn btn-block" id="payLink" href="#signup" style="margin-top: 16px;">Pay $997 and start</a>
+          <p class="pay-note">Secure checkout through Stripe. Billed monthly. Cancel anytime.</p>
+          <p class="pay-fallback" id="payFallback" hidden>Online checkout isn't switched on yet. Send your details above and we'll email you a secure checkout link.</p>
+        </div>
+
+        <p class="fine">By signing up you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. Korvo is not an emergency service.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LIFE: brand essence + slim Core Four ═══ -->
+  <section class="section life" id="life" aria-labelledby="life-title">
+    <div class="wrap">
+      <blockquote>
+        <p class="life-quote" id="life-title">Everyone is an artist until the rent is due.</p>
+        <footer class="life-who">Jack Eliason, founder</footer>
+      </blockquote>
+      <p class="life-body">You didn't open a practice to answer the phone at 9 PM. You opened it to do work you're good at, and to have a life outside of it. Then the rent came due, and the busywork moved in.</p>
+      <p class="life-body">Korvo exists to take the repetitive, soul-draining work off your plate so there's more of you left for the parts that matter. We call that life. It's the whole reason we're here.</p>
+
+      <ul class="core" aria-label="Korvo's Core Four values">
+        <li>
+          <h3>Creativity</h3><em>No dogma</em>
+          <p>Fresh eyes on old problems. Nothing is done a certain way just because it always has been.</p>
+        </li>
+        <li class="is-life">
+          <h3>Life</h3><em>More of it</em>
+          <p>The point of everything we build. Hand the boring, repetitive work to a machine, and get back the hours and the energy to be yourself, create, and go home.</p>
+        </li>
+        <li>
+          <h3>Integrity</h3><em>Say it. Mean it. Do it.</em>
+          <p>Risks before rewards. When we commit, it's done.</p>
+        </li>
+        <li>
+          <h3>People</h3><em>The whole point</em>
+          <p>Not accounts. People, with a business they poured themselves into.</p>
+        </li>
       </ul>
-      <div class="mt-32">
-        <a href="/pricing" class="btn btn-green">View Pricing Details</a>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- MISSION / CORE FOUR -->
-<section class="section section-cream">
-  <div class="container text-center">
-    <div class="section-label">Our Mission</div>
-    <h2 class="section-title" style="max-width:680px;margin:0 auto 24px;">Four ideas. One company. Everything we do.</h2>
-    <p style="max-width:640px;margin:0 auto;color:var(--text-muted);font-size:1.05rem;">These aren't values we landed on in a meeting — they're what was already there. Every decision we make runs through the Core Four.</p>
-    <div class="values-grid" style="margin-top:48px;">
-      <div style="background:var(--white);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);border-left:4px solid var(--green-dark);text-align:left;">
-        <h4 style="color:var(--green-dark);margin-bottom:4px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;">Creativity</h4>
-        <div style="color:var(--rust);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">No dogma</div>
-        <p style="color:var(--text-muted);font-size:.9rem;">Fresh eyes on old problems. We build things that haven't existed before — and give clients the courage to do the same.</p>
-      </div>
-      <div style="background:var(--white);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);border-left:4px solid var(--rust);text-align:left;">
-        <h4 style="color:var(--green-dark);margin-bottom:4px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;">Life</h4>
-        <div style="color:var(--rust);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">More of it</div>
-        <p style="color:var(--text-muted);font-size:.9rem;">We exist to give business owners back the hours that paperwork stole — time for the things that make the work worth it.</p>
-      </div>
-      <div style="background:var(--white);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);border-left:4px solid var(--sand);text-align:left;">
-        <h4 style="color:var(--green-dark);margin-bottom:4px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;">Integrity</h4>
-        <div style="color:var(--rust);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Say it. Mean it. Do it.</div>
-        <p style="color:var(--text-muted);font-size:.9rem;">When we make a commitment, it's done. We tell you what we actually think and name the risks before the rewards.</p>
-      </div>
-      <div style="background:var(--white);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);border-left:4px solid var(--green-mid);text-align:left;">
-        <h4 style="color:var(--green-dark);margin-bottom:4px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;">People</h4>
-        <div style="color:var(--rust);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">The whole point</div>
-        <p style="color:var(--text-muted);font-size:.9rem;">Not customers or accounts — people, with real lives and a business they poured themselves into. Everything we build is in service of a person.</p>
+      <div class="cta-row">
+        <a class="btn" href="#signup">Get started</a>
+        <span class="cta-note">Questions first? <a href="mailto:hello@korvo.ai">hello@korvo.ai</a></span>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a href="/" class="nav-logo" style="display:inline-flex;margin-bottom:14px;">
-          <svg width="28" height="28" viewBox="0 0 100 100" aria-hidden="true">
-            <polygon points="50,2 98,50 50,50" fill="#2d6b4f"/>
-            <polygon points="50,2 2,50 50,50" fill="#fff"/>
-            <polygon points="2,50 50,98 50,50" fill="#fff"/>
-            <polygon points="98,50 50,98 50,50" fill="#b85c45"/>
-          </svg>
-          <span style="color:#fff;">Korvo AI</span>
-        </a>
-        <p>Eliminating small business pain points with AI research, creation, and implementation.</p>
-        <div style="margin-top:20px;">
-          <p style="font-size:.8rem;margin-bottom:8px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;">Newsletter</p>
-          <form class="newsletter-form newsletter-inline" style="max-width:320px;">
-            <input type="email" placeholder="your@email.com" required />
-            <button type="submit" class="btn btn-primary" style="white-space:nowrap;">Subscribe</button>
-          </form>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Company</h4>
-        <ul>
-          <li><a href="/about">About Us</a></li>
-          <li><a href="/pricing">Pricing</a></li>
-          <li><a href="/book">Book a Call</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Services</h4>
-        <ul>
-          <li><a href="/learn-more#voice">Voice Receptionist</a></li>
-          <li><a href="/learn-more#creation">AI Creation</a></li>
-          <li><a href="/learn-more#sms">SMS Confirmation</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Contact</h4>
-        <ul>
-          <li><a href="mailto:jack@korvo.ai">jack@korvo.ai</a></li>
-          <li><a href="/book">Free Consultation</a></li>
-        </ul>
-      </div>
+</main>
+
+<!-- ═══ FOOTER: minimal ═══ -->
+<footer class="dark foot">
+  <div class="wrap">
+    <div class="foot-row">
+      <a class="brand" href="#top" aria-label="Korvo AI, back to top">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+          <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+          <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+          <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+          <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+        </svg>
+        <span class="wordmark">Korvo<em> AI</em></span>
+      </a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+        <a href="mailto:hello@korvo.ai">hello@korvo.ai</a>
+      </nav>
+      <a class="btn btn-sm" href="#signup">Get started</a>
     </div>
-    <div class="footer-bottom">
-      <span>&copy; 2026 Korvo AI. All rights reserved. &middot; <a href="/admin">Admin</a></span>
-      <span>Provo, Utah &middot; (858) 774-2699 &middot; <a href="mailto:hello@korvo.ai">hello@korvo.ai</a></span>
-    </div>
+    <p class="foot-base">&copy; 2026 Korvo AI LLC, Provo, Utah. After-hours AI receptionist for dental and medical practices.</p>
   </div>
 </footer>
 
-<button class="scroll-top" aria-label="Back to top">&#8593;</button>
+<script src="/js/config.js"></script>
+<script>
+(function () {
+  'use strict';
 
-<script src="/js/main.js"></script>
+  /* Go-live day: "Live in 48 hours" made concrete. Sign up today → live two days out. */
+  try {
+    var d = new Date();
+    d.setDate(d.getDate() + 2);
+    var day = d.toLocaleDateString('en-US', { weekday: 'long' });
+    document.querySelectorAll('[data-golive]').forEach(function (el) { el.textContent = 'by ' + day; });
+    document.querySelectorAll('[data-golive-day]').forEach(function (el) { el.textContent = day; });
+  } catch (_) { /* static fallback text stays */ }
+
+  /* Step 2: payment link from config.js (PAYMENT_URL). Placeholder '#' shows a fallback note. */
+  var pay = document.getElementById('payLink');
+  var payFallback = document.getElementById('payFallback');
+  var url = (typeof PAYMENT_URL === 'string') ? PAYMENT_URL.trim() : '';
+  if (/^https:\/\//i.test(url)) {
+    pay.href = url;
+  } else {
+    pay.addEventListener('click', function (e) {
+      e.preventDefault();
+      payFallback.hidden = false;
+    });
+  }
+
+  /* Step 1: intake → existing POST /api/contact */
+  var form = document.getElementById('signupForm');
+  var btn = document.getElementById('signupBtn');
+  var msg = document.getElementById('formMsg');
+  var stepTwo = document.getElementById('stepTwo');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.className = 'form-msg';
+    msg.textContent = '';
+
+    if (!form.checkValidity()) {
+      var bad = form.querySelector(':invalid');
+      var label = bad && form.querySelector('label[for="' + bad.id + '"]');
+      msg.className = 'form-msg err';
+      msg.textContent = label ? (label.textContent + ' is missing or doesn’t look right.') : 'Check the fields above.';
+      if (bad) bad.focus();
+      return;
+    }
+
+    var fd = new FormData(form);
+    var business = String(fd.get('message') || '').trim();
+    var payload = {
+      name: String(fd.get('name') || '').trim(),
+      email: String(fd.get('email') || '').trim(),
+      phone: String(fd.get('phone') || '').trim(),
+      service: String(fd.get('service') || ''),
+      preferred_time: '',
+      message: 'Business: ' + business + '\nSource: korvo.ai signup (step 1 of 2: details sent, payment next)'
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json().catch(function () { return {}; }).then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (r) {
+        if (r.ok) {
+          msg.className = 'form-msg ok';
+          msg.textContent = 'Got it, ' + payload.name.split(' ')[0] + '. Last step: pay below so we can start your setup.';
+          form.reset();
+          stepTwo.classList.add('ready');
+          btn.textContent = 'Details sent';
+          pay.focus({ preventScroll: true });
+          stepTwo.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+        } else {
+          msg.className = 'form-msg err';
+          msg.textContent = (r.data && r.data.error) || 'That didn’t go through. Try again, or email hello@korvo.ai.';
+          btn.disabled = false;
+          btn.textContent = 'Send my details';
+        }
+      })
+      .catch(function () {
+        msg.className = 'form-msg err';
+        msg.textContent = 'Couldn’t reach our server. Try again, or email hello@korvo.ai.';
+        btn.disabled = false;
+        btn.textContent = 'Send my details';
+      });
+  });
+})();
+</script>
 </body>
 </html>

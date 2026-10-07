@@ -68,14 +68,29 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Retired pages. korvo.ai now sells one product (after-hours AI receptionist, $997/mo),
+// so the old multi-offer pages (SMS, AI research/creation, ROI pricing, consultations)
+// send visitors to the single landing page instead. Registered BEFORE express.static so
+// the .html paths are caught too. 302 (not 301) so this is easy to reverse.
+// The files are still in public/ — delete them once this direction is confirmed.
+const RETIRED_PAGES = {
+  '/about': '/',        '/about.html': '/',
+  '/learn-more': '/',   '/learn-more.html': '/',
+  '/pricing': '/#signup', '/pricing.html': '/#signup',
+  '/book': '/#signup',  '/book.html': '/#signup',
+};
+app.use((req, res, next) => {
+  const to = req.method === 'GET' && RETIRED_PAGES[req.path];
+  return to ? res.redirect(302, to) : next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Pages
 app.get('/',           (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/learn-more', (req, res) => res.sendFile(path.join(__dirname, 'public', 'learn-more.html')));
-app.get('/about',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'about.html')));
-app.get('/pricing',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
-app.get('/book',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'book.html')));
+app.get('/privacy',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
+app.get('/terms',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
 app.get('/admin',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 // Old separate intake URL now folds into the single admin page.
 app.get('/admin/discovery', (req, res) => res.redirect('/admin'));
@@ -121,7 +136,7 @@ app.post('/api/contact', async (req, res) => {
     res.json({ success: true, message: "Thanks! We'll be in touch within one business day." });
   } catch (err) {
     console.error('Mail error:', err.message);
-    res.status(500).json({ error: 'Could not send message. Please email jack@korvo.ai directly.' });
+    res.status(500).json({ error: 'Could not send message. Please email hello@korvo.ai directly.' });
   }
 });
 

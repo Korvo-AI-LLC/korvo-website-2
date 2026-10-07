@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Korvo AI — Brand System v3.0 (Draft)</title>
+<!--
+  DRAFT FOR OWNER REVIEW — Brand System v3.0
+  Not official. Brand System v2.0 (May 2026) stays the standard until this is approved.
+  Every change from v2 is listed in section "What changed" and every open call is in "Decisions for Jack".
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     v3 TOKENS — the single source of truth (copy this :root block)
+     ════════════════════════════════════════════════════════════════ */
+  :root {
+    /* Earth & Iron — core palette (unchanged from v2) */
+    --pine:        #1A4A2E;
+    --terracotta:  #B85C3A;
+    --sage:        #5E8B6F;
+    --teal:        #1A5C50;
+    --clay:        #C96B47;
+    --cream:       #F0EBE2;
+    --linen:       #E8DFD0;
+
+    /* Unified neutrals (v3 decision — replaces three conflicting sets) */
+    --pine-deep:   #132F1E;   /* "Night." was #143823 in the v2 guide */
+    --paper:       #FAF6ED;
+    --ink:         #1E1E1E;
+    --ink-mid:     #4A4542;
+    --ink-soft:    #68615E;   /* was #7A7370 / #6B6B6B — darkened to pass AA on Linen */
+    --rule:        #CEC5B8;
+
+    /* Functional accents (new in v3 — accessibility, not decoration) */
+    --kiln:        #9A4A2C;   /* terracotta for small text on light grounds; button hover */
+    --ember:       #E08A63;   /* terracotta-family text/accent on dark grounds */
+
+    --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --sans:  'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #D9D0C0; color: var(--ink); font: 400 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4, p, ul, ol, figure, blockquote, dl, dd { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  svg { display: block; }
+  a { color: var(--kiln); }
+  :focus-visible { outline: 3px solid var(--pine); outline-offset: 3px; }
+
+  .doc { max-width: 1040px; margin: 40px auto; background: var(--cream); box-shadow: 0 20px 80px rgba(0,0,0,.18); border-radius: 4px; overflow: hidden; }
+  @media (max-width: 1080px) { .doc { margin: 0; border-radius: 0; } }
+  .pad { padding-left: clamp(22px, 6vw, 72px); padding-right: clamp(22px, 6vw, 72px); }
+
+  /* Draft banner */
+  .draft { background: var(--terracotta); color: #fff; padding: 12px 0; font-size: 14px; }
+  .draft .pad { display: flex; flex-wrap: wrap; gap: 4px 24px; justify-content: space-between; }
+  .draft strong { font-weight: 700; }
+
+  /* ── Cover ── */
+  .cover { position: relative; overflow: hidden; background: var(--pine-deep); color: var(--cream); padding-top: clamp(48px, 7vw, 88px); padding-bottom: clamp(56px, 8vw, 104px); }
+  .cover-mark { position: absolute; right: -9%; top: 50%; width: min(64%, 560px); transform: translateY(-50%); opacity: .14; pointer-events: none; }
+  .cover-top { position: relative; display: flex; align-items: center; gap: 14px; }
+  .cover-top svg { width: 40px; height: 40px; }
+  .wm { font: 700 26px/1 var(--serif); letter-spacing: -0.01em; }
+  .wm em { font-style: italic; font-weight: 400; color: var(--ember); }
+  .cover h1 { position: relative; margin-top: clamp(56px, 9vw, 120px); font: 800 clamp(52px, 9.4vw, 120px)/0.94 var(--serif); letter-spacing: -0.035em; max-width: 9.5em; }
+  .cover h1 span { display: block; }
+  .cover h1 .art { font-style: italic; font-weight: 400; color: var(--ember); }
+  .cover-sub { position: relative; margin-top: 32px; font-size: clamp(17px, 1.8vw, 20px); color: rgba(240,235,226,.78); max-width: 34em; }
+  .cover-meta { position: relative; margin-top: 48px; display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 12px 48px; font-size: 14px; color: rgba(240,235,226,.7); }
+  .cover-meta b { display: block; font: italic 400 17px/1.3 var(--serif); color: var(--cream); margin-top: 2px; }
+  @media (max-width: 640px) { .cover-meta { grid-template-columns: 1fr 1fr; } }
+
+  /* ── Sections ── */
+  section.s { padding-top: clamp(56px, 7vw, 88px); padding-bottom: clamp(56px, 7vw, 88px); border-bottom: 1px solid var(--rule); }
+  section.s.night { background: var(--pine-deep); color: var(--cream); border-bottom-color: transparent; }
+  section.s.paper { background: var(--paper); }
+  .s-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 48px; align-items: end; margin-bottom: clamp(32px, 4vw, 48px); }
+  .s-num { font: italic 400 20px/1 var(--serif); color: var(--kiln); }
+  .night .s-num { color: var(--ember); }
+  .s-title { margin-top: 10px; font: 700 clamp(34px, 4.6vw, 52px)/1.04 var(--serif); letter-spacing: -0.02em; color: var(--pine); }
+  .night .s-title { color: var(--cream); }
+  .s-intro { font-size: 17px; color: var(--ink-mid); max-width: 30em; }
+  .night .s-intro { color: rgba(240,235,226,.78); }
+  @media (max-width: 760px) { .s-head { grid-template-columns: 1fr; } }
+
+  h3.h { font: 700 22px/1.25 var(--serif); color: var(--pine); margin: 0 0 10px; }
+  .night h3.h { color: var(--cream); }
+  .sub { margin-top: clamp(40px, 5vw, 56px); }
+  p.body { color: var(--ink-mid); max-width: 38em; }
+  p.body + p.body { margin-top: 12px; }
+  .night p.body { color: rgba(240,235,226,.8); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 760px) { .grid2, .grid3 { grid-template-columns: 1fr; } .grid4 { grid-template-columns: 1fr 1fr; } }
+  .tile { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 22px; }
+  .tile p { color: var(--ink-mid); font-size: 15px; }
+  .tile p + p { margin-top: 8px; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 3px; }
+  .tag.keep { background: rgba(26,74,46,.1); color: var(--pine); }
+  .tag.fix  { background: rgba(184,92,58,.12); color: var(--kiln); }
+  .tag.new  { background: var(--pine); color: var(--cream); }
+
+  /* ── 01 Essence ── */
+  .essence { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .big-word { font: 800 clamp(96px, 16vw, 200px)/0.82 var(--serif); letter-spacing: -0.05em; color: var(--cream); }
+  .big-word em { font-style: italic; font-weight: 400; color: var(--ember); }
+  .felt { margin-top: 28px; display: grid; gap: 10px; }
+  .felt li { font: italic 400 clamp(20px, 2.4vw, 26px)/1.3 var(--serif); color: var(--cream); }
+  .felt li::before { content: '\201C'; color: var(--ember); margin-right: 2px; }
+  .felt li::after { content: '\201D'; color: var(--ember); }
+  .ledger { border-top: 1px solid rgba(240,235,226,.18); }
+  .ledger li { display: grid; grid-template-columns: 7.5em 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(240,235,226,.18); font-size: 15.5px; color: rgba(240,235,226,.82); }
+  .ledger b { font: italic 600 17px/1.3 var(--serif); color: var(--ember); }
+  .quote-band { margin-top: clamp(48px, 6vw, 72px); padding-top: clamp(32px, 4vw, 48px); border-top: 1px solid rgba(240,235,226,.18); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 56px; }
+  .quote-band blockquote p { font: italic 400 clamp(30px, 4vw, 46px)/1.12 var(--serif); letter-spacing: -0.015em; color: var(--cream); }
+  .quote-band blockquote footer { margin-top: 12px; font-size: 14px; color: rgba(240,235,226,.7); }
+  .registers { display: grid; gap: 14px; }
+  .reg { border-radius: 4px; padding: 18px 20px; }
+  .reg.rent { background: rgba(240,235,226,.06); border: 1px solid rgba(240,235,226,.16); }
+  .reg.art  { background: var(--terracotta); color: #fff; }
+  .reg h4 { font: 700 17px/1.3 var(--sans); }
+  .reg p { margin-top: 6px; font-size: 15px; color: rgba(240,235,226,.82); }
+  .reg.art p { color: #fff; }
+  .reg .ex { margin-top: 10px; font-size: 15px; }
+  .reg.rent .ex { font-weight: 700; color: var(--cream); }
+  .reg.art .ex { font: italic 400 18px/1.35 var(--serif); }
+  @media (max-width: 760px) { .essence, .quote-band { grid-template-columns: 1fr; } }
+
+  /* ── Changelog table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+  th { font-weight: 700; color: var(--ink); background: var(--linen); }
+  td { color: var(--ink-mid); }
+  td:first-child { color: var(--ink); font-weight: 700; white-space: nowrap; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); }
+  .tablewrap table td:first-child { white-space: normal; min-width: 9em; }
+
+  /* ── 02 Mark ── */
+  .mk { fill: none; }
+  .mark-hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 48px); align-items: center; }
+  .construct { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 20px; }
+  .construct svg { width: 100%; height: auto; }
+  .spec { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  .spec li { display: grid; grid-template-columns: 11em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 15px; color: var(--ink-mid); }
+  .spec li b { color: var(--ink); }
+  code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: .88em; background: var(--linen); padding: 1px 5px; border-radius: 3px; color: var(--ink); }
+  .night code { background: rgba(240,235,226,.1); color: var(--cream); }
+  @media (max-width: 760px) { .mark-hero { grid-template-columns: 1fr; } .spec li { grid-template-columns: 1fr; gap: 2px; } }
+
+  .variant { border-radius: 4px; aspect-ratio: 1 / 1; display: grid; place-items: center; position: relative; border: 1px solid var(--rule); }
+  .variant svg { width: 42%; height: auto; }
+  .variant .lbl { position: absolute; left: 12px; bottom: 10px; right: 12px; font-size: 13px; font-weight: 700; line-height: 1.3; }
+  .v-light { background: var(--cream); } .v-light .lbl { color: var(--ink-mid); }
+  .v-paper { background: var(--paper); } .v-paper .lbl { color: var(--ink-mid); }
+  .v-night { background: var(--pine-deep); border-color: var(--pine-deep); } .v-night .lbl { color: rgba(240,235,226,.75); }
+  .v-pine { background: var(--pine); border-color: var(--pine); } .v-pine .lbl { color: rgba(240,235,226,.8); }
+  .v-terra { background: var(--terracotta); border-color: var(--terracotta); } .v-terra .lbl { color: #fff; }
+  .v-teal { background: var(--teal); border-color: var(--teal); } .v-teal .lbl { color: rgba(240,235,226,.8); }
+
+  .clear { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .clear figure { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 20px; }
+  .clear figure > svg { width: 100%; height: auto; }
+  .clear figcaption { margin-top: 12px; font-size: 14.5px; color: var(--ink-mid); }
+  .clear figcaption b { color: var(--ink); }
+  .sizes { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 28px; padding: 24px; background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; }
+  .sizes div { display: grid; justify-items: center; gap: 8px; font-size: 13px; color: var(--ink-mid); }
+  .sizes .no { color: var(--kiln); font-weight: 700; }
+  @media (max-width: 760px) { .clear { grid-template-columns: 1fr; } }
+
+  .misuse { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .misuse figure { border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; background: var(--paper); }
+  .misuse .stage { aspect-ratio: 4 / 3; display: grid; place-items: center; position: relative; background: var(--cream); }
+  .misuse .stage svg { width: 34%; height: auto; }
+  .misuse .stage::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - 1.5px), rgba(184,92,58,.85) calc(50% - 1.5px), rgba(184,92,58,.85) calc(50% + 1.5px), transparent calc(50% + 1.5px)); pointer-events: none; }
+  .misuse figcaption { padding: 10px 12px 12px; font-size: 13.5px; color: var(--ink-mid); line-height: 1.45; }
+  .misuse figcaption b { display: block; color: var(--kiln); }
+  @media (max-width: 760px) { .misuse { grid-template-columns: 1fr 1fr; } }
+
+  .lockup { display: flex; align-items: center; gap: 0; }
+  .lockup svg { width: 56px; height: 56px; margin-right: 22px; }
+  .lockup .wm { font-size: 46px; color: var(--pine); }
+  .lockup .wm em { color: var(--kiln); }
+  .night .lockup .wm { color: var(--cream); }
+  .night .lockup .wm em { color: var(--ember); }
+
+  /* ── 03 Color ── */
+  .clock { display: grid; grid-template-columns: 3fr 2fr; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); }
+  .clock > div { padding: clamp(24px, 3vw, 36px); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; }
+  .clock .n { background: var(--pine-deep); color: var(--cream); }
+  .clock .d { background: var(--cream); color: var(--pine); }
+  .clock .t { font: italic 400 clamp(26px, 3vw, 34px)/1.15 var(--serif); }
+  .clock p { font-size: 15px; }
+  .clock .n p { color: rgba(240,235,226,.78); }
+  .clock .d p { color: var(--ink-mid); }
+  .clock .spark { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--terracotta); margin-right: 8px; vertical-align: -1px; }
+  @media (max-width: 760px) { .clock { grid-template-columns: 1fr; } }
+
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .sw { border-radius: 4px; overflow: hidden; border: 1px solid var(--rule); background: var(--paper); }
+  .sw .chip { height: 92px; }
+  .sw .meta { padding: 10px 12px 12px; font-size: 13.5px; color: var(--ink-mid); }
+  .sw .meta b { display: block; font: italic 600 17px/1.2 var(--serif); color: var(--ink); }
+  .sw .meta code { font-size: 12.5px; }
+  .sw.wide { grid-column: span 2; }
+  .sw.wide .chip { height: 140px; }
+  @media (max-width: 760px) { .swatches { grid-template-columns: 1fr 1fr; } }
+  .ratio { display: flex; height: 40px; border-radius: 4px; overflow: hidden; border: 1px solid var(--rule); }
+  .ratio span { display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+
+  .pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pair { border-radius: 4px; padding: 14px 16px; border: 1px solid var(--rule); }
+  .pair .ex { font: 700 19px/1.2 var(--sans); }
+  .pair .ex.big { font: 700 26px/1.1 var(--serif); }
+  .pair .r { margin-top: 8px; font-size: 13px; font-weight: 700; }
+  @media (max-width: 760px) { .pairs { grid-template-columns: 1fr 1fr; } }
+
+  /* ── 04 Type ── */
+  .specimen { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .spec-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 26px; }
+  .spec-card .aa { font: 700 112px/0.9 var(--serif); color: var(--pine); letter-spacing: -0.03em; }
+  .spec-card .aa.sans { font: 400 112px/0.9 var(--sans); }
+  .spec-card .nm { margin-top: 14px; font: 700 20px/1.2 var(--serif); color: var(--pine); }
+  .spec-card p { margin-top: 6px; font-size: 14.5px; color: var(--ink-mid); }
+  .scale { border-top: 1px solid var(--rule); }
+  .scale li { display: grid; grid-template-columns: 10.5em minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  .scale .k { font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
+  .scale .k b { display: block; color: var(--ink); font-size: 14px; }
+  .scale .v { color: var(--pine); overflow-wrap: anywhere; }
+  @media (max-width: 760px) { .specimen { grid-template-columns: 1fr; } .scale li { grid-template-columns: 1fr; gap: 4px; } }
+
+  /* ── 05 Voice ── */
+  .principles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .principle { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 22px; }
+  .principle h4 { font: 700 19px/1.25 var(--serif); color: var(--pine); }
+  .principle p { margin-top: 6px; font-size: 15px; color: var(--ink-mid); }
+  .say { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .say > div { border-radius: 4px; padding: 18px 20px; }
+  .say .yes { background: rgba(26,74,46,.07); border-left: 3px solid var(--pine); }
+  .say .no  { background: rgba(184,92,58,.08); border-left: 3px solid var(--terracotta); }
+  .say b { display: block; font-size: 13px; margin-bottom: 6px; }
+  .say .yes b { color: var(--pine); } .say .no b { color: var(--kiln); }
+  .say p { font: italic 400 17px/1.45 var(--serif); color: var(--ink); }
+  .say + .say { margin-top: 12px; }
+  .banned { display: flex; flex-wrap: wrap; gap: 8px; }
+  .banned li { font-size: 15px; padding: 5px 12px; border-radius: 3px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink-mid); text-decoration: line-through; text-decoration-color: var(--terracotta); text-decoration-thickness: 2px; }
+  @media (max-width: 760px) { .principles, .say { grid-template-columns: 1fr; } }
+
+  /* ── 06 Applications ── */
+  .app-label { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .app-label h3.h { margin: 0; }
+  .app-label span { font-size: 14px; color: var(--ink-soft); }
+  .night .app-label span { color: rgba(240,235,226,.7); }
+
+  .frame { border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); }
+  .night .frame { border-color: rgba(240,235,226,.14); }
+  /* Hero A — Night (the default) */
+  .heroA { background: radial-gradient(ellipse 55% 70% at 85% 50%, rgba(201,107,71,.18), transparent 70%), var(--pine-deep); color: var(--cream); padding: 36px 36px 40px; display: grid; grid-template-columns: 7fr 5fr; gap: 28px; align-items: center; }
+  .heroA h4 { font: 700 clamp(30px, 4.2vw, 50px)/1.02 var(--serif); letter-spacing: -0.025em; }
+  .heroA p { margin-top: 10px; font-size: 15px; color: rgba(240,235,226,.78); }
+  .heroA .row { margin-top: 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .btnx { display: inline-flex; align-items: center; min-height: 42px; padding: 0 18px; border-radius: 4px; background: var(--terracotta); color: #fff; font: 700 15px/1 var(--sans); }
+  .btnx.pine { background: var(--pine); color: var(--cream); }
+  .heroA .pr { font: 700 24px/1 var(--serif); }
+  .heroA .pr small { font: 400 13px var(--sans); color: rgba(240,235,226,.75); margin-left: 4px; }
+  /* Demo widget (also used standalone) */
+  .callcard { background: var(--paper); color: var(--pine); border-radius: 6px; padding: 22px; box-shadow: 0 24px 60px -24px rgba(0,0,0,.55); }
+  .callcard .hd { display: flex; align-items: center; gap: 10px; font: 700 15px/1.3 var(--sans); color: var(--ink); }
+  .dot { position: relative; width: 11px; height: 11px; border-radius: 50%; background: var(--terracotta); flex-shrink: 0; }
+  .dot::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--terracotta); opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) { .dot::after { animation: ring 1.6s ease-out .6s 4; } }
+  @keyframes ring { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(2.1); opacity: 0; } }
+  .callcard .num { color: var(--pine); margin: 14px 0 10px; font: 700 clamp(34px, 4vw, 48px)/.98 var(--serif); letter-spacing: -0.02em; font-variant-numeric: lining-nums tabular-nums; }
+  .callcard .num span { display: block; white-space: nowrap; }
+  .callcard .num .ac { color: var(--sage); font-weight: 600; }
+  .callcard p { font-size: 14px; color: var(--ink-mid); line-height: 1.5; }
+  .callcard .btnx { margin-top: 14px; }
+  .callcard .ft { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+  /* Hero B — Day */
+  .heroB { background: var(--cream); padding: 32px 36px 36px; display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .heroB h4 { font: 700 clamp(28px, 3.8vw, 44px)/1.04 var(--serif); letter-spacing: -0.02em; color: var(--pine); max-width: 13em; }
+  .heroB p { margin-top: 10px; font-size: 15px; color: var(--ink-mid); max-width: 30em; }
+  .heroB .stamp { order: -1; font: 700 56px/1 var(--serif); color: var(--kiln); font-variant-numeric: lining-nums; }
+  .heroB .stamp small { font: 700 15px/1 var(--sans); color: var(--ink-soft); margin-left: 6px; }
+  /* Hero C — Statement (Art register) */
+  .heroC { background: var(--terracotta); color: #fff; padding: 40px 36px; position: relative; overflow: hidden; }
+  .heroC h4 { position: relative; font: italic 400 clamp(32px, 4.6vw, 56px)/1.06 var(--serif); letter-spacing: -0.02em; max-width: 13em; }
+  .heroC p { position: relative; margin-top: 14px; font-size: 15px; max-width: 32em; }
+  .heroC svg { position: absolute; right: -40px; bottom: -60px; width: 260px; height: 260px; opacity: .18; }
+  @media (max-width: 760px) { .heroA { grid-template-columns: 1fr; } }
+
+  .anatomy { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+  .anatomy .stagebg { background: var(--pine-deep); padding: 28px; border-radius: 6px; }
+  .notes { counter-reset: n; display: grid; gap: 0; border-top: 1px solid rgba(240,235,226,.18); }
+  .notes li { counter-increment: n; display: grid; grid-template-columns: 2em 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(240,235,226,.18); font-size: 15px; color: rgba(240,235,226,.82); }
+  .notes li::before { content: counter(n); font: italic 600 18px/1.3 var(--serif); color: var(--ember); }
+  .notes b { color: var(--cream); }
+  @media (max-width: 760px) { .anatomy { grid-template-columns: 1fr; } }
+
+  .proofrow { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 28px; background: var(--paper); padding: 28px; }
+  .proofrow h4 { font: 600 26px/1.15 var(--serif); color: var(--pine); }
+  .proofrow p { margin-top: 10px; font-size: 15px; color: var(--ink-mid); }
+  .tx { background: #fff; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; font-size: 14px; }
+  .tx .th { display: flex; justify-content: space-between; gap: 8px; padding: 10px 14px; background: var(--linen); color: var(--ink-mid); }
+  .tx dl { padding: 12px 14px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; }
+  .tx dt { font-weight: 700; color: var(--pine); } .tx dt.c { color: var(--kiln); }
+  .tx .gu { margin: 0 14px 14px; padding: 12px 14px; background: var(--pine); color: var(--cream); border-radius: 4px; font: italic 400 16px/1.35 var(--serif); }
+  @media (max-width: 760px) { .proofrow { grid-template-columns: 1fr; } }
+
+  .social { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, .62fr); gap: 14px; align-items: start; }
+  .post { aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden; position: relative; padding: 7%; display: flex; flex-direction: column; justify-content: space-between; }
+  .post.story { aspect-ratio: 9 / 16; }
+  .post .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 700; }
+  .post .foot svg { width: 18px; height: 18px; }
+  .p1 { background: var(--pine-deep); color: var(--cream); }
+  .p1 .t { font: 800 clamp(34px, 5vw, 58px)/.95 var(--serif); letter-spacing: -0.03em; font-variant-numeric: lining-nums; }
+  .p1 .t small { display: block; margin-top: 10px; font: 400 clamp(13px, 1.4vw, 16px)/1.35 var(--sans); letter-spacing: 0; color: rgba(240,235,226,.8); }
+  .p2 { background: var(--cream); color: var(--pine); border: 1px solid var(--rule); }
+  .p2 .t { font: italic 400 clamp(20px, 2.5vw, 28px)/1.15 var(--serif); letter-spacing: -0.01em; }
+  .p2 .foot { color: var(--ink-mid); }
+  .p3 { background: var(--terracotta); color: #fff; }
+  .p3 .t { font: 700 clamp(19px, 2.3vw, 26px)/1.15 var(--serif); }
+  .p3 .t span { display: block; margin-top: 10px; font: 400 clamp(12px, 1.2vw, 14px)/1.4 var(--sans); }
+  .p4 { background: var(--pine); color: var(--cream); }
+  .p4 .t { font: 700 clamp(18px, 2vw, 24px)/1.15 var(--serif); }
+  .p4 .n { font: 800 clamp(22px, 2.6vw, 32px)/.95 var(--serif); font-variant-numeric: lining-nums tabular-nums; }
+  .p4 .n span { display: block; white-space: nowrap; }
+  .p4 .n .ac { color: var(--ember); font-weight: 600; }
+  .social figcaption { margin-top: 8px; font-size: 13.5px; color: var(--ink-mid); line-height: 1.4; }
+  @media (max-width: 860px) { .social { grid-template-columns: 1fr 1fr; } }
+
+  .sig { background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 20px 22px; font-size: 14px; color: var(--ink-mid); max-width: 460px; }
+  .sig b { display: block; font: 700 16px/1.3 var(--sans); color: var(--ink); }
+  .sig .ln { margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--terracotta); display: flex; align-items: center; gap: 10px; }
+  .sig .ln svg { width: 20px; height: 20px; }
+  .sig .ln span { font-size: 13px; }
+
+  /* ── 07 Motion & Mood ── */
+  .mood { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .mood div { aspect-ratio: 3 / 4; border-radius: 4px; padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; color: var(--cream); position: relative; overflow: hidden; }
+  .mood b { font: italic 600 17px/1.2 var(--serif); position: relative; }
+  .mood span { font-size: 12.5px; opacity: .8; margin-top: 4px; position: relative; }
+  .m1 { background: radial-gradient(circle at 70% 30%, rgba(224,138,99,.45), transparent 35%), linear-gradient(160deg, #1d3b2a, var(--pine-deep)); }
+  .m2 { background: linear-gradient(180deg, #E9C9A8 0%, var(--clay) 100%); }
+  .m2 b, .m2 span { color: var(--pine-deep); }
+  .m3 { background: radial-gradient(ellipse at 50% 110%, rgba(184,92,58,.5), transparent 60%), linear-gradient(170deg, var(--teal), #0f3a32); }
+  .m4 { background: linear-gradient(180deg, var(--linen) 0%, var(--cream) 100%); border: 1px solid var(--rule); }
+  .m4 b, .m4 span { color: var(--pine); }
+  @media (max-width: 760px) { .mood { grid-template-columns: 1fr 1fr; } }
+
+  /* ── 08 Decisions ── */
+  .decisions { counter-reset: d; display: grid; gap: 12px; }
+  .decisions li { counter-increment: d; display: grid; grid-template-columns: 2.2em 1fr; gap: 12px; background: rgba(240,235,226,.05); border: 1px solid rgba(240,235,226,.14); border-radius: 4px; padding: 16px 18px; }
+  .decisions li::before { content: counter(d); font: italic 600 22px/1.2 var(--serif); color: var(--ember); }
+  .decisions b { color: var(--cream); display: block; }
+  .decisions span { font-size: 15px; color: rgba(240,235,226,.8); }
+
+  .colophon { padding-top: 32px; padding-bottom: 40px; background: var(--pine-deep); color: rgba(240,235,226,.62); font-size: 13.5px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; border-top: 1px solid rgba(240,235,226,.12); }
+</style>
+</head>
+<body>
+
+<!-- Mark sprite. Geometry is unchanged from v2: a diamond on a 100-unit grid, split into four facets. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mk-primary" viewBox="6 4 88 92">
+      <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+      <polygon points="50,8 90,50 50,50" fill="#1A4A2E"/>
+      <polygon points="10,50 50,50 50,92" fill="#1A4A2E"/>
+      <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+      <path d="M50 8V92M10 50H90" style="stroke: var(--ground, #F0EBE2); stroke-width: var(--cross, 3);"/>
+    </symbol>
+    <symbol id="mk-reversed" viewBox="6 4 88 92">
+      <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+      <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+      <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+      <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+      <path d="M50 8V92M10 50H90" style="stroke: var(--ground, #132F1E); stroke-width: var(--cross, 3);"/>
+    </symbol>
+    <symbol id="mk-mono" viewBox="6 4 88 92">
+      <polygon points="50,8 90,50 50,92 10,50" style="fill: var(--ink-fill, #1A4A2E);"/>
+      <path d="M50 8V92M10 50H90" style="stroke: var(--ground, #F0EBE2); stroke-width: var(--cross, 3);"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="doc">
+
+  <div class="draft">
+    <div class="pad">
+      <span><strong>Draft for owner review.</strong> Not official yet. Brand System v2.0 (May 2026) stays the standard until Jack signs off.</span>
+      <span>v3.0 draft, October 2026</span>
+    </div>
+  </div>
+
+  <!-- ═══ COVER ═══ -->
+  <header class="cover pad">
+    <svg class="cover-mark" viewBox="6 4 88 92" aria-hidden="true" style="--ground: #132F1E; --cross: 1.5;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg>
+    <div class="cover-top">
+      <svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#132F1E; --cross:5;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg>
+      <span class="wm">Korvo<em> AI</em></span>
+    </div>
+    <h1><span>We handle the rent.</span><span class="art">You make the art.</span></h1>
+    <p class="cover-sub">Brand System v3.0. The same earth-and-iron bones as v2, rebuilt around one idea: Korvo exists to give people their life back. This version is louder about that, and stricter about everything else.</p>
+    <div class="cover-meta">
+      <div>Owner<b>Jack Eliason</b></div>
+      <div>Status<b>Draft for review</b></div>
+      <div>Replaces<b>v2.0, May 2026</b></div>
+      <div>Applies to<b>Everything public</b></div>
+    </div>
+  </header>
+
+  <!-- ═══ 01 ESSENCE ═══ -->
+  <section class="s night pad" aria-labelledby="t1">
+    <div class="s-head">
+      <div><p class="s-num">01</p><h2 class="s-title" id="t1">The essence</h2></div>
+      <p class="s-intro">v2 described how Korvo looks. v3 starts with what Korvo is for. Every color, word, and layout choice below should trace back to this page.</p>
+    </div>
+
+    <div class="essence">
+      <div>
+        <p class="big-word">Korvo <em>= life.</em></p>
+        <ul class="felt" aria-label="What we want clients to hear from the people around them">
+          <li>You seem more alive.</li>
+          <li>It's like life came back into you.</li>
+        </ul>
+        <p class="body" style="margin-top:20px;">That's the review we're actually chasing. Not "the AI works." The owner's spouse noticing they're home for dinner. The dentist who starts painting again. Software is the tool. Aliveness is the product.</p>
+      </div>
+      <ul class="ledger" aria-label="What Korvo takes and what it gives back">
+        <li><b>We eat</b><span>The annoying, boring, repetitive, soul-sucking work. The 9 PM phone call. The same question for the fortieth time.</span></li>
+        <li><b>We free</b><span>The person underneath. Time to be themselves, build, create, rest, and go home.</span></li>
+        <li><b>We never</b><span>Pretend AI is the hero. The owner is the hero. We're the stagehand.</span></li>
+        <li><b>We sound</b><span>Like someone who's already solved this. Calm, specific, a little irreverent about busywork.</span></li>
+      </ul>
+    </div>
+
+    <div class="quote-band">
+      <blockquote>
+        <p>Everyone is an artist until the rent is due.</p>
+        <footer>Jack Eliason, founder</footer>
+      </blockquote>
+      <div>
+        <h3 class="h">Two registers: Rent and Art</h3>
+        <p class="body" style="margin-bottom:14px;">The founder's line is the whole brand tension in nine words. So every Korvo piece speaks in two registers, and always in this order: earn trust with the rent, then show the art.</p>
+        <div class="registers">
+          <div class="reg rent">
+            <h4>Rent: the practical promise</h4>
+            <p>Lato, Pine, Cream. Numbers, timeframes, prices, exclusions. This is what the buyer pays for.</p>
+            <p class="ex">Answers in under 2 rings. Live in 48 hours. $997 a month.</p>
+          </div>
+          <div class="reg art">
+            <h4>Art: the life it gives back</h4>
+            <p>Playfair italic, Terracotta or Ember. One line, used sparingly, never in place of the facts.</p>
+            <p class="ex">Go home at 5. Actually go home.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHAT CHANGED ═══ -->
+  <section class="s paper pad" aria-labelledby="tc">
+    <div class="s-head">
+      <div><p class="s-num">At a glance</p><h2 class="s-title" id="tc">What changed from v2</h2></div>
+      <p class="s-intro">Kept the bones, fixed the gaps, added the energy. Each change below is a decision you can accept or reject; the open ones are collected in section 08.</p>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Area</th><th>Status</th><th>What happened</th></tr></thead>
+        <tbody>
+          <tr><td>Palette</td><td><span class="tag keep">Kept</span></td><td>Earth &amp; Iron is unchanged: Pine, Terracotta, Sage, Deep Teal, Clay, Cream, Linen.</td></tr>
+          <tr><td>Neutrals</td><td><span class="tag fix">Fixed</span></td><td>The v2 guide, admin.html, and korvo_core_four.html used three different ink and rule sets. v3 picks one (mostly the core-four set) and darkens Ink Soft so it passes WCAG AA.</td></tr>
+          <tr><td>Kiln &amp; Ember</td><td><span class="tag new">New</span></td><td>Two functional terracotta tints. Terracotta text at small sizes fails contrast on Cream (3.8:1) and on Pine. Kiln and Ember fix that without adding a new hue.</td></tr>
+          <tr><td>The mark</td><td><span class="tag fix">Fixed</span></td><td>Same geometry. Added clear space, minimum size, cross weight, a reversed version for dark grounds (in v2's "on green" tile the pine facets vanish), and misuse rules.</td></tr>
+          <tr><td>Type</td><td><span class="tag keep">Kept</span> <span class="tag fix">Fixed</span></td><td>Playfair Display + Lato stay. Body moves from Lato Light 300 to Regular 400 for legibility. Tracked all-caps eyebrow labels are retired from public work.</td></tr>
+          <tr><td>Voice</td><td><span class="tag keep">Kept</span> <span class="tag new">New</span></td><td>The four v2 principles stay. Added the Rent/Art registers, a banned-word list, and "name what's not included."</td></tr>
+          <tr><td>Essence</td><td><span class="tag new">New</span></td><td>"Life" is now written down as the brand's center, with a proposed line: "We handle the rent. You make the art."</td></tr>
+          <tr><td>Applications</td><td><span class="tag new">New</span></td><td>Hero treatments, the demo-line widget, proof rows, social templates, and an email signature, all built from the live korvo.ai landing page.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ 02 THE MARK ═══ -->
+  <section class="s pad" aria-labelledby="t2">
+    <div class="s-head">
+      <div><p class="s-num">02</p><h2 class="s-title" id="t2">The mark</h2></div>
+      <p class="s-intro">A diamond in four facets: sage and pine for growth, terracotta for the warm, human corner. The geometry doesn't change. How it's handled now has rules.</p>
+    </div>
+
+    <div class="mark-hero">
+      <div class="construct">
+        <svg viewBox="0 0 100 100" role="img" aria-label="Construction of the mark on a 100-unit grid">
+          <defs><pattern id="g" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#CEC5B8" stroke-width=".3"/></pattern></defs>
+          <rect width="100" height="100" fill="url(#g)"/>
+          <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+          <polygon points="50,8 90,50 50,50" fill="#1A4A2E"/>
+          <polygon points="10,50 50,50 50,92" fill="#1A4A2E"/>
+          <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+          <path d="M50 8V92M10 50H90" stroke="#F0EBE2" stroke-width="3"/>
+          <g fill="#9A4A2C" font-family="Lato, sans-serif" font-size="3.6" font-weight="700">
+            <circle cx="50" cy="8" r="1.2"/><text x="53" y="7">50,8</text>
+            <circle cx="90" cy="50" r="1.2"/><text x="80" y="46">90,50</text>
+            <circle cx="50" cy="92" r="1.2"/><text x="53" y="97">50,92</text>
+            <circle cx="10" cy="50" r="1.2"/><text x="11" y="46">10,50</text>
+          </g>
+        </svg>
+      </div>
+      <ul class="spec">
+        <li><b>Grid</b><span>100 × 100 units. Vertices at <code>50,8</code> <code>90,50</code> <code>50,92</code> <code>10,50</code>. The diamond is 80 wide, 84 tall. That slight height is intentional; don't square it.</span></li>
+        <li><b>Facets</b><span>Top-left Sage. Top-right Pine. Bottom-left Pine. Bottom-right Terracotta. Never reorder.</span></li>
+        <li><b>The cross</b><span>A split in the ground color, not a drawn line. 3 units at 48px and up; 5 units below 48px so it survives small screens. v2 files used 2 and 6; both retire.</span></li>
+        <li><b>Crop for files</b><span>Use <code>viewBox="6 4 88 92"</code> so the mark sits tight in its box. The favicon at korvo.ai already does.</span></li>
+        <li><b>Wordmark</b><span>"Korvo" in Playfair Display 700, "AI" in Playfair italic 400. "AI" is Kiln on light grounds, Ember on dark. The gap between mark and wordmark is 0.4× the mark's width.</span></li>
+      </ul>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Four versions, chosen by the ground</h3>
+      <p class="body" style="margin-bottom:16px;">Primary on light grounds. Reversed on Pine, Pine Deep, and Teal, where the pine facets turn Cream so the shape doesn't disappear. On Terracotta the terracotta facet would vanish too, so use Mono Cream there. Mono Pine for one-color print.</p>
+      <div class="grid4">
+        <div class="variant v-light"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Primary, on Cream</span></div>
+        <div class="variant v-night"><svg viewBox="6 4 88 92" style="--ground:#132F1E;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Reversed, on Pine Deep</span></div>
+        <div class="variant v-terra"><svg viewBox="6 4 88 92" style="--ground:#B85C3A; --ink-fill:#F0EBE2;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Mono Cream, on Terracotta</span></div>
+        <div class="variant v-paper"><svg viewBox="6 4 88 92" style="--ground:#FAF6ED; --ink-fill:#1A4A2E;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Mono Pine, one-color print</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Clear space and minimum size</h3>
+      <div class="clear">
+        <figure>
+          <svg viewBox="0 0 240 150" role="img" aria-label="Clear space equals a quarter of the mark's width on every side">
+            <rect x="0" y="0" width="240" height="150" fill="#FAF6ED"/>
+            <rect x="50" y="15" width="140" height="120" fill="none" stroke="#B85C3A" stroke-width="1" stroke-dasharray="4 3"/>
+            <svg x="80" y="30" width="80" height="90" viewBox="6 4 88 92" style="--ground:#FAF6ED;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg>
+            <g fill="#9A4A2C" font-family="Lato, sans-serif" font-size="10" font-weight="700"><text x="54" y="80">x</text><text x="176" y="80">x</text><text x="117" y="26">x</text><text x="117" y="132">x</text></g>
+          </svg>
+          <figcaption><b>Clear space = x on every side,</b> where x is a quarter of the mark's width. With the wordmark, measure from the outer edge of the lockup. Nothing enters that box: no text, no edges, no other logos.</figcaption>
+        </figure>
+        <figure>
+          <div class="sizes" style="border:0; padding:8px 0; background:none;">
+            <div><svg width="64" height="67" viewBox="6 4 88 92" style="--ground:#FAF6ED;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg>64px · cross 3</div>
+            <div><svg width="32" height="33" viewBox="6 4 88 92" style="--ground:#FAF6ED; --cross:5;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg>32px · cross 5</div>
+            <div><svg width="20" height="21" viewBox="6 4 88 92" style="--ground:#FAF6ED; --cross:5;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg>20px minimum</div>
+            <div class="no"><svg width="12" height="13" viewBox="6 4 88 92" style="--ground:#FAF6ED; --cross:5;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg>12px: no</div>
+          </div>
+          <figcaption><b>Minimum: 20px tall on screen, 8mm in print.</b> With the wordmark, 24px tall. Below 20px the facets turn to mud; use the favicon file, which is already tuned for 16–32px.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Don't</h3>
+      <div class="misuse">
+        <figure><div class="stage" style="background:#1A4A2E;"><svg viewBox="6 4 88 92" style="--ground:#1A4A2E;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg></div><figcaption><b>Primary on Pine</b>The pine facets vanish. Use Reversed.</figcaption></figure>
+        <figure><div class="stage"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2; transform: scaleX(1.45);"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg></div><figcaption><b>Stretch or squash</b>Scale it evenly or not at all.</figcaption></figure>
+        <figure><div class="stage"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2; transform: rotate(45deg);"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg></div><figcaption><b>Rotate it</b>A tilted diamond is a square. It stops being ours.</figcaption></figure>
+        <figure><div class="stage"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2;"><polygon points="50,8 50,50 10,50" fill="#7B5CD6"/><polygon points="50,8 90,50 50,50" fill="#3B2A7A"/><polygon points="10,50 50,50 50,92" fill="#3B2A7A"/><polygon points="50,50 90,50 50,92" fill="#C14FD0"/></svg></div><figcaption><b>Recolor it</b>Especially purple. v1 is retired for a reason.</figcaption></figure>
+        <figure><div class="stage"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2; filter: drop-shadow(4px 6px 4px rgba(0,0,0,.45));"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg></div><figcaption><b>Add effects</b>No shadows, glows, bevels, or gradients.</figcaption></figure>
+        <figure><div class="stage"><svg viewBox="6 4 88 92"><polygon points="50,8 90,50 50,92 10,50" fill="none" stroke="#1A4A2E" stroke-width="3"/><path d="M50 8V92M10 50H90" stroke="#1A4A2E" stroke-width="3"/></svg></div><figcaption><b>Outline it</b>The facets are solid. An outline reads as a different mark.</figcaption></figure>
+        <figure><div class="stage" style="background: repeating-linear-gradient(35deg, #C96B47 0 10px, #E8DFD0 10px 20px, #5E8B6F 20px 30px);"><svg viewBox="6 4 88 92" style="--ground:#E8DFD0;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg></div><figcaption><b>Put it on noise</b>On photos or patterns, place it on a Cream or Pine plate.</figcaption></figure>
+        <figure><div class="stage"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2;"><polygon points="50,8 50,50 10,50" fill="#B85C3A"/><polygon points="50,8 90,50 50,50" fill="#1A4A2E"/><polygon points="10,50 50,50 50,92" fill="#1A4A2E"/><polygon points="50,50 90,50 50,92" fill="#5E8B6F"/><path d="M50 8V92M10 50H90" stroke="#F0EBE2" stroke-width="3"/></svg></div><figcaption><b>Reorder the facets</b>Terracotta lives bottom-right. Always.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 03 COLOR ═══ -->
+  <section class="s paper pad" aria-labelledby="t3">
+    <div class="s-head">
+      <div><p class="s-num">03</p><h2 class="s-title" id="t3">Color tells time</h2></div>
+      <p class="s-intro">Earth &amp; Iron stays. v3 gives it a job: Pine Deep is night, the hours Korvo works. Cream is morning, the life the owner wakes up to. Terracotta is the spark, the one thing we want you to act on.</p>
+    </div>
+
+    <div class="clock">
+      <div class="n"><p class="t">Night: Pine Deep</p><p>Heroes, the signup block, the footer, anything about after-hours. Cream type, Ember accents. This is where Korvo is working.</p></div>
+      <div class="d"><p class="t">Morning: Cream</p><p><span class="spark" aria-hidden="true"></span>Proof, transcripts, the life section. What's waiting when you open.</p></div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">The palette</h3>
+      <div class="swatches">
+        <div class="sw wide"><div class="chip" style="background:#1A4A2E"></div><div class="meta"><b>Pine</b>Primary. Headlines on light, big fields. <code>#1A4A2E</code></div></div>
+        <div class="sw wide"><div class="chip" style="background:#B85C3A"></div><div class="meta"><b>Hearth Terracotta</b>Accent. Buttons and the one thing to act on. <code>#B85C3A</code></div></div>
+        <div class="sw"><div class="chip" style="background:#132F1E"></div><div class="meta"><b>Pine Deep</b>Night ground. <code>#132F1E</code></div></div>
+        <div class="sw"><div class="chip" style="background:#5E8B6F"></div><div class="meta"><b>Sage</b>Mark, rules, large figures only. <code>#5E8B6F</code></div></div>
+        <div class="sw"><div class="chip" style="background:#1A5C50"></div><div class="meta"><b>Deep Teal</b>Secondary field. <code>#1A5C50</code></div></div>
+        <div class="sw"><div class="chip" style="background:#C96B47"></div><div class="meta"><b>Clay</b>Highlight, gradients' warm end. <code>#C96B47</code></div></div>
+        <div class="sw"><div class="chip" style="background:#F0EBE2"></div><div class="meta"><b>Cream</b>Surface. <code>#F0EBE2</code></div></div>
+        <div class="sw"><div class="chip" style="background:#E8DFD0"></div><div class="meta"><b>Linen</b>Surface, alt. <code>#E8DFD0</code></div></div>
+        <div class="sw"><div class="chip" style="background:#9A4A2C"></div><div class="meta"><b>Kiln</b> <span class="tag new">New</span><br>Small terracotta text on light; hover. <code>#9A4A2C</code></div></div>
+        <div class="sw"><div class="chip" style="background:#E08A63"></div><div class="meta"><b>Ember</b> <span class="tag new">New</span><br>Terracotta-family text on dark. <code>#E08A63</code></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">One set of neutrals</h3>
+      <p class="body" style="margin-bottom:16px;">Three files, three answers. v3 keeps the warm-tinted set that admin.html and korvo_core_four.html already share, with one change: Ink Soft is darkened so small text passes AA on Linen.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Token</th><th>v2 guide</th><th>admin.html</th><th>core_four.html</th><th>v3</th></tr></thead>
+          <tbody>
+            <tr><td>Ink</td><td>#2A2A2A</td><td>#1E1E1E</td><td>#1E1E1E</td><td><code>#1E1E1E</code></td></tr>
+            <tr><td>Ink Mid</td><td>#4A4A4A</td><td>#4A4542</td><td>#4A4542</td><td><code>#4A4542</code></td></tr>
+            <tr><td>Ink Soft</td><td>#6B6B6B</td><td>#7A7370</td><td>#7A7370</td><td><code>#68615E</code> 4.6:1 on Linen</td></tr>
+            <tr><td>Rule</td><td>#C9C0B0</td><td>#CEC5B8</td><td>#CEC5B8</td><td><code>#CEC5B8</code></td></tr>
+            <tr><td>Paper</td><td>#FAF6ED</td><td>#FAF6ED</td><td>none</td><td><code>#FAF6ED</code></td></tr>
+            <tr><td>Pine Deep</td><td>#143823</td><td>#132F1E</td><td>#132F1E</td><td><code>#132F1E</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Proportion</h3>
+      <div class="ratio" role="img" aria-label="Roughly 55 percent cream and paper, 30 percent pine, 10 percent terracotta, 5 percent everything else">
+        <span style="flex:55; background:#F0EBE2; color:#4A4542;">Cream &amp; Paper 55</span>
+        <span style="flex:30; background:#132F1E; color:#F0EBE2;">Pine 30</span>
+        <span style="flex:10; background:#B85C3A; color:#fff;">10</span>
+        <span style="flex:5; background:#5E8B6F;"></span>
+      </div>
+      <p class="body" style="margin-top:12px;">Terracotta stays scarce. If everything is terracotta, nothing is the button.</p>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Pairings that pass (and ones that don't)</h3>
+      <div class="pairs">
+        <div class="pair" style="background:#1A4A2E; color:#F0EBE2;"><p class="ex">Cream on Pine</p><p class="r">8.6:1 · any size</p></div>
+        <div class="pair" style="background:#132F1E; color:#F0EBE2;"><p class="ex">Cream on Pine Deep</p><p class="r">12.2:1 · any size</p></div>
+        <div class="pair" style="background:#B85C3A; color:#fff;"><p class="ex">White on Terracotta</p><p class="r">4.5:1 · buttons OK</p></div>
+        <div class="pair" style="background:#F0EBE2; color:#9A4A2C;"><p class="ex">Kiln on Cream</p><p class="r">5.2:1 · any size</p></div>
+        <div class="pair" style="background:#132F1E; color:#E08A63;"><p class="ex">Ember on Pine Deep</p><p class="r">5.5:1 · any size</p></div>
+        <div class="pair" style="background:#E8DFD0; color:#68615E;"><p class="ex">Ink Soft on Linen</p><p class="r">4.6:1 · any size</p></div>
+        <div class="pair" style="background:#F0EBE2; color:#B85C3A;"><p class="ex big">Terracotta on Cream</p><p class="r">3.8:1 · 24px+ only</p></div>
+        <div class="pair" style="background:#F0EBE2; color:#5E8B6F;"><p class="ex big">Sage on Cream</p><p class="r">3.3:1 · large figures only</p></div>
+        <div class="pair" style="background:#1A4A2E; color:#5E8B6F;"><p class="ex">Sage on Pine</p><p class="r">2.6:1 · never for text</p></div>
+      </div>
+      <p class="body" style="margin-top:14px;">v2 used 10px terracotta eyebrows on Cream and sage labels on Pine. Both fail. That's why Kiln and Ember exist.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 04 TYPE ═══ -->
+  <section class="s pad" aria-labelledby="t4">
+    <div class="s-head">
+      <div><p class="s-num">04</p><h2 class="s-title" id="t4">Type with a pulse</h2></div>
+      <p class="s-intro">Same two families. v3 uses them harder: bigger display sizes, tighter headlines, Playfair italic reserved for the Art register, and real figures for prices and phone numbers.</p>
+    </div>
+    <div class="specimen">
+      <div class="spec-card"><p class="aa">Aa</p><p class="nm">Playfair Display</p><p>700/800 for headlines and figures. Italic 400 for the one human line per piece. Lining figures on every price and phone number.</p></div>
+      <div class="spec-card"><p class="aa sans">Aa</p><p class="nm">Lato</p><p>400 for body (was Light 300; too thin under 18px). 700 for labels, buttons, and the Rent register. 300 only at 20px and up.</p></div>
+    </div>
+    <div class="sub">
+      <ul class="scale">
+        <li><span class="k"><b>Display</b>Playfair 800 · 96–128 · −3.5%</span><span class="v" style="font:800 clamp(48px,8vw,96px)/.94 var(--serif); letter-spacing:-.035em;">More alive.</span></li>
+        <li><span class="k"><b>H1</b>Playfair 700 · 56–78 · −2.5%</span><span class="v" style="font:700 clamp(36px,5vw,64px)/1.02 var(--serif); letter-spacing:-.025em;">Never miss a call.</span></li>
+        <li><span class="k"><b>H2</b>Playfair 700 · 36–52 · −2%</span><span class="v" style="font:700 clamp(28px,3.6vw,44px)/1.08 var(--serif); letter-spacing:-.02em;">Live by Friday.</span></li>
+        <li><span class="k"><b>Art line</b>Playfair italic 400 · 24–40</span><span class="v" style="font:italic 400 clamp(22px,2.8vw,34px)/1.25 var(--serif); color:var(--kiln);">Go home at 5. Actually go home.</span></li>
+        <li><span class="k"><b>Figure</b>Playfair 700 · lining, tabular</span><span class="v" style="font:700 clamp(30px,3.6vw,44px)/1 var(--serif); font-variant-numeric:lining-nums tabular-nums;">$997 · (270) 241-9200</span></li>
+        <li><span class="k"><b>Body</b>Lato 400 · 16–19 · 1.6</span><span class="v" style="font:400 17px/1.6 var(--sans); color:var(--ink-mid);">Plain, honest, unhurried. Short sentences. Real numbers.</span></li>
+        <li><span class="k"><b>Label</b>Lato 700 · 13–15 · sentence case</span><span class="v" style="font:700 14px/1.4 var(--sans); color:var(--kiln);">Sample call, Bright Smile Dental</span></li>
+      </ul>
+      <p class="body" style="margin-top:16px;"><b style="color:var(--ink);">Retired:</b> tracked-out ALL-CAPS eyebrows above every heading. They were v2's signature tic and read as template. Use a sentence-case label only when it carries information the heading doesn't.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 05 VOICE ═══ -->
+  <section class="s paper pad" aria-labelledby="t5">
+    <div class="s-head">
+      <div><p class="s-num">05</p><h2 class="s-title" id="t5">How we talk</h2></div>
+      <p class="s-intro">A thoughtful friend who happens to know automation. Talk like you're explaining it to a roofer over coffee. That rule from v2 stays the backbone.</p>
+    </div>
+    <div class="principles">
+      <div class="principle"><h4>Plain, not polished</h4><p>Short sentences. Real words. If you wouldn't say it out loud across a table, cut it.</p></div>
+      <div class="principle"><h4>Specific over clever</h4><p>"Live in 48 hours" beats "fast onboarding." Numbers, times, prices, named outcomes.</p></div>
+      <div class="principle"><h4>Honest about tradeoffs</h4><p>Name the risk before the reward. Say what we don't do. "Not for businesses needing daytime coverage" sells better than it looks.</p></div>
+      <div class="principle"><h4>Warm, never breathless</h4><p>Exclamation marks are rare. The calm of someone who has solved this before.</p></div>
+      <div class="principle"><h4>Rent, then art <span class="tag new">New</span></h4><p>Lead with the practical promise. Earn one line of life after it. Never the other way around.</p></div>
+      <div class="principle"><h4>Name what's not included <span class="tag new">New</span></h4><p>"No SMS. No chatbots. No websites. One thing, done right." Exclusions are proof of focus.</p></div>
+    </div>
+
+    <div class="sub">
+      <div class="say"><div class="yes"><b>Say this</b><p>"It picks up before the second ring. If it misses a call, you'll see it in the log."</p></div><div class="no"><b>Not this</b><p>"Unlock next-level patient engagement with our AI-powered solutions!"</p></div></div>
+      <div class="say"><div class="yes"><b>Say this</b><p>"Go home at 5. Actually go home."</p></div><div class="no"><b>Not this</b><p>"Reclaim your work-life balance and live your best life."</p></div></div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Banned words</h3>
+      <ul class="banned"><li>solutions</li><li>synergy</li><li>leverage</li><li>unlock</li><li>next-level</li><li>seamless</li><li>cutting-edge</li><li>revolutionize</li><li>game-changer</li><li>empower</li><li>AI-powered (as a selling point)</li></ul>
+      <p class="body" style="margin-top:12px;">The first five are from the owner. The rest are proposed. If a sentence needs one of these to work, the sentence is the problem.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 06 APPLICATIONS ═══ -->
+  <section class="s pad" aria-labelledby="t6">
+    <div class="s-head">
+      <div><p class="s-num">06</p><h2 class="s-title" id="t6">Applications</h2></div>
+      <p class="s-intro">v2 showed swatches. v3 shows the work. Everything here is pulled from the rebuilt korvo.ai landing page, so the guide and the site can't drift apart.</p>
+    </div>
+
+    <div class="app-label"><h3 class="h">Hero A: Night</h3><span>The default. Outcome headline, buyer, price, one CTA, demo line.</span></div>
+    <div class="frame">
+      <div class="heroA">
+        <div>
+          <h4>Never miss an after&#8209;hours call again.</h4>
+          <p>Built for dental and medical practices that close at 5.</p>
+          <div class="row"><span class="btnx">Get started</span><span class="pr">$997<small>a month, flat</small></span></div>
+        </div>
+        <div class="callcard" aria-hidden="true">
+          <p class="hd"><span class="dot"></span>Hear it answer right now.</p>
+          <p class="num"><span class="ac">(270)</span><span>241&#8209;9200</span></p>
+          <span class="btnx pine">Call the demo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub grid2" style="margin-top:28px;">
+      <div>
+        <div class="app-label"><h3 class="h">Hero B: Morning</h3><span>For proof-led pages.</span></div>
+        <div class="frame"><div class="heroB"><div><h4>Every call from last night, in your inbox by 7.</h4><p>Names, numbers, reasons, bookings. Read it with your coffee.</p></div><p class="stamp">7:00<small>AM</small></p></div></div>
+      </div>
+      <div>
+        <div class="app-label"><h3 class="h">Hero C: Statement</h3><span>Art register. Brand moments only.</span></div>
+        <div class="frame"><div class="heroC"><svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#B85C3A; --ink-fill:#F0EBE2;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><h4>Everyone is an artist until the rent is due.</h4><p>We handle the rent.</p></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="app-label"><h3 class="h">The demo-line widget</h3><span>The loudest object on any page. One per page.</span></div>
+      <div class="anatomy">
+        <div class="stagebg">
+          <div class="callcard">
+            <p class="hd"><span class="dot" aria-hidden="true"></span>Hear it answer right now.</p>
+            <p class="num"><span class="ac">(270)</span><span>241&#8209;9200</span></p>
+            <p>This is our demo practice, Bright Smile Dental. Call it the way a patient would.</p>
+            <span class="btnx pine">Call the demo</span>
+            <p class="ft">It's a pretend practice, so nothing you book is real.</p>
+          </div>
+        </div>
+        <div class="night" style="background:var(--pine-deep); border-radius:6px; padding:20px 24px;">
+          <ol class="notes">
+            <li><span><b>Paper card on a night ground.</b> A lit window at 9 PM. Never terracotta; the card must not compete with the primary button.</span></li>
+            <li><span><b>Live dot.</b> Terracotta, one ring pulse, four cycles, then still. Off entirely under reduced motion.</span></li>
+            <li><span><b>Stacked number.</b> Area code in Sage 600, line number in Pine 700, Playfair lining tabular figures. The whole number is a <code>tel:</code> link.</span></li>
+            <li><span><b>One sentence of instruction.</b> Tell people what to try: book, ask hours, try to trip it up.</span></li>
+            <li><span><b>One secondary button</b> in Pine. Terracotta is reserved for "Get started."</span></li>
+            <li><span><b>Honesty footnote.</b> Say it's a demo practice. Integrity applies to the demo too.</span></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="app-label"><h3 class="h">Proof row</h3><span>Claim on the left, evidence on the right. Replaces testimonial grids.</span></div>
+      <div class="frame">
+        <div class="proofrow">
+          <div><h4>It picks up before the second ring. Every call.</h4><p>Every claim on a Korvo page sits next to its receipt: a transcript, a number to call, a guarantee.</p></div>
+          <div class="tx">
+            <p class="th"><span><b style="color:var(--ink)">Sample call</b>, Bright Smile Dental</span><span>Tue, 8:47 PM</span></p>
+            <dl><dt>Korvo</dt><dd>Thanks for calling Bright Smile Dental. The office is closed for the night. I'm the office's AI assistant.</dd><dt class="c">Caller</dt><dd>I chipped a tooth at dinner.</dd></dl>
+            <p class="gu">If it misses a call in your first 30 days, month two is free. <span style="font:400 12px var(--sans); opacity:.8;">(draft guarantee, pending approval)</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="app-label"><h3 class="h">Social</h3><span>1080 × 1080 posts and a 1080 × 1920 story. Rent, Art, Proof, Call.</span></div>
+      <div class="social">
+        <figure>
+          <div class="post p1"><p class="t">8:47 PM.<small>Someone just called your practice. Who picked up?</small></p><p class="foot"><svg viewBox="6 4 88 92" style="--ground:#132F1E; --cross:5;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg><span>korvo.ai</span></p></div>
+          <figcaption>Rent. A time, a question, nothing else.</figcaption>
+        </figure>
+        <figure>
+          <div class="post p2"><p class="t">Everyone is an artist until the rent is due.</p><p class="foot"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2; --cross:5;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg><span>Jack, Korvo</span></p></div>
+          <figcaption>Art. One line, the founder's voice.</figcaption>
+        </figure>
+        <figure>
+          <div class="post p3"><p class="t">"You're set for Thursday at 9:30."<span>Our AI booked this at 8:47 PM while the office was dark. Call (270) 241-9200 and hear it.</span></p><p class="foot"><svg viewBox="6 4 88 92" style="--ground:#B85C3A; --cross:5; --ink-fill:#F0EBE2;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><span>Sample call</span></p></div>
+          <figcaption>Proof. A real line from a demo call.</figcaption>
+        </figure>
+        <figure>
+          <div class="post story p4"><p class="t">Call this number right now.</p><p class="n"><span class="ac">(270)</span><span>241&#8209;9200</span></p><p class="foot"><svg viewBox="6 4 88 92" style="--ground:#1A4A2E; --cross:5;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg><span>korvo.ai</span></p></div>
+          <figcaption>Story. The demo line, nothing else.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="sub grid2">
+      <div>
+        <div class="app-label"><h3 class="h">Email signature</h3><span>Plain text-safe. No banner images.</span></div>
+        <div class="sig"><b>Jack Eliason</b>Founder, Korvo AI<div class="ln"><svg viewBox="6 4 88 92" style="--ground:#fff; --cross:5;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg><span>hello@korvo.ai &nbsp; Hear our AI answer: (270) 241-9200</span></div></div>
+      </div>
+      <div>
+        <h3 class="h">Buttons</h3>
+        <p class="body">One primary label everywhere: <b style="color:var(--ink)">Get started</b>, Terracotta with white type, hover Kiln. Secondary actions in Pine. No arrows tacked onto button text, no "Learn more" exits in a buyer path.</p>
+        <p style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;"><span class="btnx">Get started</span><span class="btnx pine">Call the demo</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 07 MOTION & MOOD ═══ -->
+  <section class="s paper pad" aria-labelledby="t7">
+    <div class="s-head">
+      <div><p class="s-num">07</p><h2 class="s-title" id="t7">Motion and mood</h2></div>
+      <p class="s-intro">Less Silicon Valley, more lamp-lit workshop, kept from v2. v3 adds the life we're giving back: evenings, studios, people doing the thing they started out to do.</p>
+    </div>
+    <div class="mood">
+      <div class="m1"><b>The lamp still on at 9 PM</b><span>The problem, felt.</span></div>
+      <div class="m2"><b>Saturday, phone in a drawer</b><span>The life we give back.</span></div>
+      <div class="m3"><b>A studio, hands busy</b><span>The artist after the rent.</span></div>
+      <div class="m4"><b>Morning, inbox ready</b><span>The proof, quietly waiting.</span></div>
+    </div>
+    <div class="sub grid2">
+      <div><h3 class="h">One moment of motion</h3><p class="body">Each page gets one orchestrated movement. On korvo.ai it's the live dot on the demo line. No fade-up on every section, no hover wiggles. Always respect reduced-motion settings.</p></div>
+      <div><h3 class="h">Photography</h3><p class="body">Real owners, real rooms, warm late light. People doing the thing they love, not staring at a laptop. Never stock robots, glowing brains, or blue circuitry.</p></div>
+    </div>
+  </section>
+
+  <!-- ═══ 08 DECISIONS ═══ -->
+  <section class="s night pad" aria-labelledby="t8">
+    <div class="s-head">
+      <div><p class="s-num">08</p><h2 class="s-title" id="t8">Decisions for Jack</h2></div>
+      <p class="s-intro">Nothing here is official until you say so. These are the calls that change something you or the team already use.</p>
+    </div>
+    <ol class="decisions">
+      <li><span><b>Adopt "We handle the rent. You make the art." as the brand line?</b>Derived from your quote. Proposed for the cover, social, and brand moments; not for the landing hero, which stays outcome-first.</span></li>
+      <li><span><b>Approve the reversed mark for dark grounds?</b>Pine facets become Cream. Already live in the new site's nav and footer on the landing-rebuild branch.</span></li>
+      <li><span><b>Approve Kiln (#9A4A2C) and Ember (#E08A63)?</b>Functional tints of Terracotta for accessible text. No new hue.</span></li>
+      <li><span><b>Approve the neutral set, including Ink Soft moving to #68615E?</b>admin.html and korvo_core_four.html would update to match.</span></li>
+      <li><span><b>Retire Lato Light for body text and all-caps eyebrows in public work?</b>Internal docs can keep them until they're next edited.</span></li>
+      <li><span><b>Approve the guarantee shown in the proof-row example?</b>"If it misses a call in your first 30 days, month two is free." Pending your sign-off, same as on the site.</span></li>
+    </ol>
+  </section>
+
+  <footer class="colophon pad">
+    <span>Korvo AI LLC, Provo, Utah. hello@korvo.ai</span>
+    <span>Brand System v3.0, draft. Tokens live in this file's :root block.</span>
+  </footer>
+
+</div>
+</body>
+</html>

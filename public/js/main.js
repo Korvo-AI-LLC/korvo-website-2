@@ -61,7 +61,7 @@ contactForm?.addEventListener('submit', async e => {
       msg.classList.add('error');
     }
   } catch {
-    msg.textContent = 'Could not connect. Please email jack@korvo.ai directly.';
+    msg.textContent = 'Could not connect. Please email hello@korvo.ai directly.';
     msg.classList.add('error');
   }
 
