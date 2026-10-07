@@ -1,0 +1,74 @@
+/* Korvo intake wizard (signup modal + /intake). Tokens: Brand System v3 draft. */
+.ki { --ki-pine:#1A4A2E; --ki-pine-deep:#132F1E; --ki-sage:#5E8B6F; --ki-terracotta:#B85C3A; --ki-kiln:#9A4A2C;
+      --ki-cream:#F0EBE2; --ki-linen:#E8DFD0; --ki-paper:#FAF6ED; --ki-ink:#1E1E1E; --ki-ink-mid:#4A4542;
+      --ki-ink-soft:#68615E; --ki-rule:#CEC5B8; --ki-serif:'Playfair Display', Georgia, serif;
+      --ki-sans:'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      font: 400 16.5px/1.55 var(--ki-sans); color: var(--ki-ink); }
+.ki *, .ki *::before, .ki *::after { box-sizing: border-box; }
+.ki :focus-visible { outline: 3px solid var(--ki-pine); outline-offset: 2px; }
+.ki [hidden] { display: none !important; } /* component display rules must not beat the hidden attribute */
+
+.ki-progress { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--ki-ink-soft); }
+.ki-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--ki-linen); overflow: hidden; }
+.ki-bar span { display: block; height: 100%; background: var(--ki-sage); transition: width .25s ease; }
+@media (prefers-reduced-motion: reduce) { .ki-bar span { transition: none; } }
+
+.ki-step { margin-top: 18px; }
+.ki-step-num { font: italic 600 18px/1 var(--ki-serif); color: var(--ki-kiln); }
+.ki-step h3 { margin: 6px 0 0; font: 700 clamp(24px, 3vw, 30px)/1.15 var(--ki-serif); color: var(--ki-pine); letter-spacing: -0.01em; }
+.ki-step h3:focus { outline: none; }
+.ki-step-sub { margin: 6px 0 0; font-size: 15.5px; color: var(--ki-ink-mid); }
+
+.ki-fields { margin-top: 20px; display: grid; gap: 18px; }
+.ki-field { display: grid; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.ki-field > label, .ki-field > legend { font-size: 15px; font-weight: 700; color: var(--ki-ink); padding: 0; }
+.ki-hint { font-size: 13.5px; color: var(--ki-ink-soft); margin-top: -2px; }
+.ki input[type=text], .ki input[type=email], .ki input[type=tel], .ki input[type=date], .ki input[type=number], .ki select, .ki textarea {
+  width: 100%; min-height: 46px; padding: 10px 12px; font: 400 16px/1.35 var(--ki-sans); color: var(--ki-ink);
+  background: #fff; border: 1px solid #B9AF9F; border-radius: 4px; -webkit-appearance: none; appearance: none; }
+.ki textarea { min-height: 88px; resize: vertical; }
+.ki select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%231A4A2E' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.ki input[readonly] { background: var(--ki-linen); color: var(--ki-ink-mid); }
+.ki input:focus, .ki select:focus, .ki textarea:focus { outline: 3px solid var(--ki-pine); outline-offset: 0; border-color: var(--ki-pine); }
+.ki-affix { display: flex; align-items: center; gap: 8px; }
+.ki-affix span { color: var(--ki-ink-soft); font-weight: 700; }
+.ki-affix input { max-width: 200px; }
+
+.ki-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ki-opt { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px 14px;
+  border: 1px solid #B9AF9F; border-radius: 4px; background: #fff; cursor: pointer; font-size: 15px; }
+.ki-opt input { width: 18px; height: 18px; margin: 0; accent-color: var(--ki-pine); }
+.ki-opt:has(input:checked) { border-color: var(--ki-pine); background: rgba(26,74,46,.07); }
+.ki-opt:has(input:focus-visible) { outline: 3px solid var(--ki-pine); outline-offset: 2px; }
+.ki-opt.ki-wide { width: 100%; }
+
+.ki-rep { display: grid; gap: 8px; }
+.ki-rep-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) auto auto; gap: 8px; align-items: center; }
+.ki-rep-row .ki-opt { min-height: 46px; white-space: nowrap; }
+.ki-icon { min-width: 46px; min-height: 46px; border: 1px solid #B9AF9F; background: #fff; border-radius: 4px; font-size: 20px; line-height: 1; color: var(--ki-ink-mid); cursor: pointer; }
+.ki-link { justify-self: start; padding: 8px 0; background: none; border: 0; font: 700 15px var(--ki-sans); color: var(--ki-kiln); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 560px) { .ki-rep-row { grid-template-columns: 1fr 1fr; } }
+
+.ki-contact { margin-top: 18px; padding: 16px; background: var(--ki-linen); border-radius: 4px; display: grid; gap: 14px; }
+.ki-contact p { margin: 0; font-size: 14.5px; color: var(--ki-ink-mid); }
+.ki-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .ki-two { grid-template-columns: 1fr; } }
+
+.ki-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.ki-nav { position: sticky; bottom: 0; margin-top: 24px; padding: 14px 0 4px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--ki-nav-bg, #FAF6ED); border-top: 1px solid var(--ki-rule); }
+.ki-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 0; border-radius: 4px;
+  font: 700 16px/1 var(--ki-sans); cursor: pointer; text-decoration: none; }
+.ki-btn-primary { background: var(--ki-terracotta); color: #fff; }
+.ki-btn-primary:hover { background: var(--ki-kiln); }
+.ki-btn-ghost { background: transparent; color: var(--ki-pine); border: 1px solid var(--ki-rule); }
+.ki-btn-pine { background: var(--ki-pine); color: var(--ki-cream); }
+.ki-btn[disabled] { opacity: .6; cursor: default; }
+.ki-msg { margin: 10px 0 0; font-size: 15px; font-weight: 700; color: #9B2C1F; min-height: 1.4em; }
+.ki-msg.ok { color: var(--ki-pine); }
+.ki-saved { font-size: 13px; color: var(--ki-ink-soft); }
+
+.ki-done h3 { margin: 6px 0 0; font: 700 clamp(26px, 3.4vw, 34px)/1.15 var(--ki-serif); color: var(--ki-pine); }
+.ki-done h3:focus { outline: none; }
+.ki-done p { margin: 12px 0 0; color: var(--ki-ink-mid); }
+.ki-done .ki-btn { margin-top: 20px; }
+.ki-note { margin-top: 12px; padding: 12px 14px; background: var(--ki-linen); border-radius: 4px; font-size: 15px; }

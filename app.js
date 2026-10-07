@@ -9,6 +9,7 @@ const resend  = new Resend(process.env.RESEND_API_KEY);
 const discoveryStore = require('./lib/discoveryStore');
 const callStore = require('./lib/callStore');
 const signupStore = require('./lib/signupStore');
+const intakeSchema = require('./lib/intakeSchema'); // reads SCHEMA from public/admin.html (untouched)
 // Sender for all site email. onboarding@resend.dev only delivers to the Resend account
 // owner's own address; set MAIL_FROM to an address on a domain verified in Resend
 // (e.g. "Korvo AI <notify@korvo.ai>") so mail can reach any inbox, including hello@korvo.ai.
@@ -33,6 +34,35 @@ async function sendMail({ to, subject, text, replyTo }) {
   } catch (err) {
     return { ok: false, error: err.message || String(err) };
   }
+}
+
+// Tell the owner about a new lead: email SIGNUP_NOTIFY_TO (hello@korvo.ai); if Resend rejects
+// that, retry once to MAIL_TO so the owner still hears about it. ok=true only if Resend accepted one.
+async function notifyOwner({ subject, text, replyTo, tag }) {
+  const first = await sendMail({ to: SIGNUP_NOTIFY_TO, subject, text, replyTo });
+  if (first.ok) return { ok: true, route: 'primary' };
+  console.error(`${tag} notify to ${SIGNUP_NOTIFY_TO} failed:`, first.error);
+  const fallback = process.env.MAIL_TO;
+  if (fallback && fallback.toLowerCase() !== SIGNUP_NOTIFY_TO.toLowerCase()) {
+    const retry = await sendMail({ to: fallback, subject: `[fallback] ${subject}`, text, replyTo });
+    if (retry.ok) return { ok: true, route: 'fallback' };
+    console.error(`${tag} notify fallback failed:`, retry.error);
+    return { ok: false, error: retry.error, firstError: first.error };
+  }
+  return { ok: false, error: first.error };
+}
+
+// Per-IP rate limiter (in memory; resets on deploy). Railway's proxy IP is handled by trust proxy.
+function makeLimiter({ windowMs, max }) {
+  const hits = new Map();
+  return (ip) => {
+    const now = Date.now();
+    const list = (hits.get(ip) || []).filter((t) => now - t < windowMs);
+    list.push(now);
+    hits.set(ip, list);
+    if (hits.size > 5000) hits.clear();
+    return list.length > max;
+  };
 }
 const ADMIN_PASS = process.env.ADMIN_PASS || 'korvo2026';
 // Shared secret the Trillet webhook (and the email-fallback job) must present.
@@ -118,6 +148,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/',           (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/privacy',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
 app.get('/terms',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
+app.get('/intake',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'intake.html')));
+// The intake SCHEMA as a script, generated from admin.html so /intake and the modal can never drift from /admin.
+app.get('/js/intake-schema.js', (req, res) => {
+  res.type('application/javascript').set('Cache-Control', 'no-cache');
+  res.send(`window.KORVO_INTAKE = ${JSON.stringify({ schema: intakeSchema.schema, version: intakeSchema.version })};\n`);
+});
 app.get('/admin',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 // Old separate intake URL now folds into the single admin page.
 app.get('/admin/discovery', (req, res) => res.redirect('/admin'));
@@ -172,23 +208,14 @@ app.post('/api/contact', async (req, res) => {
 // 1) validate  2) save the lead (so it's never lost)  3) email hello@korvo.ai
 // 4) if that send is rejected, retry once to MAIL_TO so the owner still hears about it
 // 5) respond success ONLY if a notification email was accepted by Resend.
-const SIGNUP_LIMIT = { windowMs: 10 * 60 * 1000, max: 5 };
-const signupHits = new Map(); // ip -> [timestamps]; in-memory, resets on deploy
-function rateLimited(ip) {
-  const now = Date.now();
-  const hits = (signupHits.get(ip) || []).filter((t) => now - t < SIGNUP_LIMIT.windowMs);
-  hits.push(now);
-  signupHits.set(ip, hits);
-  if (signupHits.size > 5000) signupHits.clear();
-  return hits.length > SIGNUP_LIMIT.max;
-}
+const signupLimited = makeLimiter({ windowMs: 10 * 60 * 1000, max: 5 });
 const clean = (v, max) => String(v == null ? '' : v).replace(/[\r\n\t]+/g, ' ').trim().slice(0, max);
 
 app.post('/api/signup', async (req, res) => {
   const body = req.body || {};
   // Spam trap: real people never see or fill the hidden "website" field.
   if (clean(body.website, 200)) return res.json({ success: true });
-  if (rateLimited(req.ip)) {
+  if (signupLimited(req.ip)) {
     return res.status(429).json({ error: 'Too many attempts. Wait a few minutes, or email hello@korvo.ai.' });
   }
 
@@ -225,27 +252,20 @@ app.post('/api/signup', async (req, res) => {
     `Email:     ${lead.email}`,
     `Signed up: ${mountain} Mountain (${at.toISOString()})`,
     '',
-    'They were shown the $997/month payment link right after submitting.',
-    'Next step: call them to write their greeting. The 72-hour guarantee clock is running.',
+    'Next, the site walks them through the full discovery intake. If they finish it,',
+    'a second email follows with every answer. If it never comes, they stopped at signup.',
+    'The 72-hour guarantee clock is running.',
     '',
     saved ? `Lead ID: ${saved.id} (saved; list all at /api/signups with the admin key)` : 'WARNING: this lead could NOT be saved to the database. This email is the only record.',
   ].join('\n');
   const message = { subject: `New signup: ${lead.business} (${lead.name})`, text, replyTo: lead.email };
 
-  let sent = await sendMail({ to: SIGNUP_NOTIFY_TO, ...message });
-  let route = 'primary';
-  if (!sent.ok) {
-    console.error(`Signup notify to ${SIGNUP_NOTIFY_TO} failed:`, sent.error);
-    const fallback = process.env.MAIL_TO;
-    if (fallback && fallback.toLowerCase() !== SIGNUP_NOTIFY_TO.toLowerCase()) {
-      const retry = await sendMail({ to: fallback, ...message, subject: `[fallback] ${message.subject}` });
-      if (retry.ok) { route = 'fallback'; sent = retry; }
-      else console.error('Signup notify fallback failed:', retry.error);
-    }
-  }
+  const sent = await notifyOwner({ ...message, tag: 'Signup' });
+  const route = sent.route;
 
   if (saved) {
-    signupStore.setNotify(saved.id, sent.ok ? (route === 'primary' ? 'sent' : 'sent-fallback') : 'failed', sent.ok ? '' : sent.error)
+    const why = sent.ok ? '' : [sent.firstError && `hello@: ${sent.firstError}`, `${sent.firstError ? 'fallback: ' : ''}${sent.error}`].filter(Boolean).join(' | ');
+    signupStore.setNotify(saved.id, sent.ok ? (route === 'primary' ? 'sent' : 'sent-fallback') : 'failed', why)
       .catch((err) => console.error('Signup notify-status update error:', err.message));
   }
 
@@ -255,7 +275,7 @@ app.post('/api/signup', async (req, res) => {
       saved: !!saved,
     });
   }
-  res.json({ success: true, notified: route, saved: !!saved });
+  res.json({ success: true, notified: route, saved: !!saved, id: saved ? saved.id : null });
 });
 
 // API: Signups list (admin) — every saved lead, newest first, with notification status.
@@ -294,7 +314,14 @@ app.get('/api/discovery/:id', requireAdmin, async (req, res) => {
   }
 });
 
-app.post('/api/discovery', requireAdmin, async (req, res) => {
+// POST /api/discovery has two callers:
+//  • /admin (sends the admin key): unchanged — any record, no limits.
+//  • the public intake (/intake page + signup modal, no key): spam trap, rate limit, schema-only
+//    fields, then an email to the owner with every answer. A wrong key still gets 401.
+const intakeLimited = makeLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
+const hasAdminKey = (req) => !!(req.query.adminKey || req.headers['x-admin-key']);
+
+app.post('/api/discovery', (req, res, next) => (hasAdminKey(req) ? requireAdmin(req, res, next) : publicIntake(req, res)), async (req, res) => {
   try {
     res.status(201).json(await discoveryStore.create(req.body || {}));
   } catch (err) {
@@ -302,6 +329,69 @@ app.post('/api/discovery', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Could not save call.' });
   }
 });
+
+async function publicIntake(req, res) {
+  const body = req.body || {};
+  if (clean(body.hp, 200)) return res.status(201).json({ success: true }); // spam trap filled: drop silently
+  if (intakeLimited(req.ip)) {
+    return res.status(429).json({ error: 'Too many submissions from this connection. Wait a bit, or email hello@korvo.ai.' });
+  }
+
+  const { meta, answers } = intakeSchema.sanitize(body);
+  const signup = body.signup || {};
+  const contactIn = body.contact || {};
+  const who = {
+    signupId: clean(signup.id, 40),
+    name: clean(signup.name || meta.contactName, 120),
+    business: clean(signup.business || meta.practiceName, 160),
+    phone: clean(signup.phone || contactIn.phone, 40),
+    email: clean(signup.email || contactIn.email, 200),
+  };
+  if (!meta.practiceName) return res.status(400).json({ error: 'Please add your practice name (first section).' });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(who.email)) return res.status(400).json({ error: 'Please add a valid email so we can reach you (first section).' });
+  if (who.phone.replace(/\D/g, '').length < 7) return res.status(400).json({ error: 'Please add a phone number so we can reach you (first section).' });
+
+  // Not schema fields, so /admin ignores them; kept on admin edits (see discoveryStore).
+  answers._source = 'public-intake';
+  answers._contact = who;
+
+  const record = { meta, answers, schemaVersion: intakeSchema.version, exportedAt: new Date().toISOString() };
+  let saved = null;
+  try {
+    saved = await discoveryStore.create(record);
+  } catch (err) {
+    console.error('Public intake save error:', err.message);
+  }
+
+  const at = new Date();
+  const mountain = at.toLocaleString('en-US', { timeZone: 'America/Denver', dateStyle: 'medium', timeStyle: 'short' });
+  const text = [
+    `Intake completed on korvo.ai: ${meta.practiceName}`,
+    '',
+    `Name:      ${who.name || '—'}`,
+    `Business:  ${who.business || '—'}`,
+    `Phone:     ${who.phone}`,
+    `Email:     ${who.email}`,
+    `Submitted: ${mountain} Mountain (${at.toISOString()})`,
+    who.signupId ? `Signup ID: ${who.signupId}` : 'Signup ID: none (came straight to /intake)',
+    saved ? `Record ID: ${saved.id} (open it in /admin under Saved calls)` : 'WARNING: this intake could NOT be saved to the database. This email is the only copy.',
+    '',
+    `All ${intakeSchema.fieldCount} intake fields:`,
+    intakeSchema.toText(record),
+  ].join('\n');
+  const sent = await notifyOwner({ subject: `Intake complete: ${meta.practiceName}`, text, replyTo: who.email, tag: 'Intake' });
+
+  if (!saved && !sent.ok) {
+    return res.status(500).json({ error: 'We couldn\u2019t save your answers. Please try again in a minute, or email hello@korvo.ai.' });
+  }
+  if (!sent.ok) {
+    return res.status(502).json({
+      error: 'Your answers are saved, but we couldn\u2019t alert our team. Please email hello@korvo.ai so we know to look.',
+      saved: true,
+    });
+  }
+  res.status(201).json({ success: true, saved: !!saved, notified: sent.route, id: saved ? saved.id : null });
+}
 
 app.put('/api/discovery/:id', requireAdmin, async (req, res) => {
   try {
