@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join the team — Korvo AI</title>
+  <meta name="description" content="Want to help give people their lives back? Tell us what you'd do at Korvo." />
+  <meta property="og:title" content="Join the team — Korvo AI" />
+  <meta property="og:description" content="Tell us what you'd do at Korvo." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://korvo.ai/join" />
+  <meta name="theme-color" content="#132F1E" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/intake.css" />
+  <style>
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: inherit; text-decoration: none; font-size: 15px; }
+    .nav-links a:hover { text-decoration: underline; }
+    .page-hero { padding: 96px 0 8px; }
+    .page-hero h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(40px, 6vw, 64px); line-height: 1.05; margin: 0 0 16px; }
+    .page-hero p { font-size: 19px; max-width: 640px; }
+    .apply-form { max-width: 560px; margin: 32px 0 96px; }
+    .apply-form label { display: block; font-weight: 700; margin: 20px 0 8px; }
+    .apply-form input, .apply-form textarea { width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid #cfc8bd; border-radius: 8px; font-family: inherit; background: #fff; }
+    .apply-form textarea { min-height: 140px; resize: vertical; }
+    .apply-form .hp { position: absolute; left: -9999px; }
+    .apply-note { margin-top: 16px; font-size: 15px; }
+    .apply-note.ok { color: #1A4A2E; font-weight: 700; }
+    .apply-note.err { color: #B85C3A; font-weight: 700; }
+    @media (max-width: 720px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Korvo AI, home">
+      <!-- Mark, reversed variant for dark grounds (v3): pine facets become cream, cross knocks out to the ground -->
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+        <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+        <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+        <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+        <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+        <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+      </svg>
+      <span class="wordmark">Korvo<em> AI</em></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/about">About</a>
+      <a href="/join" aria-current="page">Join the team</a>
+    </nav>
+    <a class="btn btn-sm" href="/#signup">Get started</a>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="wrap">
+      <h1>Join the team</h1>
+      <p>We're building the thing that gives people their lives back — an AI that handles the busywork so humans don't have to.</p>
+      <p>If that mission pulls at you, tell us who you are and what you'd do here. We read every application.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <form class="apply-form" id="applyForm" novalidate>
+        <label for="f-name">Name</label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required />
+
+        <label for="f-email">Email</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required />
+
+        <label for="f-phone">Phone</label>
+        <input id="f-phone" name="phone" type="tel" autocomplete="tel" />
+
+        <label for="f-role">What would you do at Korvo?</label>
+        <textarea id="f-role" name="role" required></textarea>
+
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <p style="margin-top:24px"><button class="btn" type="submit">Send application</button></p>
+        <p class="apply-note" id="applyNote" role="status" hidden></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="dark foot">
+  <div class="wrap">
+    <div class="foot-row">
+      <a class="brand" href="/" aria-label="Korvo AI, home">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+          <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+          <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+          <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+          <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+        </svg>
+        <span class="wordmark">Korvo<em> AI</em></span>
+      </a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="/about">About</a>
+        <a href="/join" aria-current="page">Join the team</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+        <a href="mailto:hello@korvo.ai">hello@korvo.ai</a>
+      </nav>
+      <a class="btn btn-sm" href="/#signup">Get started</a>
+    </div>
+    <p class="foot-base">&copy; 2026 Korvo AI LLC, Provo, Utah. After-hours AI receptionist for dental and medical practices.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('applyForm');
+  var note = document.getElementById('applyNote');
+  function say(msg, ok) {
+    note.hidden = false;
+    note.textContent = msg;
+    note.className = 'apply-note ' + (ok ? 'ok' : 'err');
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var data = {
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      phone: form.phone.value.trim(),
+      role: form.role.value.trim(),
+      website: form.website.value
+    };
+    if (data.name.length < 2) return say('Please add your name.', false);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return say('Please add a valid email.', false);
+    if (!data.role) return say('Tell us what you would do at Korvo.', false);
+    say('Sending…', true);
+    fetch('/api/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function (r) { return r.json(); }).then(function (out) {
+      if (out && out.ok) {
+        form.reset();
+        say('Application received. We read every one — thank you.', true);
+      } else {
+        say((out && out.error) || 'Something went wrong. Please try again.', false);
+      }
+    }).catch(function () {
+      say('Something went wrong. Please try again.', false);
+    });
+  });
+})();
+</script>
+</body>
+</html>
