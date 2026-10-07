@@ -204,10 +204,136 @@ app.post('/api/contact', async (req, res) => {
   res.json({ success: true, message: "Thanks. We'll be in touch within one business day." });
 });
 
+/* ─────────────── Owner notifications: saved first, emailed in the background ───────────────
+ * A signup or completed intake is saved with notify status "pending" BEFORE any email is tried,
+ * and the browser gets its answer right away — Resend can't block the funnel. Delivery runs after
+ * the response. A failed send is logged ([notify] kind, id, time, reason) and the record stays
+ * "pending", so nothing is silently lost. Retries:
+ *   • every 5 minutes, for items with fewer than 6 attempts;
+ *   • on every server start, for everything still pending from the last 7 days (up to 50) —
+ *     e.g. right after the Resend env vars are fixed in Railway, which restarts the service.
+ * Admin view: GET /api/signups?notify=pending and GET /api/discovery?notify=pending.
+ */
+const NOTIFY = { sweepEveryMs: 5 * 60 * 1000, maxAutoAttempts: 6, maxAgeMs: 7 * 24 * 60 * 60 * 1000, bootLimit: 50 };
+const notifyInFlight = new Set();
+const mountainTime = (d) => new Date(d).toLocaleString('en-US', { timeZone: 'America/Denver', dateStyle: 'medium', timeStyle: 'short' });
+const describeSendFailure = (sent) =>
+  [sent.firstError && `hello@: ${sent.firstError}`, `${sent.firstError ? 'fallback: ' : ''}${sent.error}`].filter(Boolean).join(' | ');
+
+function signupMessage(lead, saved = true) {
+  const at = lead.createdAt || new Date().toISOString();
+  return {
+    subject: `New signup: ${lead.business} (${lead.name})`,
+    replyTo: lead.email,
+    text: [
+      'New signup on korvo.ai',
+      '',
+      `Name:      ${lead.name}`,
+      `Business:  ${lead.business}`,
+      `Phone:     ${lead.phone}`,
+      `Email:     ${lead.email}`,
+      `Signed up: ${mountainTime(at)} Mountain (${at})`,
+      '',
+      'Next, the site walks them through the full discovery intake. If they finish it,',
+      'a second email follows with every answer. If it never comes, they stopped at signup.',
+      'The 72-hour guarantee clock is running.',
+      '',
+      saved ? `Lead ID: ${lead.id} (saved; list all at /api/signups with the admin key)` : 'WARNING: this lead could NOT be saved to the database. This email is the only record.',
+    ].join('\n'),
+  };
+}
+
+function intakeMessage(rec, saved = true) {
+  const who = (rec.answers && rec.answers._contact) || {};
+  const at = rec.createdAt || new Date().toISOString();
+  return {
+    subject: `Intake complete: ${rec.meta.practiceName}`,
+    replyTo: who.email,
+    text: [
+      `Intake completed on korvo.ai: ${rec.meta.practiceName}`,
+      '',
+      `Name:      ${who.name || '—'}`,
+      `Business:  ${who.business || '—'}`,
+      `Phone:     ${who.phone || '—'}`,
+      `Email:     ${who.email || '—'}`,
+      `Submitted: ${mountainTime(at)} Mountain (${at})`,
+      who.signupId ? `Signup ID: ${who.signupId}` : 'Signup ID: none (came straight to /intake)',
+      saved ? `Record ID: ${rec.id} (open it in /admin under Saved calls)` : 'WARNING: this intake could NOT be saved to the database. This email is the only copy.',
+      '',
+      `All ${intakeSchema.fieldCount} intake fields:`,
+      intakeSchema.toText(rec),
+    ].join('\n'),
+  };
+}
+
+const notifyTargets = {
+  signup: {
+    load: (id) => signupStore.get(id),
+    state: (r) => ({ status: r.notifyStatus, attempts: r.notifyAttempts || 0 }),
+    message: (r) => signupMessage(r),
+    save: (id, info) => signupStore.setNotify(id, info),
+    pending: (opts) => signupStore.listPending(opts),
+  },
+  intake: {
+    load: (id) => discoveryStore.get(id),
+    state: (r) => { const n = (r.answers && r.answers._notify) || {}; return { status: n.status, attempts: n.attempts || 0 }; },
+    message: (r) => intakeMessage(r),
+    save: (id, info) => discoveryStore.patchAnswers(id, { _notify: info }),
+    pending: (opts) => discoveryStore.listNotifyPending(opts),
+  },
+};
+
+// Never throws; safe to call without awaiting.
+async function deliverNotification(kind, id) {
+  const key = `${kind}:${id}`;
+  if (notifyInFlight.has(key)) return;
+  notifyInFlight.add(key);
+  try {
+    const t = notifyTargets[kind];
+    const rec = await t.load(id);
+    if (!rec) return;
+    const prev = t.state(rec);
+    if (prev.status === 'sent' || prev.status === 'sent-fallback') return;
+    const sent = await notifyOwner({ ...t.message(rec), tag: `[notify] ${kind} ${id}` });
+    const at = new Date().toISOString();
+    const attempts = prev.attempts + 1;
+    if (sent.ok) {
+      await t.save(id, { status: sent.route === 'primary' ? 'sent' : 'sent-fallback', error: '', attempts, lastAttemptAt: at });
+      console.log(`[notify] ${kind} ${id} delivered via ${sent.route} at ${at} (attempt ${attempts})`);
+    } else {
+      const why = describeSendFailure(sent);
+      console.error(`[notify] ${kind} ${id} FAILED at ${at} (attempt ${attempts}): ${why} — still pending`);
+      await t.save(id, { status: 'pending', error: why, attempts, lastAttemptAt: at });
+    }
+  } catch (err) {
+    console.error(`[notify] ${kind} ${id} ERROR at ${new Date().toISOString()}: ${err.message} — still pending`);
+  } finally {
+    notifyInFlight.delete(key);
+  }
+}
+
+async function sweepPendingNotifications({ boot = false } = {}) {
+  for (const kind of Object.keys(notifyTargets)) {
+    let items = [];
+    try {
+      items = await notifyTargets[kind].pending({
+        maxAgeMs: NOTIFY.maxAgeMs,
+        limit: boot ? NOTIFY.bootLimit : 25,
+        maxAttempts: boot ? null : NOTIFY.maxAutoAttempts,
+      });
+    } catch (err) {
+      console.error(`[notify] sweep: could not list pending ${kind}s: ${err.message}`);
+      continue;
+    }
+    if (items.length) console.log(`[notify] ${boot ? 'startup' : 'periodic'} sweep: ${items.length} pending ${kind} notification(s)`);
+    for (const it of items) await deliverNotification(kind, it.id); // one at a time
+  }
+}
+
 // API: Signup (landing page #signup form).
-// 1) validate  2) save the lead (so it's never lost)  3) email hello@korvo.ai
-// 4) if that send is rejected, retry once to MAIL_TO so the owner still hears about it
-// 5) respond success ONLY if a notification email was accepted by Resend.
+// 1) validate  2) save the lead  3) answer the browser right away  4) email hello@korvo.ai in the
+// background (see deliverNotification). Only if the SAVE fails does the email become the one record,
+// so then — and only then — we wait for it and report honestly.
 const signupLimited = makeLimiter({ windowMs: 10 * 60 * 1000, max: 5 });
 const clean = (v, max) => String(v == null ? '' : v).replace(/[\r\n\t]+/g, ' ').trim().slice(0, max);
 
@@ -232,56 +358,32 @@ app.post('/api/signup', async (req, res) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(lead.email)) missing.push('a valid email');
   if (missing.length) return res.status(400).json({ error: `Please add ${missing.join(', ')}.` });
 
-  // 2) Save first. A storage failure must not block the notification email.
   let saved = null;
   try {
     saved = await signupStore.create({ ...lead, ip: req.ip, userAgent: clean(req.headers['user-agent'], 300) });
   } catch (err) {
-    console.error('Signup save error:', err.message);
+    console.error(`[signup] save FAILED at ${new Date().toISOString()}: ${err.message}`);
   }
-
-  // 3) Notify the owner.
-  const at = new Date();
-  const mountain = at.toLocaleString('en-US', { timeZone: 'America/Denver', dateStyle: 'medium', timeStyle: 'short' });
-  const text = [
-    'New signup on korvo.ai',
-    '',
-    `Name:      ${lead.name}`,
-    `Business:  ${lead.business}`,
-    `Phone:     ${lead.phone}`,
-    `Email:     ${lead.email}`,
-    `Signed up: ${mountain} Mountain (${at.toISOString()})`,
-    '',
-    'Next, the site walks them through the full discovery intake. If they finish it,',
-    'a second email follows with every answer. If it never comes, they stopped at signup.',
-    'The 72-hour guarantee clock is running.',
-    '',
-    saved ? `Lead ID: ${saved.id} (saved; list all at /api/signups with the admin key)` : 'WARNING: this lead could NOT be saved to the database. This email is the only record.',
-  ].join('\n');
-  const message = { subject: `New signup: ${lead.business} (${lead.name})`, text, replyTo: lead.email };
-
-  const sent = await notifyOwner({ ...message, tag: 'Signup' });
-  const route = sent.route;
 
   if (saved) {
-    const why = sent.ok ? '' : [sent.firstError && `hello@: ${sent.firstError}`, `${sent.firstError ? 'fallback: ' : ''}${sent.error}`].filter(Boolean).join(' | ');
-    signupStore.setNotify(saved.id, sent.ok ? (route === 'primary' ? 'sent' : 'sent-fallback') : 'failed', why)
-      .catch((err) => console.error('Signup notify-status update error:', err.message));
+    res.json({ success: true, saved: true, id: saved.id, notify: 'pending' });
+    setImmediate(() => deliverNotification('signup', saved.id));
+    return;
   }
 
-  if (!sent.ok) {
-    return res.status(502).json({
-      error: 'We couldn’t confirm your signup went through. Please email hello@korvo.ai and we’ll get you started.',
-      saved: !!saved,
-    });
-  }
-  res.json({ success: true, notified: route, saved: !!saved, id: saved ? saved.id : null });
+  // Storage is down: the email is the only record, so it has to go out before we can say yes.
+  const sent = await notifyOwner({ ...signupMessage({ ...lead, createdAt: new Date().toISOString() }, false), tag: '[signup] unsaved lead' });
+  if (sent.ok) return res.json({ success: true, saved: false, id: null, notify: sent.route });
+  console.error(`[signup] NOT SAVED AND NOT EMAILED at ${new Date().toISOString()}: ${describeSendFailure(sent)} | lead: ${JSON.stringify(lead)}`);
+  return res.status(500).json({ error: 'We couldn’t record your signup just now. Please try again in a minute, or email hello@korvo.ai.' });
 });
 
-// API: Signups list (admin) — every saved lead, newest first, with notification status.
+// API: Signups list (admin) — every saved lead, newest first, each with notifyStatus
+// ('pending' = owner email not delivered yet), notifyError, notifyAttempts, notifyLastAttemptAt.
+// ?notify=pending → only leads whose notification hasn't gone out.
 app.get('/api/signups', requireAdmin, async (req, res) => {
   try {
-    res.json(await signupStore.list());
+    res.json(await signupStore.list({ notify: req.query.notify === 'pending' ? 'pending' : undefined }));
   } catch (err) {
     console.error('Signup list error:', err.message);
     res.status(500).json({ error: 'Could not load signups.' });
@@ -296,6 +398,8 @@ app.get('/api/appointments', requireAdmin, (req, res) => {
 // API: Discovery calls (admin) — list / create / read / update / delete
 app.get('/api/discovery', requireAdmin, async (req, res) => {
   try {
+    // ?notify=pending → full public-intake records whose owner email hasn't gone out (see answers._notify).
+    if (req.query.notify === 'pending') return res.json(await discoveryStore.listNotifyPending({ limit: 500, full: true }));
     res.json(await discoveryStore.list());
   } catch (err) {
     console.error('Discovery list error:', err.message);
@@ -354,43 +458,27 @@ async function publicIntake(req, res) {
   // Not schema fields, so /admin ignores them; kept on admin edits (see discoveryStore).
   answers._source = 'public-intake';
   answers._contact = who;
+  answers._notify = { status: 'pending', error: '', attempts: 0, lastAttemptAt: null };
 
   const record = { meta, answers, schemaVersion: intakeSchema.version, exportedAt: new Date().toISOString() };
   let saved = null;
   try {
     saved = await discoveryStore.create(record);
   } catch (err) {
-    console.error('Public intake save error:', err.message);
+    console.error(`[intake] save FAILED at ${new Date().toISOString()}: ${err.message}`);
   }
 
-  const at = new Date();
-  const mountain = at.toLocaleString('en-US', { timeZone: 'America/Denver', dateStyle: 'medium', timeStyle: 'short' });
-  const text = [
-    `Intake completed on korvo.ai: ${meta.practiceName}`,
-    '',
-    `Name:      ${who.name || '—'}`,
-    `Business:  ${who.business || '—'}`,
-    `Phone:     ${who.phone}`,
-    `Email:     ${who.email}`,
-    `Submitted: ${mountain} Mountain (${at.toISOString()})`,
-    who.signupId ? `Signup ID: ${who.signupId}` : 'Signup ID: none (came straight to /intake)',
-    saved ? `Record ID: ${saved.id} (open it in /admin under Saved calls)` : 'WARNING: this intake could NOT be saved to the database. This email is the only copy.',
-    '',
-    `All ${intakeSchema.fieldCount} intake fields:`,
-    intakeSchema.toText(record),
-  ].join('\n');
-  const sent = await notifyOwner({ subject: `Intake complete: ${meta.practiceName}`, text, replyTo: who.email, tag: 'Intake' });
+  if (saved) {
+    res.status(201).json({ success: true, saved: true, id: saved.id, notify: 'pending' });
+    setImmediate(() => deliverNotification('intake', saved.id));
+    return;
+  }
 
-  if (!saved && !sent.ok) {
-    return res.status(500).json({ error: 'We couldn\u2019t save your answers. Please try again in a minute, or email hello@korvo.ai.' });
-  }
-  if (!sent.ok) {
-    return res.status(502).json({
-      error: 'Your answers are saved, but we couldn\u2019t alert our team. Please email hello@korvo.ai so we know to look.',
-      saved: true,
-    });
-  }
-  res.status(201).json({ success: true, saved: !!saved, notified: sent.route, id: saved ? saved.id : null });
+  // Storage is down: the email is the only copy, so it has to go out before we can say yes.
+  const sent = await notifyOwner({ ...intakeMessage({ ...record, id: null, createdAt: new Date().toISOString() }, false), tag: '[intake] unsaved' });
+  if (sent.ok) return res.status(201).json({ success: true, saved: false, id: null, notify: sent.route });
+  console.error(`[intake] NOT SAVED AND NOT EMAILED at ${new Date().toISOString()}: ${describeSendFailure(sent)} | practice: ${meta.practiceName} | contact: ${JSON.stringify(who)}`);
+  return res.status(500).json({ error: 'We couldn’t save your answers. Please try again in a minute, or email hello@korvo.ai.' });
 }
 
 app.put('/api/discovery/:id', requireAdmin, async (req, res) => {
@@ -537,7 +625,7 @@ app.post('/api/newsletter', (req, res) => {
   res.json({ success: true, message: "You're subscribed!" });
 });
 
-discoveryStore.init()
+const discoveryReady = discoveryStore.init()
   .then(() => console.log(`Discovery store ready (${discoveryStore.usingPostgres ? 'Postgres' : 'file'})`))
   .catch((err) => console.error('Discovery store init failed:', err.message));
 
@@ -545,9 +633,13 @@ callStore.init()
   .then(() => console.log(`Call store ready (${callStore.usingPostgres ? 'Postgres' : 'file'})`))
   .catch((err) => console.error('Call store init failed:', err.message));
 
-signupStore.init()
+const signupReady = signupStore.init()
   .then(() => console.log(`Signup store ready (${signupStore.usingPostgres ? 'Postgres' : 'file'})`))
   .catch((err) => console.error('Signup store init failed:', err.message));
+
+// Retry owner notifications that are still pending: once at start-up, then every 5 minutes.
+Promise.all([discoveryReady, signupReady]).then(() => setTimeout(() => sweepPendingNotifications({ boot: true }), 5000));
+setInterval(() => sweepPendingNotifications(), NOTIFY.sweepEveryMs).unref();
 
 app.listen(PORT, () => {
   console.log(`Korvo AI running at http://localhost:${PORT}`);
