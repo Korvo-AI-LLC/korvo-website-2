@@ -243,8 +243,7 @@ function signupMessage(lead, saved = true) {
   };
 }
 
-function applyMessage(rec) {   const answer = (rec.notes || '').trim();   return {     subject: `New job application: ${rec.name} <${rec.email}>`,     text: [       'A new job application came in from the Korvo site.',       '',       `Name:    ${rec.name}`,       `Email:   ${rec.email}`,       `Phone:   ${rec.phone || '(not given)'}`,       '',       'What would you do at Korvo?',       answer || '(no answer given)',       '',       `Application saved: ${rec.id}.`,     ].join('
-'),   }; }  function intakeMessage(rec, saved = true) {
+function applyMessage(rec) {   const answer = (rec.notes || '').trim();   return {     subject: `New job application: ${rec.name} <${rec.email}>`,     text: [       'A new job application came in from the Korvo site.',       '',       `Name:    ${rec.name}`,       `Email:   ${rec.email}`,       `Phone:   ${rec.phone || '(not given)'}`,       '',       'What would you do at Korvo?',       answer || '(no answer given)',       '',       `Application saved: ${rec.id}.`,     ].join('\n'),   }; }  function intakeMessage(rec, saved = true) {
   const who = (rec.answers && rec.answers._contact) || {};
   const at = rec.createdAt || new Date().toISOString();
   return {
