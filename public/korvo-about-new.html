@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Korvo AI</title>
+  <meta name="description" content="Korvo AI provides after-hours AI voice agents for dental and medical practices. Live in 72 hours or your first month free. Cancel anytime." />
+  <meta property="og:title" content="About Korvo AI" />
+  <meta property="og:description" content="After-hours AI voice agent for dental and medical practices. $997/month, live in 72 hours or first month free." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://korvo.ai/about" />
+  <meta name="theme-color" content="#132F1E" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/intake.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Lato", -apple-system, system-ui, sans-serif; color: #68615E; background: #F5EFE6; line-height: 1.6; }
+    
+    /* Header */
+    .nav { background: #132F1E; color: #F0EBE2; padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+    .nav .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+    .brand svg { width: 36px; height: 36px; }
+    .wordmark { font-family: "Playfair Display", Georgia, serif; font-size: 22px; font-weight: 700; color: #F0EBE2; }
+    .wordmark em { font-style: normal; font-weight: 400; opacity: 0.8; }
+    
+    .nav-links { display: flex; gap: 24px; align-items: center; font-family: "Lato", sans-serif; font-weight: 400; }
+    .nav-links a { color: #F0EBE2; text-decoration: none; font-size: 15px; }
+    .nav-links a:hover { text-decoration: underline; }
+    .nav-links a[aria-current="page"] { font-weight: 700; }
+    
+    .hamburger { display: none; background: none; border: none; color: #F0EBE2; font-size: 28px; cursor: pointer; padding: 4px; }
+    
+    .btn { display: inline-block; background: #9A4A2C; color: #F5EFE6; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 700; font-size: 15px; }
+    .btn:hover { background: #B85C3A; }
+    .btn-sm { padding: 8px 16px; font-size: 14px; }
+    
+    /* Main content */
+    main { background: #F5EFE6; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    
+    .page-hero { padding: 80px 0 40px; }
+    .page-hero h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(36px, 5vw, 56px); line-height: 1.1; margin: 0 0 16px; color: #132F1E; font-weight: 700; }
+    .page-hero p { font-size: 19px; max-width: 640px; color: #68615E; margin: 0; }
+    
+    .section { padding: 60px 0; }
+    .section h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.2; margin: 0 0 24px; color: #132F1E; font-weight: 700; }
+    .section h3 { font-family: "Playfair Display", Georgia, serif; font-size: 24px; margin: 0 0 12px; color: #132F1E; font-weight: 600; }
+    .section p { font-size: 17px; line-height: 1.7; margin: 0 0 16px; max-width: 720px; }
+    
+    .product-overview { background: #F0EBE2; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-top: 40px; }
+    .product-card { background: #F5EFE6; padding: 32px; border-left: 4px solid #9A4A2C; }
+    .product-card h3 { color: #9A4A2C; }
+    
+    .guarantee-box { background: #132F1E; color: #F0EBE2; padding: 40px; border-radius: 8px; margin: 40px 0; }
+    .guarantee-box h3 { color: #E08A63; }
+    .guarantee-box p { color: #F0EBE2; max-width: none; }
+    
+    .founder-section { background: #F0EBE2; }
+    .founder-content { max-width: 720px; }
+    .founder-content h3 { margin-bottom: 8px; }
+    .founder-content .title { font-size: 15px; color: #9A4A2C; margin-bottom: 16px; display: block; }
+    
+    .cta-row { margin-top: 48px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .cta-note { font-size: 15px; color: #68615E; }
+    .cta-note a { color: #9A4A2C; text-decoration: none; }
+    .cta-note a:hover { text-decoration: underline; }
+    
+    /* Footer */
+    .foot { background: #132F1E; color: #F0EBE2; padding: 48px 0 24px; }
+    .foot-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 24px; }
+    .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .foot-links a { color: #F0EBE2; text-decoration: none; font-size: 14px; }
+    .foot-links a:hover { text-decoration: underline; }
+    .foot-base { font-size: 13px; color: rgba(240, 235, 226, 0.7); margin: 0; padding-top: 24px; border-top: 1px solid rgba(240, 235, 226, 0.2); }
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+      .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #132F1E; flex-direction: column; padding: 24px; border-top: 1px solid rgba(240, 235, 226, 0.2); }
+      .nav-links.active { display: flex; }
+      .hamburger { display: block; }
+      .page-hero { padding: 48px 0 32px; }
+      .section { padding: 40px 0; }
+      .product-grid { grid-template-columns: 1fr; gap: 24px; }
+      .guarantee-box { padding: 24px; }
+      .cta-row { flex-direction: column; align-items: flex-start; }
+      .foot-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Korvo AI, home">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+        <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+        <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+        <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+        <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+        <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+      </svg>
+      <span class="wordmark">Korvo<em> AI</em></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('active')">☰</button>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/about" aria-current="page">About</a>
+      <a href="/join">Join the team</a>
+    </nav>
+    <a class="btn btn-sm" href="/#signup">Get started</a>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="wrap">
+      <h1>About Korvo AI</h1>
+      <p>We provide after-hours AI voice agents for dental and medical practices. One product, one focus, one goal: handle your after-hours calls so you don't have to.</p>
+    </div>
+  </section>
+
+  <section class="section product-overview">
+    <div class="wrap">
+      <h2>What We Do</h2>
+      <p>Korvo AI is an after-hours AI voice agent for dental and medical practices. When patients call after hours, our AI answers, books appointments, handles emergencies, and integrates with your practice management software.</p>
+      
+      <div class="product-grid">
+        <div class="product-card">
+          <h3>One Product</h3>
+          <p>After-hours AI voice agent. No tiers, no add-ons, no complexity. $997/month.</p>
+        </div>
+        <div class="product-card">
+          <h3>Who It's For</h3>
+          <p>Dental and medical practices that want professional after-hours coverage without hiring staff or using an answering service.</p>
+        </div>
+        <div class="product-card">
+          <h3>Cancel Anytime</h3>
+          <p>No long-term contracts. If it doesn't work for your practice, cancel with 30 days notice.</p>
+        </div>
+      </div>
+
+      <div class="guarantee-box">
+        <h3>Our Guarantee</h3>
+        <p><strong>Live in 72 hours or your first month is free.</strong> We set up your AI agent, integrate with your systems, and have you live within 72 hours of onboarding. If we miss that deadline, your first month is on us.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section founder-section">
+    <div class="wrap">
+      <h2>Who Built This</h2>
+      <div class="founder-content">
+        <h3>Jack Eliason</h3>
+        <span class="title">Founder</span>
+        <p>I built Korvo AI after watching too many practice owners stay late answering calls that could be automated. Before this, I worked in healthcare software and saw the same problem everywhere: smart people doing repetitive work because the tools didn't exist yet.</p>
+        <p>Korvo AI is the tool. It's built specifically for dental and medical practices, integrates with the software you already use, and handles after-hours calls so you don't have to.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Get Started</h2>
+      <p>We'll have your AI voice agent live in 72 hours. If we don't, your first month is free.</p>
+      
+      <div class="cta-row">
+        <a class="btn" href="/#signup">Get started</a>
+        <span class="cta-note">Questions? <a href="mailto:hello@korvo.ai">hello@korvo.ai</a></span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-row">
+      <a class="brand" href="/" aria-label="Korvo AI, home">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+          <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+          <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+          <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+          <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+        </svg>
+        <span class="wordmark">Korvo<em> AI</em></span>
+      </a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="/about" aria-current="page">About</a>
+        <a href="/join">Join the team</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+        <a href="mailto:hello@korvo.ai">hello@korvo.ai</a>
+      </nav>
+      <a class="btn btn-sm" href="/#signup">Get started</a>
+    </div>
+    <p class="foot-base">&copy; 2026 Korvo AI LLC, Provo, Utah. After-hours AI voice agent for dental and medical practices.</p>
+  </div>
+</footer>
+</body>
+</html>
