@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Korvo AI — After-hours AI voice agent for dental &amp; medical practices</title>
+  <meta name="description" content="Korvo answers your practice's phone after hours. Picks up in under 2 rings, live in 72 hours, $997/month. Unlimited calls included." />
+  <meta property="og:title" content="Never miss an after-hours call again." />
+  <meta property="og:description" content="After-hours AI voice agent for dental and medical practices. $997/month. Unlimited calls included. Live in 72 hours." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://korvo.ai/" />
+  <meta name="theme-color" content="#132F1E" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/intake.css" />
+  <style>
+    :root {
+      --pine-dark: #132F1E;
+      --kiln: #9A4A2C;
+      --ember: #E08A63;
+      --cream: #F0EBE2;
+      --linen: #F5EFE6;
+      --ink-soft: #68615E;
+      --ink: #1E1E1E;
+      --ink-mid: #4A4542;
+      --on-dark: #F0EBE2;
+      --on-dark-mid: rgba(240, 235, 226, 0.76);
+      --rule: #CEC5B8;
+      --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --sans: 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --wrap: 1140px;
+      --gutter: clamp(16px, 4.5vw, 48px);
+      --r: 4px;
+      --nav-h: 64px;
+      --focus: var(--pine-dark);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-h) + 12px); }
+    @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font: 400 17px/1.6 var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    h1, h2, h3, p, ul, ol, dl, dd, figure, blockquote { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    img, svg { display: block; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+
+    .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+    .dark { background: var(--pine-dark); color: var(--on-dark); --focus: var(--ember); }
+
+    .skip {
+      position: absolute; left: 12px; top: -60px; z-index: 100;
+      background: #FFFFFF; color: var(--pine-dark); padding: 10px 16px; border-radius: var(--r);
+      font-weight: 700; text-decoration: none;
+    }
+    .skip:focus { top: 12px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      min-height: 52px; padding: 0 28px;
+      background: var(--kiln); color: #FFFFFF;
+      font: 700 17px/1 var(--sans); letter-spacing: 0.01em;
+      text-decoration: none; border: 0; border-radius: var(--r); cursor: pointer;
+      transition: background-color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover { background: #7A3A22; }
+    .btn-sm { min-height: 42px; padding: 0 18px; font-size: 15px; }
+    .btn-outline {
+      background: transparent; color: var(--on-dark);
+      border: 2px solid var(--on-dark);
+    }
+    .btn-outline:hover { background: rgba(240, 235, 226, 0.1); }
+    .btn-block { width: 100%; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      height: var(--nav-h);
+      background: var(--pine-dark);
+      border-bottom: 1px solid rgba(240, 235, 226, 0.1);
+    }
+    .nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; color: var(--on-dark); }
+    .brand svg { width: 30px; height: 30px; flex-shrink: 0; }
+    .wordmark { font: 700 22px/1 var(--serif); letter-spacing: -0.01em; }
+    .wordmark em { font-style: italic; font-weight: 400; color: var(--ember); }
+    
+    .nav-toggle {
+      display: none;
+      width: 44px; height: 44px;
+      background: transparent; border: 0; cursor: pointer;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; padding: 0;
+    }
+    .nav-toggle span {
+      display: block; width: 24px; height: 2px;
+      background: var(--on-dark);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .nav-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.active span:nth-child(2) { opacity: 0; }
+    .nav-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-links {
+      display: flex; align-items: center;
+      gap: clamp(16px, 3vw, 32px);
+      margin-left: auto; margin-right: clamp(8px, 2vw, 24px);
+    }
+    .nav-links a {
+      color: var(--on-dark); text-decoration: none;
+      font: 400 15px/1 var(--sans); letter-spacing: 0.01em;
+      padding: 6px 0; border-bottom: 1px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .nav-links a:hover { color: var(--ember); border-bottom-color: currentColor; }
+    .nav-links a, .nav .btn { white-space: nowrap; }
+
+    @media (max-width: 760px) {
+      .nav-toggle { display: flex; }
+      .nav-links {
+        position: fixed; top: var(--nav-h); left: 0; right: 0;
+        flex-direction: column; align-items: stretch;
+        background: var(--pine-dark);
+        padding: 16px var(--gutter);
+        gap: 0;
+        margin: 0;
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        border-bottom: 1px solid rgba(240, 235, 226, 0.1);
+      }
+      .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .nav-links a {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(240, 235, 226, 0.1);
+        font-size: 16px;
+      }
+      .nav-links a:last-of-type { border-bottom: 0; }
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: clamp(40px, 6vw, 88px) 0 clamp(56px, 8vw, 112px);
+      background: var(--pine-dark);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(32px, 5vw, 72px);
+      align-items: center;
+    }
+    .hero h1 {
+      font: 700 clamp(40px, 6.2vw, 64px)/1.05 var(--serif);
+      letter-spacing: -0.025em;
+      color: var(--on-dark);
+      max-width: 16ch;
+      text-wrap: balance;
+    }
+    .hero-sub {
+      margin-top: 18px;
+      font-size: clamp(17px, 1.6vw, 20px);
+      line-height: 1.55;
+      color: var(--on-dark-mid);
+      max-width: 34em;
+    }
+    .hero-sub strong {
+      display: block;
+      color: var(--on-dark);
+      font-weight: 700;
+      font-size: clamp(19px, 1.8vw, 22px);
+      margin-bottom: 8px;
+    }
+    .buy-row {
+      margin-top: 28px;
+      display: flex; align-items: center;
+      flex-wrap: wrap; gap: 16px 20px;
+    }
+    .price {
+      font: 700 32px/1 var(--serif);
+      color: var(--on-dark);
+      font-variant-numeric: lining-nums;
+      white-space: nowrap;
+    }
+    .price small {
+      font: 400 16px/1 var(--sans);
+      color: var(--on-dark-mid);
+      margin-left: 4px;
+    }
+    .trust {
+      margin-top: 20px;
+      display: flex; flex-wrap: wrap;
+      gap: 16px 32px;
+      font-size: 16px;
+      color: var(--on-dark);
+    }
+    .trust li {
+      display: flex; align-items: center;
+      gap: 10px;
+      line-height: 1.3;
+    }
+    .trust li::before {
+      content: '✓';
+      font-weight: 700;
+      color: var(--ember);
+      font-size: 18px;
+    }
+
+    /* Clean static phone card */
+    .callcard {
+      --focus: var(--pine-dark);
+      position: relative;
+      background: #FFFFFF;
+      color: var(--pine-dark);
+      border-radius: 6px;
+      padding: clamp(28px, 3.5vw, 40px);
+      box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.55);
+    }
+    .callcard-label {
+      font: 700 14px/1 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      margin-bottom: 16px;
+    }
+    .demo-number {
+      display: block;
+      margin: 0 0 20px;
+      font: 700 clamp(42px, 5vw, 56px)/1 var(--serif);
+      letter-spacing: -0.02em;
+      font-variant-numeric: lining-nums;
+      color: var(--pine-dark);
+      text-decoration: none;
+    }
+    .demo-number:hover { color: var(--kiln); }
+    .callcard p {
+      color: var(--ink-mid);
+      font-size: 16px;
+      line-height: 1.55;
+      margin-top: 12px;
+    }
+    .callcard-foot {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+
+    /* Phone icon visual */
+    .phone-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      margin: 20px auto;
+      background: var(--linen);
+      border-radius: 50%;
+    }
+    .phone-visual svg {
+      width: 36px;
+      height: 36px;
+      fill: var(--kiln);
+    }
+
+    /* ── Section scaffolding ── */
+    .section { padding: clamp(64px, 9vw, 120px) 0; }
+    .h2 {
+      font: 700 clamp(32px, 4.4vw, 52px)/1.08 var(--serif);
+      letter-spacing: -0.02em;
+      color: var(--pine-dark);
+      max-width: 20ch;
+      text-wrap: balance;
+    }
+    .dark .h2 { color: var(--on-dark); }
+    .lede {
+      margin-top: 16px;
+      font-size: 19px;
+      line-height: 1.6;
+      color: var(--ink-mid);
+      max-width: 36em;
+    }
+    .dark .lede { color: var(--on-dark-mid); }
+    .cta-row {
+      margin-top: clamp(40px, 5vw, 56px);
+      display: flex; align-items: center;
+      flex-wrap: wrap; gap: 12px 20px;
+    }
+    .cta-note {
+      font-size: 15px;
+      color: var(--ink-soft);
+    }
+    .dark .cta-note { color: var(--on-dark-mid); }
+
+    /* ── How it starts ── */
+    .steps {
+      margin-top: clamp(40px, 5vw, 64px);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 7px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--pine-dark) 0%, var(--ember) 100%);
+    }
+    .step {
+      position: relative;
+      padding: 34px 24px 0 0;
+    }
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--cream);
+      border: 2px solid var(--pine-dark);
+    }
+    .step:last-child::before {
+      background: var(--kiln);
+      border-color: var(--kiln);
+    }
+    .step-when {
+      font: 600 18px/1.2 var(--sans);
+      color: var(--kiln);
+    }
+    .step h3 {
+      margin-top: 8px;
+      font: 700 19px/1.3 var(--sans);
+      color: var(--ink);
+    }
+    .step p {
+      margin-top: 8px;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--ink-mid);
+    }
+
+    /* ── Operations section ── */
+    .operations {
+      background: var(--linen);
+      border-radius: 8px;
+      padding: clamp(32px, 4vw, 48px);
+      margin-top: clamp(48px, 6vw, 72px);
+    }
+    .operations h3 {
+      font: 700 clamp(24px, 3vw, 32px)/1.2 var(--serif);
+      color: var(--pine-dark);
+      margin-bottom: 24px;
+    }
+    .ops-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .ops-item h4 {
+      font: 700 18px/1.3 var(--sans);
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .ops-item p {
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--ink-mid);
+    }
+
+    /* ── Proof ── */
+    .proof { background: #FFFFFF; }
+    .claims {
+      margin-top: clamp(40px, 5vw, 64px);
+      border-top: 1px solid var(--rule);
+    }
+    .claim {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(24px, 4vw, 64px);
+      padding: clamp(36px, 5vw, 56px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .claim-title {
+      font: 600 clamp(26px, 2.8vw, 34px)/1.15 var(--serif);
+      letter-spacing: -0.01em;
+      color: var(--pine-dark);
+    }
+    .claim-text {
+      margin-top: 14px;
+      font-size: 17px;
+      color: var(--ink-mid);
+      max-width: 30em;
+    }
+    .evidence {
+      display: grid;
+      gap: 20px;
+      align-content: start;
+    }
+    @media (min-width: 961px) {
+      .claim > :first-child {
+        position: sticky;
+        top: calc(var(--nav-h) + 32px);
+        align-self: start;
+      }
+    }
+
+    .transcript {
+      background: #FFFFFF;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .transcript-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 14px 20px;
+      background: var(--linen);
+      font-size: 14px;
+      color: var(--ink-mid);
+    }
+    .transcript-head strong { color: var(--ink); }
+    .transcript-head > span:last-child { white-space: nowrap; }
+    .lines {
+      padding: 18px 20px 6px;
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      gap: 10px 16px;
+      font-size: 15.5px;
+      line-height: 1.5;
+    }
+    .lines dt {
+      font-weight: 700;
+      color: var(--pine-dark);
+    }
+    .lines dt.caller { color: var(--kiln); }
+    .lines dd { color: var(--ink); }
+    .inbox {
+      margin: 12px 20px 20px;
+      padding: 14px 16px;
+      border-left: 3px solid var(--kiln);
+      background: var(--linen);
+      font-size: 14.5px;
+      color: var(--ink-mid);
+    }
+    .inbox strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .guarantee {
+      background: var(--pine-dark);
+      color: var(--on-dark);
+      border-radius: 6px;
+      padding: clamp(24px, 3vw, 32px);
+    }
+    .guarantee-label {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ember);
+    }
+    .guarantee-line {
+      margin-top: 8px;
+      font: 600 clamp(22px, 2.4vw, 27px)/1.3 var(--serif);
+    }
+    .guarantee small {
+      display: block;
+      margin-top: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--on-dark-mid);
+    }
+
+    .qa {
+      border-left: 3px solid var(--kiln);
+      padding: 4px 0 4px 20px;
+    }
+    .qa h3 {
+      font: 700 18px/1.35 var(--sans);
+      color: var(--ink);
+    }
+    .qa p {
+      margin-top: 8px;
+      font-size: 16px;
+      color: var(--ink-mid);
+    }
+    .qa p + p { margin-top: 8px; }
+
+    .dial {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      padding: 20px 22px;
+      background: var(--linen);
+      border-radius: 6px;
+      border: 1px solid var(--rule);
+    }
+    .dial a {
+      font: 700 30px/1 var(--serif);
+      color: var(--pine-dark);
+      text-decoration: none;
+      font-variant-numeric: lining-nums;
+      white-space: nowrap;
+    }
+    .dial a:hover { color: var(--kiln); }
+    .dial span {
+      font-size: 15px;
+      color: var(--ink-mid);
+    }
+
+    .math {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      font: 700 clamp(30px, 3.6vw, 44px)/1.1 var(--serif);
+      color: var(--pine-dark);
+      font-variant-numeric: lining-nums;
+    }
+    .math .op {
+      color: var(--ink-soft);
+      font-weight: 400;
+    }
+    .math .total { color: var(--kiln); }
+    .math-note {
+      font-size: 16px;
+      color: var(--ink-mid);
+      margin-top: 12px;
+    }
+
+    /* ── Testimonials placeholder ── */
+    .testimonials {
+      background: var(--linen);
+      padding: clamp(48px, 6vw, 72px) 0;
+    }
+    .testimonials-placeholder {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: clamp(32px, 4vw, 48px);
+      background: #FFFFFF;
+      border: 2px dashed var(--rule);
+      border-radius: 8px;
+      text-align: center;
+    }
+    .testimonials-placeholder h3 {
+      font: 700 24px/1.3 var(--serif);
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+    .testimonials-placeholder p {
+      font-size: 16px;
+      color: var(--ink-mid);
+    }
+
+    /* ── Signup ── */
+    .signup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: clamp(32px, 5vw, 80px);
+      align-items: start;
+    }
+    .recap {
+      margin-top: 28px;
+      display: grid;
+      gap: 12px;
+    }
+    .recap li {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      color: var(--on-dark-mid);
+      font-size: 16.5px;
+    }
+    .recap li::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ember);
+      flex-shrink: 0;
+      transform: translateY(4px);
+    }
+    .recap strong { color: var(--on-dark); }
+    .signup-price {
+      margin-top: 32px;
+      font: 700 clamp(44px, 5vw, 60px)/1 var(--serif);
+      color: var(--on-dark);
+      font-variant-numeric: lining-nums;
+    }
+    .signup-price small {
+      font: 400 18px/1 var(--sans);
+      color: var(--on-dark-mid);
+      margin-left: 6px;
+    }
+    .price-details {
+      margin-top: 16px;
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--on-dark-mid);
+    }
+
+    .panel {
+      --focus: var(--pine-dark);
+      background: #FFFFFF;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: clamp(24px, 3.2vw, 40px);
+      box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.5);
+    }
+    .panel-step {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .panel-step b {
+      font: 700 20px/1 var(--sans);
+      color: var(--kiln);
+    }
+    .panel-step h3 {
+      font: 700 20px/1.3 var(--sans);
+      color: var(--ink);
+    }
+    .fields {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+    .field label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .field input {
+      width: 100%;
+      min-height: 50px;
+      padding: 12px 14px;
+      font: 400 17px/1.3 var(--sans);
+      color: var(--ink);
+      background: #FFFFFF;
+      border: 2px solid var(--rule);
+      border-radius: var(--r);
+      -webkit-appearance: none;
+      appearance: none;
+      transition: border-color 0.15s ease;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: var(--pine-dark);
+      box-shadow: 0 0 0 3px rgba(19, 47, 30, 0.1);
+    }
+    .panel form .btn { margin-top: 20px; }
+    .form-msg {
+      margin-top: 12px;
+      font-size: 15px;
+      min-height: 1.5em;
+    }
+    .form-msg.ok {
+      color: var(--pine-dark);
+      font-weight: 700;
+    }
+    .form-msg.err {
+      color: #9B2C1F;
+      font-weight: 700;
+    }
+    .trap {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .divider {
+      margin: 28px 0 24px;
+      border: 0;
+      border-top: 1px solid var(--rule);
+    }
+    .pay-note {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+    .step-two.ready .panel-step b { color: var(--kiln); }
+    .fine {
+      margin-top: 18px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+    }
+    .fine a { color: var(--kiln); }
+
+    /* ── Footer ── */
+    .foot { padding: 40px 0 32px; }
+    .foot-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px 32px;
+    }
+    .foot-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      font-size: 15px;
+    }
+    .foot-links a {
+      color: var(--on-dark-mid);
+      text-decoration: none;
+    }
+    .foot-links a:hover {
+      color: var(--on-dark);
+      text-decoration: underline;
+    }
+    .foot-base {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(240, 235, 226, 0.12);
+      font-size: 13.5px;
+      color: var(--on-dark-mid);
+    }
+
+    /* ── Signup modal ── */
+    html.modal-open { overflow: hidden; }
+    .modal {
+      width: min(760px, calc(100vw - 24px));
+      max-width: none;
+      max-height: calc(100dvh - 24px);
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: #FFFFFF;
+      color: var(--ink);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      --focus: var(--pine-dark);
+    }
+    .modal[open] {
+      display: flex;
+      flex-direction: column;
+    }
+    .modal::backdrop {
+      background: rgba(19, 47, 30, 0.8);
+    }
+    .modal-bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px 10px 22px;
+      background: var(--pine-dark);
+      color: var(--on-dark);
+      --focus: var(--ember);
+    }
+    .modal-bar .brand svg {
+      width: 24px;
+      height: 24px;
+    }
+    .modal-bar .wordmark { font-size: 19px; }
+    .modal-close {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--on-dark);
+      font: 700 15px/1 var(--sans);
+      cursor: pointer;
+    }
+    .modal-close:hover {
+      background: rgba(240, 235, 226, 0.12);
+    }
+    .modal-body {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: clamp(18px, 3.2vw, 34px);
+      --ki-nav-bg: #FFFFFF;
+    }
+    .modal .panel {
+      box-shadow: none;
+      padding: 0;
+      background: transparent;
+    }
+    .intake-view h2 {
+      font: 700 clamp(32px, 4.4vw, 44px)/1.05 var(--serif);
+      letter-spacing: -0.02em;
+      color: var(--pine-dark);
+    }
+    .intake-view h2:focus { outline: none; }
+    .intake-lede {
+      margin-top: 8px;
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--ink-mid);
+      max-width: 34em;
+    }
+    #intakeMount { margin-top: 24px; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    @media (max-width: 560px) {
+      .modal {
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 36px;
+      }
+      .steps::before { display: none; }
+      .claim { grid-template-columns: 1fr; }
+      .signup-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 820px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      :root { --nav-h: 58px; }
+      body { font-size: 16.5px; }
+      .wordmark { font-size: 20px; }
+      .brand svg {
+        width: 26px;
+        height: 26px;
+      }
+      .hero { padding-top: 28px; }
+      .hero-sub { margin-top: 14px; }
+      .buy-row {
+        margin-top: 20px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .buy-row .btn { width: 100%; }
+      .price {
+        text-align: center;
+        order: -1;
+      }
+      .trust {
+        margin-top: 20px;
+        font-size: 15px;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .steps {
+        grid-template-columns: 1fr;
+        padding-left: 28px;
+        row-gap: 28px;
+      }
+      .steps::after {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: linear-gradient(180deg, var(--pine-dark), var(--ember));
+      }
+      .step { padding: 0; }
+      .step::before {
+        left: -28px;
+        top: 2px;
+        z-index: 1;
+      }
+      .fields { grid-template-columns: 1fr; }
+      .lines {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+      .lines dd { margin-bottom: 10px; }
+      .foot-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<a class="skip" href="#signup">Skip to sign up</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Korvo AI, back to top">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+        <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+        <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+        <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+        <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+        <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+      </svg>
+      <span class="wordmark">Korvo<em> AI</em></span>
+    </a>
+    <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <a href="/about">About</a>
+      <a href="/join">Join the team</a>
+    </nav>
+    <a class="btn btn-sm" href="#signup">Get started</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero dark" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div>
+        <h1 id="hero-title">Never miss an after-hours call again.</h1>
+        <p class="hero-sub">
+          <strong>Built for dental and medical practices.</strong>
+          When your front desk goes home, Korvo answers the phone, books appointments, and puts every call in your inbox by morning.
+        </p>
+        <div class="buy-row">
+          <a class="btn" href="#signup">Get started</a>
+          <p class="price">$997<small>/month</small></p>
+        </div>
+        <ul class="trust" aria-label="What you get">
+          <li>Live in 72 hours</li>
+          <li>Cancel anytime</li>
+          <li>No per-call fees. Unlimited calls included.</li>
+        </ul>
+      </div>
+
+      <aside class="callcard" aria-labelledby="demo-title">
+        <p class="callcard-label" id="demo-title">Sample call</p>
+        <div class="phone-visual" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+        </div>
+        <a class="demo-number" href="tel:+12702419200">(270) 241-9200</a>
+        <p>Call anytime to hear Korvo answer as a dental practice. Live 24/7.</p>
+        <p class="callcard-foot">Demo practice — bookings are for testing only and aren't scheduled.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT STARTS ═══ -->
+  <section class="section" id="how-it-starts" aria-labelledby="start-title">
+    <div class="wrap">
+      <h2 class="h2" id="start-title">Sign up now. Live in 72 hours.</h2>
+      <p class="lede">No kickoff meetings, no six-week rollout. Here's your first week with Korvo.</p>
+
+      <ol class="steps">
+        <li class="step">
+          <p class="step-when">Today</p>
+          <h3>You sign up</h3>
+          <p>Fill out a quick form and complete payment. Takes about two minutes.</p>
+        </li>
+        <li class="step">
+          <p class="step-when">Tomorrow</p>
+          <h3>We record your greeting</h3>
+          <p>We call you to write your greeting together: your hours, services, and emergency protocols. You approve every word.</p>
+        </li>
+        <li class="step">
+          <p class="step-when">Day 3</p>
+          <h3>You make a test call</h3>
+          <p>Call your agent and test it yourself. Ask the hard questions. Anything you don't like, we fix the same day.</p>
+        </li>
+        <li class="step">
+          <p class="step-when">Day 3</p>
+          <h3>It goes live</h3>
+          <p>Forward your after-hours calls to Korvo. You keep your number. Your team goes home at 5.</p>
+        </li>
+      </ol>
+
+      <div class="operations">
+        <h3>How Korvo works after hours</h3>
+        <div class="ops-grid">
+          <div class="ops-item">
+            <h4>Hours covered</h4>
+            <p>Korvo answers during the hours your practice is closed. You set the schedule — nights, weekends, holidays. During business hours, your team answers.</p>
+          </div>
+          <div class="ops-item">
+            <h4>When AI can't help</h4>
+            <p>If Korvo can't answer something, it takes a message with the caller's name, number, and reason for calling. You'll find it in your inbox with a summary.</p>
+          </div>
+          <div class="ops-item">
+            <h4>Emergency protocol</h4>
+            <p>If someone describes severe pain, uncontrolled bleeding, or another urgent situation, Korvo directs them to call 911 or visit the nearest emergency room.</p>
+          </div>
+          <div class="ops-item">
+            <h4>Integration</h4>
+            <p>Korvo connects to your scheduling system to check availability and book appointments. If it can't reach your calendar, it takes the request and your team confirms in the morning.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn" href="#signup">Get started</a>
+        <span class="cta-note">$997/month. No per-call fees. Cancel anytime.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PROOF ═══ -->
+  <section class="section proof" id="proof" aria-labelledby="proof-title">
+    <div class="wrap">
+      <h2 class="h2" id="proof-title">Every promise, with proof.</h2>
+      <p class="lede">A number you can call, a transcript you can read, and a guarantee you can hold us to.</p>
+
+      <div class="claims">
+
+        <article class="claim" aria-labelledby="c1">
+          <div>
+            <h3 class="claim-title" id="c1">Picks up before the second ring. Every time.</h3>
+            <p class="claim-text">At 9 PM on a Tuesday or 6 AM on a holiday, your caller hears a professional voice, not voicemail. Here's what that looks like.</p>
+          </div>
+          <div class="evidence">
+            <figure class="transcript">
+              <figcaption class="transcript-head">
+                <span><strong>Sample call</strong> — Bright Smile Dental</span>
+                <span>Tue, 8:47 PM</span>
+              </figcaption>
+              <dl class="lines">
+                <dt>Korvo</dt>
+                <dd>Thanks for calling Bright Smile Dental. The office is closed for the night. I'm the office's AI assistant. How can I help?</dd>
+                <dt class="caller">Caller</dt>
+                <dd>Hi, I chipped a tooth at dinner. It doesn't hurt much, but I want someone to look at it.</dd>
+                <dt>Korvo</dt>
+                <dd>I'm sorry to hear that. If you're in severe pain or have bleeding that won't stop, please call 911. Otherwise I can help you get an appointment. Are you a current patient?</dd>
+                <dt class="caller">Caller</dt>
+                <dd>Yes. Mary Chen.</dd>
+                <dt>Korvo</dt>
+                <dd>Thanks, Mary. The first opening is Thursday at 9:30 AM. Does that work?</dd>
+                <dt class="caller">Caller</dt>
+                <dd>Perfect.</dd>
+                <dt>Korvo</dt>
+                <dd>You're all set for Thursday at 9:30. I've noted the chipped tooth for the team.</dd>
+              </dl>
+              <div class="inbox">
+                <strong>In the office inbox, 8:49 PM</strong>
+                Mary Chen, existing patient. Chipped front tooth at dinner, mild pain. Booked Thu 9:30 AM.
+              </div>
+            </figure>
+
+            <aside class="guarantee" aria-labelledby="g1">
+              <p class="guarantee-label" id="g1">Our guarantee</p>
+              <p class="guarantee-line">If your agent isn't answering calls within 72 hours of signup, your first month is free.</p>
+              <small>The clock starts when you sign up. Easy to verify, and on us if we're late.</small>
+            </aside>
+          </div>
+        </article>
+
+        <article class="claim" aria-labelledby="c2">
+          <div>
+            <h3 class="claim-title" id="c2">Sounds like a professional receptionist.</h3>
+            <p class="claim-text">Warm, clear, and knowledgeable about your practice. No phone trees. No hold music. Callers just talk.</p>
+          </div>
+          <div class="evidence">
+            <div class="dial">
+              <a href="tel:+12702419200">(270) 241-9200</a>
+              <span>Call the demo line and hear it for yourself.</span>
+            </div>
+            <div class="qa">
+              <h3>Will callers know it's AI?</h3>
+              <p>Yes. The greeting identifies it as an AI assistant, and it will say so again if anyone asks. We believe transparency builds trust, and in some states disclosure is required by law.</p>
+              <p>People calling at 9 PM aren't expecting a person. They're hoping not to reach voicemail.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="claim" aria-labelledby="c3">
+          <div>
+            <h3 class="claim-title" id="c3">Every hour you're closed. Nights, weekends, holidays.</h3>
+            <p class="claim-text">Korvo covers the hours your team is off. During business hours, your front desk answers — they're better at it.</p>
+          </div>
+          <div class="evidence">
+            <div class="qa">
+              <h3>What if Korvo can't answer something?</h3>
+              <p>It takes a message. Korvo won't guess about insurance, pricing, or clinical questions. It collects the caller's name, number, and reason for calling, then tells them the office will follow up. You'll find every message in your inbox with a summary.</p>
+              <p>If it can't access your scheduling system, it takes the appointment request and your team confirms it in the morning.</p>
+            </div>
+            <div class="cta-row" style="margin-top: 8px;">
+              <a class="btn" href="#signup">Get started</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="claim" aria-labelledby="c4">
+          <div>
+            <h3 class="claim-title" id="c4">$997 a month. Four appointments pays for it.</h3>
+            <p class="claim-text">One flat price. No setup fee, no per-call charges, no long-term contract. Unlimited calls included.</p>
+          </div>
+          <div class="evidence">
+            <p class="math" aria-label="4 appointments times 250 dollars equals 1,000 dollars">
+              <span>4</span><span class="op">×</span><span>$250</span><span class="op">=</span><span class="total">$1,000</span>
+            </p>
+            <p class="math-note">At $250 per visit, four booked appointments a month covers Korvo. Everything after that is revenue you used to miss. Your call summaries show exactly how many after-hours calls you're capturing.</p>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="cta-row">
+        <a class="btn" href="#signup">Get started</a>
+        <span class="cta-note">Two minutes to sign up. Live in 72 hours.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ TESTIMONIALS (Placeholder) ═══ -->
+  <section class="testimonials" aria-labelledby="testimonials-title">
+    <div class="wrap">
+      <div class="testimonials-placeholder">
+        <h3 id="testimonials-title">[Testimonials section — placeholder for owner]</h3>
+        <p>This section is reserved for customer testimonials. Add quotes from dental and medical practices using Korvo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SIGNUP ═══ -->
+  <section class="section dark" id="signup" aria-labelledby="signup-title">
+    <div class="wrap signup-grid">
+      <div>
+        <h2 class="h2" id="signup-title">Start tonight. Get your evenings back.</h2>
+        <p class="lede">Two steps, about two minutes. We call you tomorrow morning to write your greeting.</p>
+        <p class="signup-price">$997<small>/month</small></p>
+        <p class="price-details">No per-call fees. Unlimited calls included.</p>
+        <ul class="recap">
+          <li><strong>Live in 72 hours</strong> — you keep your phone number</li>
+          <li><strong>Cancel anytime</strong> by emailing <a href="mailto:hello@korvo.ai">hello@korvo.ai</a></li>
+        </ul>
+      </div>
+
+      <div class="panel" id="signupPanel">
+        <form id="signupForm" action="/api/signup" method="post" novalidate>
+          <div class="panel-step"><b>1</b><h3>Your details</h3></div>
+          <div class="fields">
+            <div class="field">
+              <label for="f-name">Your name</label>
+              <input id="f-name" name="name" type="text" autocomplete="name" maxlength="120" required />
+            </div>
+            <div class="field">
+              <label for="f-biz">Business name</label>
+              <input id="f-biz" name="business" type="text" autocomplete="organization" maxlength="160" required />
+            </div>
+            <div class="field">
+              <label for="f-phone">Phone</label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" required />
+            </div>
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="200" required />
+            </div>
+          </div>
+          <div class="trap" aria-hidden="true"><label for="f-web">Website</label><input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+          <button class="btn btn-block" type="submit" id="signupBtn">Get started</button>
+          <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="step-two" id="stepTwo" hidden>
+          <div class="panel-step"><b>2</b><h3>Pay and start setup</h3></div>
+          <div id="checkoutMount" class="checkout-mount" hidden style="margin-top: 16px; min-height: 120px;"></div>
+          <a class="btn btn-block" id="payLink" data-pay href="https://buy.stripe.com/6oU14m4QNgaObDEh1B08g00" style="margin-top: 16px;">Pay $997/month</a>
+          <p class="pay-note">Secure checkout through Stripe. Billed monthly. Cancel anytime.</p>
+        </div>
+
+        <p class="fine">By signing up you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. Korvo is not an emergency service.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="dark foot">
+  <div class="wrap">
+    <div class="foot-row">
+      <a class="brand" href="#top" aria-label="Korvo AI, back to top">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+          <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+          <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+          <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+          <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+        </svg>
+        <span class="wordmark">Korvo<em> AI</em></span>
+      </a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="/about">About</a>
+        <a href="/join">Join the team</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+        <a href="mailto:hello@korvo.ai">hello@korvo.ai</a>
+      </nav>
+      <a class="btn btn-sm" href="#signup">Get started</a>
+    </div>
+    <p class="foot-base">&copy; <span id="copyright-year"></span> Korvo AI LLC, Provo, Utah. After-hours AI voice agent for dental and medical practices.</p>
+  </div>
+</footer>
+
+<!-- Signup modal -->
+<dialog class="modal" id="startModal" aria-label="Get started with Korvo">
+  <div class="modal-bar">
+    <span class="brand">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,8 50,50 10,50" fill="#5E8B6F"/>
+        <polygon points="50,8 90,50 50,50" fill="#F0EBE2"/>
+        <polygon points="10,50 50,50 50,92" fill="#F0EBE2"/>
+        <polygon points="50,50 90,50 50,92" fill="#B85C3A"/>
+        <line x1="50" y1="8" x2="50" y2="92" stroke="#132F1E" stroke-width="5"/>
+        <line x1="10" y1="50" x2="90" y2="50" stroke="#132F1E" stroke-width="5"/>
+      </svg>
+      <span class="wordmark">Korvo<em> AI</em></span>
+    </span>
+    <button type="button" class="modal-close" id="modalClose">Close</button>
+  </div>
+  <div class="modal-body">
+    <div id="modalSlot"></div>
+    <section class="intake-view" id="intakeView" hidden aria-labelledby="intakeTitle">
+      <h2 id="intakeTitle" tabindex="-1">You're in.</h2>
+      <p class="intake-lede">Now let's build your agent. This takes about 10 minutes and ensures Korvo works perfectly for your practice.</p>
+      <div id="intakeMount"></div>
+    </section>
+  </div>
+</dialog>
+
+<script>
+// Mobile nav toggle
+(function() {
+  var toggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  if (!toggle || !navLinks) return;
+  
+  toggle.addEventListener('click', function() {
+    var isActive = navLinks.classList.toggle('active');
+    toggle.classList.toggle('active');
+    toggle.setAttribute('aria-expanded', isActive);
+  });
+
+  // Close mobile nav when link clicked
+  navLinks.addEventListener('click', function(e) {
+    if (e.target.tagName === 'A') {
+      navLinks.classList.remove('active');
+      toggle.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+
+// Dynamic copyright year
+(function() {
+  var yearSpan = document.getElementById('copyright-year');
+  if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear();
+  }
+})();
+</script>
+
+<script src="/js/config.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var MODE = (typeof INTAKE_AFTER === 'string' && INTAKE_AFTER === 'signup') ? 'signup' : 'payment';
+  var SIGNUP_KEY = 'korvoSignup';
+  function store(fn) { try { return fn(); } catch (_) { return null; } }
+  var state = store(function () { return JSON.parse(sessionStorage.getItem(SIGNUP_KEY) || 'null'); });
+  function saveState() { store(function () { sessionStorage.setItem(SIGNUP_KEY, JSON.stringify(state)); }); }
+
+  var pay = document.getElementById('payLink');
+  function wirePay() {
+    var url = (typeof PAYMENT_URL === 'string') ? PAYMENT_URL.trim() : '';
+    if (/^https:\/\//i.test(url)) pay.href = url;
+  }
+  wirePay();
+
+  var checkoutMount = document.getElementById('checkoutMount');
+  var checkout = null;
+  var checkoutGen = 0;
+  var stripeLoading = null;
+  function publishableKey(serverKey) {
+    var k = (typeof STRIPE_PUBLISHABLE_KEY === 'string' && STRIPE_PUBLISHABLE_KEY.trim()) || serverKey || '';
+    return /^pk_(live|test)_/.test(k) ? k : '';
+  }
+  function loadStripe() {
+    if (window.Stripe) return Promise.resolve();
+    return stripeLoading || (stripeLoading = loadScript('https://js.stripe.com/v3/').catch(function (e) { stripeLoading = null; throw e; }));
+  }
+  function checkoutFallback(gen) {
+    if (gen !== checkoutGen) return;
+    checkoutMount.hidden = true;
+    checkoutMount.textContent = '';
+    wirePay();
+    pay.style.display = '';
+  }
+  function showCheckout() {
+    if (checkout || checkoutMount.childNodes.length || !window.fetch || !window.Promise) return;
+    var gen = ++checkoutGen;
+    pay.style.display = 'none';
+    checkoutMount.hidden = false;
+    checkoutMount.innerHTML = '<p class="pay-note">Loading secure checkout…</p>';
+    fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: state && state.email, signupId: state && state.id ? String(state.id) : undefined })
+    })
+      .then(function (res) { if (!res.ok) throw new Error('session ' + res.status); return res.json(); })
+      .then(function (data) {
+        var key
