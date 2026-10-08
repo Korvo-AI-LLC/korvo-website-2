@@ -288,7 +288,6 @@
     .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
     .divider { margin: 28px 0 24px; border: 0; border-top: 1px solid var(--rule); }
     .pay-note { margin-top: 12px; font-size: 14px; color: var(--ink-soft); }
-    .pay-fallback { margin-top: 12px; padding: 12px 14px; background: var(--linen); border-radius: var(--r); font-size: 15px; color: var(--ink); }
     .step-two.ready .panel-step b { color: var(--terracotta); }
     .fine { margin-top: 18px; font-size: 13.5px; color: var(--ink-soft); }
     .fine a { color: var(--kiln); }
@@ -643,12 +642,12 @@
           <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
         </form>
 
-        <!-- Step 2: payment. URL comes from PAYMENT_URL in /js/config.js (placeholder '#' for now). -->
+        <!-- Step 2: payment. The script below sets href from PAYMENT_URL in /js/config.js (the source of truth).
+             The static href is the same live Stripe link, so checkout still works if config.js fails to load. -->
         <div class="step-two" id="stepTwo" hidden>
           <div class="panel-step"><b>2</b><h3>Pay and start setup</h3></div>
-          <a class="btn btn-pine btn-block" id="payLink" data-pay href="#signup" style="margin-top: 16px;">Pay $997/month</a>
+          <a class="btn btn-pine btn-block" id="payLink" data-pay href="https://buy.stripe.com/6oU14m4QNgaObDEh1B08g00" style="margin-top: 16px;">Pay $997/month</a>
           <p class="pay-note">Secure checkout through Stripe. Billed monthly. Cancel anytime.</p>
-          <p class="pay-fallback" id="payFallback" hidden>Online checkout isn't switched on yet. We've saved your details and we'll email you a secure checkout link.</p>
         </div>
 
         <p class="fine">By signing up you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. Korvo is not an emergency service.</p>
@@ -727,16 +726,15 @@
   var state = store(function () { return JSON.parse(sessionStorage.getItem(SIGNUP_KEY) || 'null'); });
   function saveState() { store(function () { sessionStorage.setItem(SIGNUP_KEY, JSON.stringify(state)); }); }
 
-  /* Step 2 in the signup panel: payment link from config.js (PAYMENT_URL). '#' shows a fallback note. */
+  /* Step 2 in the signup panel: the Pay button links straight to PAYMENT_URL from config.js.
+     Applied on load and again whenever step 2 is revealed. No gate: if PAYMENT_URL is
+     missing or not https, the button keeps its static live Stripe href. */
   var pay = document.getElementById('payLink');
-  var payFallback = document.getElementById('payFallback');
-  var url = (typeof PAYMENT_URL === 'string') ? PAYMENT_URL.trim() : '';
-  if (/^https:\/\//i.test(url)) {
-    pay.href = url;
-  } else {
-    payFallback.hidden = false;
-    pay.addEventListener('click', function (e) { e.preventDefault(); payFallback.hidden = false; });
+  function wirePay() {
+    var url = (typeof PAYMENT_URL === 'string') ? PAYMENT_URL.trim() : '';
+    if (/^https:\/\//i.test(url)) pay.href = url;
   }
+  wirePay();
 
   /* ── Modal: "Get started" → 4-field form → full intake, all in one dialog ── */
   var dialog = document.getElementById('startModal');
@@ -762,6 +760,7 @@
     dialog.querySelector('.modal-body').scrollTop = 0;
     if (state) {
       form.hidden = true;
+      wirePay();
       stepTwo.hidden = false;
       stepTwo.classList.add('ready');
       pay.focus();
@@ -882,6 +881,7 @@
         saveState();
         form.reset();
         btn.textContent = 'Sent';
+        wirePay();                            // ← Pay button → Stripe (PAYMENT_URL) as soon as the capture succeeds
         stepTwo.hidden = false;
         stepTwo.classList.add('ready');
         msg.className = 'form-msg ok';
