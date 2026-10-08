@@ -273,6 +273,19 @@ function applyMessage(rec) {
   };
 }
 
+function ideaMessage(rec) {
+  return {
+    subject: `New idea from the About page`,
+    text: [
+      'Someone suggested something for Korvo to work on (korvo.ai/about):',
+      '',
+      (rec.notes || '').trim() || '(empty)',
+      '',
+      `Saved: ${rec.id} at ${mountainTime(rec.createdAt)} Mountain.`,
+    ].join('\n'),
+  };
+}
+
 function intakeMessage(rec, saved = true) {
   const who = (rec.answers && rec.answers._contact) || {};
   const at = rec.createdAt || new Date().toISOString();
@@ -304,7 +317,14 @@ const notifyTargets = {
     save: (id, info) => signupStore.setNotify(id, info),
     pending: (opts) => signupStore.listPending({ ...opts, kind: 'signup' }),
   },
-  apply: { load: (id) => signupStore.get(id), state: (r) => ({ status: r.notifyStatus, attempts: r.notifyAttempts || 0 }), message: (r) => applyMessage(r), save: (id, info) => signupStore.setNotify(id, info), pending: (opts) => signupStore.listPending({ ...opts, kind: 'apply' }), },  intake: {
+  apply: { load: (id) => signupStore.get(id), state: (r) => ({ status: r.notifyStatus, attempts: r.notifyAttempts || 0 }), message: (r) => applyMessage(r), save: (id, info) => signupStore.setNotify(id, info), pending: (opts) => signupStore.listPending({ ...opts, kind: 'apply' }), },  idea: {
+    load: (id) => signupStore.get(id),
+    state: (r) => ({ status: r.notifyStatus, attempts: r.notifyAttempts || 0 }),
+    message: (r) => ideaMessage(r),
+    save: (id, info) => signupStore.setNotify(id, info),
+    pending: (opts) => signupStore.listPending({ ...opts, kind: 'idea' }),
+  },
+  intake: {
     load: (id) => discoveryStore.get(id),
     state: (r) => { const n = (r.answers && r.answers._notify) || {}; return { status: n.status, attempts: n.attempts || 0 }; },
     message: (r) => intakeMessage(r),
@@ -469,6 +489,24 @@ app.post('/api/apply', async (req, res) => {
   } catch (err) {
     console.error('Apply save failed:', err.message || err);
     res.status(500).json({ ok: false, error: 'Something went wrong saving your application. Please email hello@korvo.ai.' });
+  }
+});
+
+// API: "What should we work on next?" box on /about. Saved (kind 'idea'), then emailed in the background.
+const ideaLimiter = makeLimiter({ windowMs: 10 * 60 * 1000, max: 5 });
+app.post('/api/idea', async (req, res) => {
+  if (ideaLimiter(req.ip)) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again in a few minutes.' });
+  const { idea, website } = req.body || {};
+  if (website) return res.json({ ok: true, error: null });
+  const text = typeof idea === 'string' ? idea.trim().slice(0, 5000) : '';
+  if (text.length < 3) return res.status(400).json({ ok: false, error: 'Tell us a little more first.' });
+  try {
+    const rec = await signupStore.create({ kind: 'idea', notes: text, ip: req.ip, userAgent: req.get('user-agent') || '' });
+    setImmediate(() => deliverNotification('idea', rec.id));
+    res.json({ ok: true, error: null });
+  } catch (err) {
+    console.error('Idea save failed:', err.message || err);
+    res.status(500).json({ ok: false, error: 'Something went wrong. Please email hello@korvo.ai.' });
   }
 });
 

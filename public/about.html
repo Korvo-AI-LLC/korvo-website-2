@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About — Korvo AI</title>
-  <meta name="description" content="Korvo AI provides after-hours AI voice agents for dental and medical practices. Live in 72 hours or your first month free. Cancel anytime." />
+  <meta name="description" content="Why Korvo exists, where it is right now, and what we should build next." />
   <meta property="og:title" content="About Korvo AI" />
-  <meta property="og:description" content="After-hours AI voice agent for dental and medical practices. $997/month, live in 72 hours or first month free." />
+  <meta property="og:description" content="We are probably going to change the world." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://korvo.ai/about" />
   <meta name="theme-color" content="#132F1E" />
@@ -14,7 +14,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/intake.css" />
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Lato", -apple-system, system-ui, sans-serif; color: #68615E; background: #F5EFE6; line-height: 1.6; }
@@ -41,35 +40,38 @@
     /* Main content */
     main { background: #F5EFE6; }
     .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-    
-    .page-hero { padding: 80px 0 40px; }
-    .page-hero h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(36px, 5vw, 56px); line-height: 1.1; margin: 0 0 16px; color: #132F1E; font-weight: 700; }
-    .page-hero p { font-size: 19px; max-width: 640px; color: #68615E; margin: 0; }
-    
-    .section { padding: 60px 0; }
-    .section h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.2; margin: 0 0 24px; color: #132F1E; font-weight: 700; }
-    .section h3 { font-family: "Playfair Display", Georgia, serif; font-size: 24px; margin: 0 0 12px; color: #132F1E; font-weight: 600; }
-    .section p { font-size: 17px; line-height: 1.7; margin: 0 0 16px; max-width: 720px; }
-    
-    .product-overview { background: #F0EBE2; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-top: 40px; }
-    .product-card { background: #F5EFE6; padding: 32px; border-left: 4px solid #9A4A2C; }
-    .product-card h3 { color: #9A4A2C; }
-    
-    .guarantee-box { background: #132F1E; color: #F0EBE2; padding: 40px; border-radius: 8px; margin: 40px 0; }
-    .guarantee-box h3 { color: #E08A63; }
-    .guarantee-box p { color: #F0EBE2; max-width: none; }
-    
-    .founder-section { background: #F0EBE2; }
-    .founder-content { max-width: 720px; }
-    .founder-content h3 { margin-bottom: 8px; }
-    .founder-content .title { font-size: 15px; color: #9A4A2C; margin-bottom: 16px; display: block; }
-    
-    .cta-row { margin-top: 48px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-    .cta-note { font-size: 15px; color: #68615E; }
-    .cta-note a { color: #9A4A2C; text-decoration: none; }
-    .cta-note a:hover { text-decoration: underline; }
-    
+    .narrow { max-width: 720px; }
+    .btn { border: none; cursor: pointer; font-family: inherit; }
+
+    .story { padding: 96px 0 88px; background: #F0EBE2; }
+    .story h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(40px, 6.5vw, 72px); line-height: 1.08; margin: 0 0 48px; color: #132F1E; font-weight: 700; max-width: 900px; }
+    .story p { font-size: 20px; line-height: 1.7; color: #3E3A38; margin: 0 0 22px; }
+    .story .nah { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 4vw, 40px); color: #9A4A2C; font-weight: 700; line-height: 1.2; margin: 36px 0 8px; }
+    .story .sign { font-family: "Playfair Display", Georgia, serif; font-size: 24px; color: #132F1E; margin-top: 36px; }
+
+    .section { padding: 80px 0; }
+    .section h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 4.5vw, 44px); line-height: 1.15; margin: 0 0 32px; color: #132F1E; font-weight: 700; }
+    .section p { font-size: 18px; line-height: 1.7; margin: 0 0 16px; }
+
+    .now { background: #132F1E; color: #F0EBE2; }
+    .now h2 { color: #F0EBE2; }
+    .ones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 0 0 36px; }
+    .one { border-top: 3px solid #E08A63; padding-top: 18px; }
+    .one b { display: block; font-family: "Playfair Display", Georgia, serif; font-size: 26px; color: #F0EBE2; margin-bottom: 6px; }
+    .one span { color: rgba(240, 235, 226, 0.78); font-size: 17px; }
+    .now p.explain { color: #F0EBE2; font-size: 19px; max-width: 720px; }
+    .now a { color: #E08A63; }
+
+    .ideas textarea { width: 100%; min-height: 160px; padding: 16px; font-size: 17px; font-family: inherit; color: #132F1E; background: #fff; border: 2px solid #cfc8bd; border-radius: 8px; resize: vertical; transition: border-color 0.2s; }
+    .ideas textarea:focus { outline: none; border-color: #9A4A2C; }
+    .ideas .hp { position: absolute; left: -9999px; }
+    .ideas .row { margin-top: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .ideas .btn:disabled { opacity: 0.7; cursor: wait; }
+    .idea-msg { font-size: 15px; font-weight: 700; color: #B85C3A; margin: 0; }
+    .idea-thanks { font-family: "Playfair Display", Georgia, serif; font-size: 28px; color: #132F1E; animation: rise 0.5s ease-out; }
+    .idea-thanks button { display: block; margin-top: 16px; background: none; border: 0; padding: 0; color: #9A4A2C; font: 700 16px "Lato", sans-serif; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
     /* Footer */
     .foot { background: #132F1E; color: #F0EBE2; padding: 48px 0 24px; }
     .foot-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 24px; }
@@ -83,11 +85,11 @@
       .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #132F1E; flex-direction: column; padding: 24px; border-top: 1px solid rgba(240, 235, 226, 0.2); }
       .nav-links.active { display: flex; }
       .hamburger { display: block; }
-      .page-hero { padding: 48px 0 32px; }
-      .section { padding: 40px 0; }
-      .product-grid { grid-template-columns: 1fr; gap: 24px; }
-      .guarantee-box { padding: 24px; }
-      .cta-row { flex-direction: column; align-items: flex-start; }
+      .story { padding: 56px 0 56px; }
+      .story h1 { margin-bottom: 32px; }
+      .story p { font-size: 18px; }
+      .section { padding: 56px 0; }
+      .ones { grid-template-columns: 1fr; gap: 20px; }
       .foot-row { flex-direction: column; align-items: flex-start; }
     }
   </style>
@@ -116,60 +118,48 @@
 </header>
 
 <main>
-  <section class="page-hero">
+  <section class="story">
     <div class="wrap">
-      <h1>About Korvo AI</h1>
-      <p>We provide after-hours AI voice agents for dental and medical practices. One product, one focus, one goal: handle your after-hours calls so you don't have to.</p>
-    </div>
-  </section>
-
-  <section class="section product-overview">
-    <div class="wrap">
-      <h2>What We Do</h2>
-      <p>Korvo AI is an after-hours AI voice agent for dental and medical practices. When patients call after hours, our AI answers, books appointments, handles emergencies, and integrates with your practice management software.</p>
-      
-      <div class="product-grid">
-        <div class="product-card">
-          <h3>One Product</h3>
-          <p>After-hours AI voice agent. No tiers, no add-ons, no complexity. $997/month.</p>
-        </div>
-        <div class="product-card">
-          <h3>Who It's For</h3>
-          <p>Dental and medical practices that want professional after-hours coverage without hiring staff or using an answering service.</p>
-        </div>
-        <div class="product-card">
-          <h3>Cancel Anytime</h3>
-          <p>No long-term contracts. If it doesn't work for your practice, cancel with 30 days notice.</p>
-        </div>
-      </div>
-
-      <div class="guarantee-box">
-        <h3>Our Guarantee</h3>
-        <p><strong>Live in 72 hours or your first month is free.</strong> We set up your AI agent, integrate with your systems, and have you live within 72 hours of onboarding. If we miss that deadline, your first month is on us.</p>
+      <h1>We are probably going to change the world.</h1>
+      <div class="narrow">
+        <p>My name is Jack. I love everything about Korvo. I started it because I know what AI can do.</p>
+        <p>We've grown a ton. We've helped a lot of people, hired a lot of people, and made loads of money. But seriously, it's not just about the money.</p>
+        <p>Korvo frees people from the soul-sucking, energy-draining, mind-numbing busy work. People have always said, "Well, somebody's got to do it… right?"</p>
+        <p class="nah">Nah. That used to be true.</p>
+        <p>Now we give AI all of that stuff so you can get back to what you actually love to do. Plus, AI is better at that stuff than you anyway.</p>
+        <p>So take it easy. It's all up from here.</p>
+        <p class="sign">— Jack</p>
       </div>
     </div>
   </section>
 
-  <section class="section founder-section">
+  <section class="section now">
     <div class="wrap">
-      <h2>Who Built This</h2>
-      <div class="founder-content">
-        <h3>Jack Eliason</h3>
-        <span class="title">Founder</span>
-        <p>I built Korvo AI after watching too many practice owners stay late answering calls that could be automated. Before this, I worked in healthcare software and saw the same problem everywhere: smart people doing repetitive work because the tools didn't exist yet.</p>
-        <p>Korvo AI is the tool. It's built specifically for dental and medical practices, integrates with the software you already use, and handles after-hours calls so you don't have to.</p>
+      <h2>Where we're at right now</h2>
+      <div class="ones">
+        <div class="one"><b>One product.</b><span>Korvo, an AI voice agent for dental and medical practices.</span></div>
+        <div class="one"><b>One service.</b><span>It answers your phone after hours.</span></div>
+        <div class="one"><b>One fee.</b><span>$997 a month. Unlimited calls. Cancel anytime.</span></div>
       </div>
+      <p class="explain">When your front desk goes home, Korvo picks up before the second ring, books appointments, takes messages, and puts every call in your inbox by morning. Live in 72 hours or your first month is free. <a href="/">See how it works</a>.</p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap">
-      <h2>Get Started</h2>
-      <p>We'll have your AI voice agent live in 72 hours. If we don't, your first month is free.</p>
-      
-      <div class="cta-row">
-        <a class="btn" href="/#signup">Get started</a>
-        <span class="cta-note">Questions? <a href="mailto:hello@korvo.ai">hello@korvo.ai</a></span>
+  <section class="section ideas">
+    <div class="wrap narrow">
+      <h2>Think we should work on something else? Let us know below.</h2>
+      <form id="ideaForm" novalidate>
+        <label for="f-idea" class="hp">Your idea</label>
+        <textarea id="f-idea" name="idea" maxlength="5000" required placeholder="What should Korvo take off people's plates next?"></textarea>
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="row">
+          <button class="btn" type="submit" id="ideaBtn">Send it</button>
+          <p class="idea-msg" id="ideaMsg" role="alert" hidden></p>
+        </div>
+      </form>
+      <div class="idea-thanks" id="ideaThanks" hidden tabindex="-1">
+        Got it. Thanks — we read every one.
+        <button type="button" id="ideaAgain">Send another idea</button>
       </div>
     </div>
   </section>
@@ -201,5 +191,37 @@
     <p class="foot-base">&copy; 2026 Korvo AI LLC, Provo, Utah. After-hours AI voice agent for dental and medical practices.</p>
   </div>
 </footer>
+<script>
+(function () {
+  var form = document.getElementById('ideaForm');
+  var box = document.getElementById('f-idea');
+  var btn = document.getElementById('ideaBtn');
+  var msg = document.getElementById('ideaMsg');
+  var thanks = document.getElementById('ideaThanks');
+  function fail(t) { msg.hidden = false; msg.textContent = t; btn.disabled = false; btn.textContent = 'Send it'; }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.hidden = true;
+    var idea = box.value.trim();
+    if (idea.length < 3) return fail('Tell us a little more first.');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    fetch('/api/idea', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idea: idea, website: form.website.value })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (out) {
+        if (!(out && out.ok)) return fail((out && out.error) || 'Something went wrong. Please try again.');
+        form.hidden = true; thanks.hidden = false; thanks.focus();
+      })
+      .catch(function () { fail('Something went wrong. Please try again.'); });
+  });
+  document.getElementById('ideaAgain').addEventListener('click', function () {
+    form.reset(); btn.disabled = false; btn.textContent = 'Send it';
+    thanks.hidden = true; form.hidden = false; box.focus();
+  });
+})();
+</script>
 </body>
 </html>
