@@ -1343,4 +1343,192 @@
     })
       .then(function (res) { if (!res.ok) throw new Error('session ' + res.status); return res.json(); })
       .then(function (data) {
-        var key
+        var key = publishableKey(data && data.publishable_key);
+        if (!data || !data.client_secret || !key) throw new Error('checkout not configured');
+        return loadStripe().then(function () {
+          return window.Stripe(key).initEmbeddedCheckout({ clientSecret: data.client_secret });
+        });
+      })
+      .then(function (instance) {
+        if (gen !== checkoutGen) { instance.destroy(); return; }
+        checkout = instance;
+        checkoutMount.textContent = '';
+        checkout.mount(checkoutMount);
+      })
+      .catch(function () { checkoutFallback(gen); });
+  }
+  function hideCheckout() {
+    checkoutGen++;
+    if (checkout) { try { checkout.destroy(); } catch (_) {} checkout = null; }
+    checkoutMount.textContent = '';
+    checkoutMount.hidden = true;
+    pay.style.display = '';
+  }
+
+  /* ── Modal: "Get started" → 4-field form → full intake, all in one dialog ── */
+  var dialog = document.getElementById('startModal');
+  var slot = document.getElementById('modalSlot');
+  var intakeView = document.getElementById('intakeView');
+  var intakeMount = document.getElementById('intakeMount');
+  var panel = document.getElementById('signupPanel');
+  var home = document.createComment('signup panel lives here when the modal is closed');
+  panel.parentNode.insertBefore(home, panel);
+  var canModal = !!(dialog && typeof dialog.showModal === 'function');
+  var intakeMounted = false;
+  var intakeLoading = null;
+
+  function panelHome() { if (panel.parentNode === slot) { hideCheckout(); home.parentNode.insertBefore(panel, home.nextSibling); } }
+  function openDialog() {
+    if (!dialog.open) { dialog.showModal(); document.documentElement.classList.add('modal-open'); }
+  }
+  function showSignup() {
+    intakeView.hidden = true;
+    slot.hidden = false;
+    if (panel.parentNode !== slot) { hideCheckout(); slot.appendChild(panel); }
+    openDialog();
+    dialog.querySelector('.modal-body').scrollTop = 0;
+    if (state) {
+      form.hidden = true;
+      wirePay();
+      stepTwo.hidden = false;
+      stepTwo.classList.add('ready');
+      showCheckout();
+      return;
+    }
+    var first = document.getElementById('f-name');
+    if (first && !first.value) first.focus();
+  }
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = reject;
+      document.body.appendChild(s);
+    });
+  }
+  function loadIntake() {
+    if (window.KorvoIntake && window.KORVO_INTAKE) return Promise.resolve();
+    return intakeLoading || (intakeLoading = loadScript('/js/intake-schema.js').then(function () { return loadScript('/js/intake.js'); }));
+  }
+  function showIntake() {
+    panelHome();
+    slot.hidden = true;
+    intakeView.hidden = false;
+    openDialog();
+    dialog.querySelector('.modal-body').scrollTop = 0;
+    document.getElementById('intakeTitle').focus();
+    loadIntake().then(function () {
+      if (intakeMounted) return;
+      intakeMounted = true;
+      window.KorvoIntake.mount(intakeMount, {
+        signup: state,
+        showPay: MODE === 'signup',
+        onDone: function () { if (state) { state.intakeDone = true; saveState(); } }
+      });
+    }).catch(function () {
+      intakeLoading = null;
+      intakeMount.innerHTML = '<p class="form-msg err">The intake form didn’t load. Close this and try again, or email hello@korvo.ai.</p>';
+    });
+  }
+  function openFlow() {
+    if (state && (MODE === 'signup' || state.paid)) showIntake(); else showSignup();
+  }
+
+  if (canModal) {
+    // Every "Get started" (links to #signup) opens the modal. Without <dialog> support they still scroll to #signup.
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a[href="#signup"]');
+      if (!a || a.hasAttribute('data-pay') || a.closest('dialog')) return;
+      e.preventDefault();
+      openFlow();
+    });
+    document.getElementById('modalClose').addEventListener('click', function () { dialog.close(); });
+    dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); }); // backdrop
+    dialog.addEventListener('close', function () {
+      panelHome();
+      document.documentElement.classList.remove('modal-open');
+    });
+  }
+
+  // Back from Stripe (MODE 'payment'): Embedded Checkout's return_url (and the fallback Payment Link)
+  // land on https://korvo.ai/?paid=1[&session_id=...]
+  if (/[?&]paid=1(&|$)/.test(location.search)) {
+    if (state) { state.paid = true; saveState(); }
+    store(function () { history.replaceState(null, '', location.pathname + location.hash); });
+    if (canModal) showIntake(); else location.href = '/intake';
+  }
+
+  /* Step 1: the 4-field signup → POST /api/signup (saves the lead, emails hello@korvo.ai) */
+  var form = document.getElementById('signupForm');
+  var btn = document.getElementById('signupBtn');
+  var msg = document.getElementById('formMsg');
+  var stepTwo = document.getElementById('stepTwo');
+  var LABEL = 'Get started';
+
+  function fail(text) {
+    msg.className = 'form-msg err';
+    msg.textContent = text;
+    btn.disabled = false;
+    btn.textContent = LABEL;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.className = 'form-msg';
+    msg.textContent = '';
+
+    if (!form.checkValidity()) {
+      var bad = form.querySelector('.fields :invalid');
+      var label = bad && form.querySelector('label[for="' + bad.id + '"]');
+      msg.className = 'form-msg err';
+      msg.textContent = label ? (label.textContent + ' is missing or doesn’t look right.') : 'Check the fields above.';
+      if (bad) bad.focus();
+      return;
+    }
+
+    var fd = new FormData(form);
+    var payload = {
+      name: String(fd.get('name') || '').trim(),
+      business: String(fd.get('business') || '').trim(),
+      phone: String(fd.get('phone') || '').trim(),
+      email: String(fd.get('email') || '').trim(),
+      website: String(fd.get('website') || '')
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json().catch(function () { return {}; }).then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (r) {
+        if (!(r.ok && r.data && r.data.success)) {
+          return fail((r.data && r.data.error) || 'That didn’t go through. Try again, or email hello@korvo.ai.');
+        }
+        state = { id: r.data.id || null, name: payload.name, business: payload.business, phone: payload.phone, email: payload.email };
+        saveState();
+        form.reset();
+        btn.textContent = 'Sent';
+        wirePay();                            // ← fallback Pay link → PAYMENT_URL, used only if embedded checkout can't load
+        stepTwo.hidden = false;
+        stepTwo.classList.add('ready');
+        msg.className = 'form-msg ok';
+        if (MODE === 'signup' && canModal) {
+          msg.textContent = 'Got it, ' + payload.name.split(' ')[0] + '.';
+          showIntake();                       // ← intake right after signup (MODE 'signup')
+        } else {
+          form.hidden = true;
+          showCheckout();                     // ← MODE 'payment': embedded checkout inline; Stripe returns to /?paid=1 → intake
+          stepTwo.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+        }
+      })
+      .catch(function () {
+        fail('Couldn’t reach our server. Try again, or email hello@korvo.ai.');
+      });
+  });
+})();
+</script>
+</body>
+</html>
