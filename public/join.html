@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Join the team — Korvo AI</title>
-  <meta name="description" content="Help us build the AI voice agent that gives medical and dental practices their lives back." />
+  <meta name="description" content="Apply to join the Korvo AI team." />
   <meta property="og:title" content="Join the team — Korvo AI" />
-  <meta property="og:description" content="Help us build the AI voice agent that gives medical and dental practices their lives back." />
+  <meta property="og:description" content="Apply to join the Korvo AI team." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://korvo.ai/join" />
   <meta name="theme-color" content="#132F1E" />
@@ -30,37 +30,14 @@
     .nav-links a { color: #F0EBE2; text-decoration: none; font-size: 15px; }
     .nav-links a:hover { color: #E08A63; }
     .nav-links a[aria-current="page"] { color: #E08A63; font-weight: 700; }
-    .btn { display: inline-block; padding: 12px 24px; background: #9A4A2C; color: #F0EBE2; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; border: none; cursor: pointer; transition: background 0.2s; }
+    .btn { display: inline-block; padding: 12px 24px; background: #9A4A2C; color: #F0EBE2; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; border: none; cursor: pointer; font-family: inherit; transition: background 0.2s; }
     .btn:hover { background: #B85C3A; }
     .btn-sm { padding: 10px 20px; font-size: 14px; }
 
-    /* Hero */
-    .hero { padding: 120px 0 80px; background: #F0EBE2; }
-    .hero h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(44px, 7vw, 72px); line-height: 1.1; margin-bottom: 24px; font-weight: 700; color: #132F1E; max-width: 900px; }
-    .hero .lead { font-size: 21px; line-height: 1.5; color: #68615E; max-width: 720px; margin-bottom: 16px; }
-
-    /* Why Join */
-    .why-join { padding: 80px 0; background: #fff; }
-    .why-join h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(32px, 5vw, 48px); font-weight: 700; margin-bottom: 48px; color: #132F1E; }
-    .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
-    .value-card h3 { font-size: 20px; font-weight: 700; color: #9A4A2C; margin-bottom: 12px; }
-    .value-card p { color: #68615E; line-height: 1.6; }
-
-    /* Roles */
-    .roles { padding: 80px 0; background: #F5EFE6; }
-    .roles h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(32px, 5vw, 48px); font-weight: 700; margin-bottom: 24px; color: #132F1E; }
-    .roles-intro { font-size: 19px; color: #68615E; margin-bottom: 48px; max-width: 720px; }
-    .role-list { display: flex; flex-direction: column; gap: 24px; max-width: 800px; }
-    .role-item { background: #fff; padding: 32px; border-radius: 12px; border-left: 4px solid #9A4A2C; }
-    .role-item h3 { font-size: 22px; font-weight: 700; color: #132F1E; margin-bottom: 8px; }
-    .role-item .role-type { font-size: 14px; color: #E08A63; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-    .role-item p { color: #68615E; }
-
-    /* Application Form */
-    .apply-section { padding: 80px 0; background: #fff; }
-    .apply-section h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(32px, 5vw, 48px); font-weight: 700; margin-bottom: 16px; color: #132F1E; }
-    .apply-section .intro { font-size: 19px; color: #68615E; margin-bottom: 40px; max-width: 640px; }
-    .apply-form { max-width: 640px; }
+    /* Application */
+    .apply-section { padding: 96px 0 112px; background: #F0EBE2; min-height: calc(100vh - 220px); }
+    .apply-inner { max-width: 640px; margin: 0 auto; }
+    .apply-section h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(34px, 5.5vw, 54px); line-height: 1.12; font-weight: 700; margin-bottom: 48px; color: #132F1E; }
     .apply-form label { display: block; font-weight: 700; margin: 24px 0 8px; color: #132F1E; font-size: 16px; }
     .apply-form label:first-of-type { margin-top: 0; }
     .apply-form input, .apply-form textarea { width: 100%; padding: 14px 16px; font-size: 16px; border: 2px solid #cfc8bd; border-radius: 8px; font-family: inherit; background: #fff; color: #132F1E; transition: border-color 0.2s; }
@@ -68,9 +45,46 @@
     .apply-form textarea { min-height: 160px; resize: vertical; }
     .apply-form .hp { position: absolute; left: -9999px; }
     .apply-form .submit-wrap { margin-top: 32px; }
-    .apply-note { margin-top: 16px; font-size: 15px; }
-    .apply-note.ok { color: #1A4A2E; font-weight: 700; }
-    .apply-note.err { color: #B85C3A; font-weight: 700; }
+    .apply-form .btn { min-width: 160px; }
+    .apply-form .btn:disabled { opacity: 0.7; cursor: wait; }
+    .apply-note { margin-top: 16px; font-size: 15px; color: #B85C3A; font-weight: 700; }
+
+    /* Resume drop zone */
+    .drop { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 32px 20px; border: 2px dashed #cfc8bd; border-radius: 12px; background: #fff; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .drop:hover, .drop.over { border-color: #9A4A2C; background: #FBF7F1; }
+    .drop:focus-within { border-color: #9A4A2C; }
+    .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0; border: 0; }
+    .drop svg { width: 32px; height: 32px; color: #9A4A2C; }
+    .drop-main { font-weight: 700; color: #132F1E; }
+    .drop-main u { color: #9A4A2C; text-underline-offset: 3px; }
+    .drop-sub { font-size: 14px; color: #68615E; }
+    .drop.has-file { border-style: solid; border-color: #5E8B6F; background: #F4F8F5; }
+    .file-chip { display: none; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 14px; background: #fff; border: 1px solid #cfc8bd; border-radius: 8px; font-size: 15px; }
+    .file-chip.show { display: flex; }
+    .file-chip span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-chip button { background: none; border: 0; color: #9A4A2C; font-weight: 700; cursor: pointer; font-size: 14px; font-family: inherit; }
+
+    /* Thank-you */
+    .thanks { text-align: center; padding: 40px 0; }
+    .thanks[hidden] { display: none; }
+    .check { width: 96px; height: 96px; margin: 0 auto 28px; display: block; }
+    .check circle { fill: none; stroke: #5E8B6F; stroke-width: 4; stroke-dasharray: 289; stroke-dashoffset: 289; transform: rotate(-90deg); transform-origin: center; }
+    .check path { fill: none; stroke: #132F1E; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+    .thanks.play .check circle { animation: draw 0.7s cubic-bezier(.65,0,.35,1) forwards; }
+    .thanks.play .check path { animation: draw 0.4s 0.6s cubic-bezier(.65,0,.35,1) forwards; }
+    .thanks.play .check { animation: pop 0.35s 0.95s ease-out; }
+    .thanks h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 5vw, 44px); font-weight: 700; color: #132F1E; margin-bottom: 36px; opacity: 0; transform: translateY(14px); }
+    .thanks .btn { opacity: 0; transform: translateY(14px); }
+    .thanks.play h2 { animation: rise 0.55s 1.05s ease-out forwards; }
+    .thanks.play .btn { animation: rise 0.55s 1.25s ease-out forwards; }
+    .apply-form.leave { animation: fadeout 0.3s ease-in forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes pop { 50% { transform: scale(1.08); } }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    @keyframes fadeout { to { opacity: 0; transform: translateY(-10px); } }
+    @media (prefers-reduced-motion: reduce) {
+      .thanks.play .check circle, .thanks.play .check path, .thanks.play h2, .thanks.play .btn, .thanks.play .check, .apply-form.leave { animation-duration: 0.01s; animation-delay: 0s; }
+    }
 
     /* Footer */
     .foot { background: #132F1E; color: #F0EBE2; padding: 48px 0 32px; }
@@ -82,9 +96,8 @@
 
     @media (max-width: 768px) {
       .nav-links { display: none; }
-      .hero { padding: 80px 0 60px; }
-      .why-join, .roles, .apply-section { padding: 60px 0; }
-      .values-grid { grid-template-columns: 1fr; gap: 32px; }
+      .apply-section { padding: 56px 0 72px; }
+      .apply-section h1 { margin-bottom: 32px; }
       .foot-row { flex-direction: column; align-items: flex-start; }
     }
   </style>
@@ -112,113 +125,53 @@
 </header>
 
 <main>
-  <section class="hero">
-    <div class="wrap">
-      <h1>Help us give people their lives back</h1>
-      <p class="lead">We're building the AI voice agent that handles after-hours calls for dental and medical practices. Real revenue, real customers, real impact.</p>
-      <p class="lead">If you want to solve hard problems and ship work that matters, we want to hear from you.</p>
-    </div>
-  </section>
-
-  <section class="why-join">
-    <div class="wrap">
-      <h2>Why join Korvo</h2>
-      <div class="values-grid">
-        <div class="value-card">
-          <h3>Solve real problems</h3>
-          <p>Our customers are medical professionals drowning in after-hours calls. Every feature you ship directly improves their quality of life.</p>
-        </div>
-        <div class="value-card">
-          <h3>Work with the best</h3>
-          <p>Small team, high talent density. Everyone here ships fast, thinks clearly, and cares about the work.</p>
-        </div>
-        <div class="value-card">
-          <h3>Own your work</h3>
-          <p>No bureaucracy. No endless meetings. You'll have real ownership over what you build and how you build it.</p>
-        </div>
-        <div class="value-card">
-          <h3>Competitive pay and equity</h3>
-          <p>We pay market rate and offer meaningful equity. When Korvo wins, you win.</p>
-        </div>
-        <div class="value-card">
-          <h3>Remote-first</h3>
-          <p>Work from wherever you do your best work. We care about output, not where you sit.</p>
-        </div>
-        <div class="value-card">
-          <h3>Early-stage upside</h3>
-          <p>Join while we're still small. Your decisions will shape the company for years to come.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="roles">
-    <div class="wrap">
-      <h2>Open opportunities</h2>
-      <p class="roles-intro">We're growing fast. Here's what we're looking for right now — but if you think you can help in another way, tell us.</p>
-      
-      <div class="role-list">
-        <div class="role-item">
-          <div class="role-type">Engineering</div>
-          <h3>Full-Stack Engineer</h3>
-          <p>Build the product our customers use every day. You'll work across the stack: voice AI pipelines, backend APIs, customer dashboard, integrations with practice management systems.</p>
-        </div>
-
-        <div class="role-item">
-          <div class="role-type">AI/ML</div>
-          <h3>Voice AI Engineer</h3>
-          <p>Make our AI agent smarter and more natural. Work on conversation design, intent recognition, speech synthesis, and reducing latency in real-time voice interactions.</p>
-        </div>
-
-        <div class="role-item">
-          <div class="role-type">Go-to-Market</div>
-          <h3>Sales Lead</h3>
-          <p>Own the sales process from demo to close. You'll talk to practice owners, understand their pain points, and show them how Korvo solves real problems.</p>
-        </div>
-
-        <div class="role-item">
-          <div class="role-type">Customer Success</div>
-          <h3>Customer Success Manager</h3>
-          <p>Help our customers get the most out of Korvo. Onboard new practices, train their teams, troubleshoot issues, and turn feedback into product improvements.</p>
-        </div>
-
-        <div class="role-item">
-          <div class="role-type">Open Application</div>
-          <h3>Don't see your role?</h3>
-          <p>We hire great people before we have a perfect job description. If you think you can help us grow, apply anyway and tell us what you'd do.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="apply-section">
     <div class="wrap">
-      <h2>Apply now</h2>
-      <p class="intro">Tell us who you are and what you want to build. We read every application and respond within three business days.</p>
-      
-      <form class="apply-form" id="applyForm" novalidate>
-        <label for="f-name">Name</label>
-        <input id="f-name" name="name" type="text" autocomplete="name" required />
+      <div class="apply-inner">
+        <form class="apply-form" id="applyForm" novalidate>
+          <h1>If you want to actually change the world, put your info below.</h1>
 
-        <label for="f-email">Email</label>
-        <input id="f-email" name="email" type="email" autocomplete="email" required />
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" maxlength="120" required />
 
-        <label for="f-phone">Phone (optional)</label>
-        <input id="f-phone" name="phone" type="tel" autocomplete="tel" />
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" maxlength="200" required />
 
-        <label for="f-role">What role interests you?</label>
-        <input id="f-role" name="role" type="text" required placeholder="e.g., Full-Stack Engineer, Sales Lead, etc." />
+          <label for="f-phone">Phone</label>
+          <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" required />
 
-        <label for="f-message">Why Korvo? What would you build here?</label>
-        <textarea id="f-message" name="message" required></textarea>
+          <label for="f-role">What role interests you?</label>
+          <input id="f-role" name="role" type="text" maxlength="200" required placeholder="e.g., Full-Stack Engineer, Sales Lead, etc." />
 
-        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <label for="f-message">Why Korvo? What would you build here?</label>
+          <textarea id="f-message" name="message" maxlength="5000" required></textarea>
 
-        <div class="submit-wrap">
-          <button class="btn" type="submit">Send application</button>
+          <label for="f-resume">Resume</label>
+          <div class="drop" id="drop">
+            <input id="f-resume" name="resume" type="file" accept=".pdf,.doc,.docx,.rtf,.txt,.odt,.pages" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/></svg>
+            <span class="drop-main">Drop your resume here or <u>browse</u></span>
+            <span class="drop-sub">PDF or Word, up to 5 MB</span>
+          </div>
+          <div class="file-chip" id="fileChip"><span id="fileName"></span><button type="button" id="fileRemove">Remove</button></div>
+
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+          <div class="submit-wrap">
+            <button class="btn" type="submit" id="submitBtn">Submit</button>
+          </div>
+          <p class="apply-note" id="applyNote" role="alert" hidden></p>
+        </form>
+
+        <div class="thanks" id="thanks" hidden>
+          <svg class="check" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="46"/>
+            <path d="M30 52 L44 65 L71 37"/>
+          </svg>
+          <h2 tabindex="-1" id="thanksTitle">Thank you for your application.</h2>
+          <button class="btn" type="button" id="againBtn">Begin another application</button>
         </div>
-        <p class="apply-note" id="applyNote" role="status" hidden></p>
-      </form>
+      </div>
     </div>
   </section>
 </main>
@@ -254,16 +207,84 @@
 (function () {
   var form = document.getElementById('applyForm');
   var note = document.getElementById('applyNote');
-  
-  function say(msg, ok) {
-    note.hidden = false;
-    note.textContent = msg;
-    note.className = 'apply-note ' + (ok ? 'ok' : 'err');
+  var btn = document.getElementById('submitBtn');
+  var drop = document.getElementById('drop');
+  var fileInput = document.getElementById('f-resume');
+  var chip = document.getElementById('fileChip');
+  var chipName = document.getElementById('fileName');
+  var thanks = document.getElementById('thanks');
+  var MAX = 5 * 1024 * 1024;
+  var OK_EXT = /\.(pdf|docx?|rtf|txt|odt|pages)$/i;
+  var resume = null;
+
+  function fail(msg) { note.hidden = false; note.textContent = msg; }
+  function clearNote() { note.hidden = true; note.textContent = ''; }
+
+  function setFile(f) {
+    clearNote();
+    if (!f) { resume = null; fileInput.value = ''; drop.classList.remove('has-file'); chip.classList.remove('show'); return; }
+    if (!OK_EXT.test(f.name)) { setFile(null); return fail('Resume must be a PDF, Word, RTF, ODT, Pages, or text file.'); }
+    if (f.size > MAX) { setFile(null); return fail('Resume must be 5 MB or smaller.'); }
+    resume = f;
+    chipName.textContent = f.name;
+    drop.classList.add('has-file');
+    chip.classList.add('show');
   }
-  
+
+  fileInput.addEventListener('change', function () { setFile(fileInput.files[0]); });
+  document.getElementById('fileRemove').addEventListener('click', function () { setFile(null); });
+  ['dragenter', 'dragover'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) setFile(f);
+  });
+  // A file dropped outside the zone shouldn't navigate the browser away from the form.
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) { e.preventDefault(); });
+
+  function readBase64(f) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(String(r.result).split(',')[1] || ''); };
+      r.onerror = reject;
+      r.readAsDataURL(f);
+    });
+  }
+
+  function showThanks() {
+    form.classList.add('leave');
+    setTimeout(function () {
+      form.hidden = true;
+      form.classList.remove('leave');
+      thanks.hidden = false;
+      void thanks.offsetWidth; // restart the animation on repeat submissions
+      thanks.classList.add('play');
+      document.getElementById('thanksTitle').focus({ preventScroll: true });
+      thanks.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 300);
+  }
+
+  document.getElementById('againBtn').addEventListener('click', function () {
+    thanks.classList.remove('play');
+    thanks.hidden = true;
+    form.reset();
+    setFile(null);
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+    form.hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('f-name').focus({ preventScroll: true });
+  });
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    
+    clearNote();
+
     var data = {
       name: form.name.value.trim(),
       email: form.email.value.trim(),
@@ -272,31 +293,37 @@
       message: form.message.value.trim(),
       website: form.website.value
     };
-    
-    if (data.name.length < 2) return say('Please enter your name.', false);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return say('Please enter a valid email.', false);
-    if (!data.role) return say('Please tell us what role interests you.', false);
-    if (!data.message) return say('Please tell us why you want to join Korvo.', false);
-    
-    say('Sending…', true);
-    
-    fetch('/api/apply', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-    .then(function (r) { return r.json(); })
-    .then(function (out) {
-      if (out && out.ok) {
-        form.reset();
-        say('Application received. We'll be in touch within three business days.', true);
-      } else {
-        say((out && out.error) || 'Something went wrong. Please try again.', false);
-      }
-    })
-    .catch(function () {
-      say('Something went wrong. Please try again.', false);
-    });
+
+    if (data.name.length < 2) return fail('Please enter your name.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return fail('Please enter a valid email.');
+    if (data.phone.replace(/\D/g, '').length < 7) return fail('Please enter your phone number.');
+    if (!data.role) return fail('Please tell us what role interests you.');
+    if (!data.message) return fail('Please tell us why you want to join Korvo.');
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    (resume ? readBase64(resume) : Promise.resolve(null))
+      .then(function (b64) {
+        if (b64) data.resume = { name: resume.name, type: resume.type || '', data: b64 };
+        return fetch('/api/apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: r.status === 413 ? 'Resume must be 5 MB or smaller.' : null }; }); })
+      .then(function (out) {
+        if (out && out.ok) return showThanks();
+        btn.disabled = false;
+        btn.textContent = 'Submit';
+        fail((out && out.error) || 'Something went wrong. Please try again.');
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Submit';
+        fail('Something went wrong. Please try again.');
+      });
   });
 })();
 </script>

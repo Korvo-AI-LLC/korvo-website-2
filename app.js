@@ -24,13 +24,14 @@ const SIGNUP_NOTIFY_TO = process.env.SIGNUP_NOTIFY_TO || 'hello@korvo.ai';
 // Send one email through Resend and report what actually happened. The Resend SDK does
 // NOT throw on most failures (bad key, unverified sender, rejected recipient) — it returns
 // { data, error }. So success means: no error AND Resend handed back a message id.
-async function sendMail({ to, subject, text, replyTo }) {
+async function sendMail({ to, subject, text, replyTo, attachments }) {
   if (!process.env.RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not set' };
   if (!to) return { ok: false, error: 'No recipient configured' };
   try {
     const { data, error } = await resend.emails.send({
       from: MAIL_FROM, to, subject, text,
       ...(replyTo ? { replyTo } : {}),
+      ...(attachments && attachments.length ? { attachments } : {}),
     });
     if (error) return { ok: false, error: `${error.name || 'error'}: ${error.message || 'unknown'}` };
     if (!data || !data.id) return { ok: false, error: 'Resend returned no message id' };
@@ -42,13 +43,13 @@ async function sendMail({ to, subject, text, replyTo }) {
 
 // Tell the owner about a new lead: email SIGNUP_NOTIFY_TO (hello@korvo.ai); if Resend rejects
 // that, retry once to MAIL_TO so the owner still hears about it. ok=true only if Resend accepted one.
-async function notifyOwner({ subject, text, replyTo, tag }) {
-  const first = await sendMail({ to: SIGNUP_NOTIFY_TO, subject, text, replyTo });
+async function notifyOwner({ subject, text, replyTo, tag, attachments }) {
+  const first = await sendMail({ to: SIGNUP_NOTIFY_TO, subject, text, replyTo, attachments });
   if (first.ok) return { ok: true, route: 'primary' };
   console.error(`${tag} notify to ${SIGNUP_NOTIFY_TO} failed:`, first.error);
   const fallback = process.env.MAIL_TO;
   if (fallback && fallback.toLowerCase() !== SIGNUP_NOTIFY_TO.toLowerCase()) {
-    const retry = await sendMail({ to: fallback, subject: `[fallback] ${subject}`, text, replyTo });
+    const retry = await sendMail({ to: fallback, subject: `[fallback] ${subject}`, text, replyTo, attachments });
     if (retry.ok) return { ok: true, route: 'fallback' };
     console.error(`${tag} notify fallback failed:`, retry.error);
     return { ok: false, error: retry.error, firstError: first.error };
@@ -128,7 +129,10 @@ app.use(helmet({
   },
 }));
 app.use(cors());
-app.use(express.json());
+// /api/apply carries a base64 resume (5 MB file ≈ 6.7 MB encoded), so it alone gets a larger body limit.
+const jsonSmall = express.json();
+const jsonApply = express.json({ limit: '8mb' });
+app.use((req, res, next) => (req.path === '/api/apply' ? jsonApply : jsonSmall)(req, res, next));
 app.use(express.urlencoded({ extended: true }));
 
 // Retired pages. korvo.ai now sells one product (after-hours AI receptionist, $997/mo),
@@ -248,7 +252,28 @@ function signupMessage(lead, saved = true) {
   };
 }
 
-function applyMessage(rec) {   const answer = (rec.notes || '').trim();   return {     subject: `New job application: ${rec.name} <${rec.email}>`,     text: [       'A new job application came in from the Korvo site.',       '',       `Name:    ${rec.name}`,       `Email:   ${rec.email}`,       `Phone:   ${rec.phone || '(not given)'}`,       '',       'What would you do at Korvo?',       answer || '(no answer given)',       '',       `Application saved: ${rec.id}.`,     ].join('\n'),   }; }  function intakeMessage(rec, saved = true) {
+function applyMessage(rec) {
+  const answer = (rec.notes || '').trim();
+  return {
+    subject: `New job application: ${rec.name} <${rec.email}>`,
+    replyTo: rec.email,
+    text: [
+      'A new job application came in from the Korvo site.',
+      '',
+      `Name:    ${rec.name}`,
+      `Email:   ${rec.email}`,
+      `Phone:   ${rec.phone || '(not given)'}`,
+      `Resume:  ${rec.resumeName ? `${rec.resumeName} (attached)` : '(none uploaded)'}`,
+      '',
+      answer || '(no answer given)',
+      '',
+      `Application saved: ${rec.id}.`,
+    ].join('\n'),
+    ...(rec.resumeData ? { attachments: [{ filename: rec.resumeName || 'resume', content: Buffer.from(rec.resumeData, 'base64') }] } : {}),
+  };
+}
+
+function intakeMessage(rec, saved = true) {
   const who = (rec.answers && rec.answers._contact) || {};
   const at = rec.createdAt || new Date().toISOString();
   return {
@@ -410,7 +435,53 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-const applyLimiter = makeLimiter({ windowMs: 60 * 1000, max: 3 }); app.post('/api/apply', async (req, res) => { if (applyLimiter(req.ip)) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again in a minute.' }); const { name, phone, email, role, website } = req.body || {}; if (website) return res.json({ ok: true, error: null }); const emailOk = typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()); const nameOk = typeof name === 'string' && name.trim().length >= 2; if (!nameOk || !emailOk) return res.status(400).json({ ok: false, error: 'Please provide your name and a valid email address.' }); const rec = await signupStore.create({ kind: 'apply', name: name.trim(), business: '', phone: (phone || '').toString().trim(), email: email.trim(), notes: (role || '').toString().trim(), ip: req.ip, userAgent: req.get('user-agent') || '', }); setImmediate(() => deliverNotification('apply', rec.id)); res.json({ ok: true, error: null, id: rec.id }); }); // API: Signups list (admin) — every saved lead, newest first, each with notifyStatus
+const applyLimiter = makeLimiter({ windowMs: 60 * 1000, max: 3 });
+const RESUME_MAX_BYTES = 5 * 1024 * 1024;
+const RESUME_EXT = /\.(pdf|docx?|rtf|txt|odt|pages)$/i;
+app.post('/api/apply', async (req, res) => {
+  if (applyLimiter(req.ip)) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again in a minute.' });
+  const { name, phone, email, role, message, website, resume } = req.body || {};
+  if (website) return res.json({ ok: true, error: null });
+  const emailOk = typeof email === 'string' && email.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const nameOk = typeof name === 'string' && name.trim().length >= 2;
+  const phoneOk = typeof phone === 'string' && phone.replace(/\D/g, '').length >= 7;
+  if (!nameOk || !emailOk || !phoneOk) return res.status(400).json({ ok: false, error: 'Please provide your name, a valid email address, and a phone number.' });
+
+  let resumeName = '', resumeType = '', resumeData = '';
+  if (resume && typeof resume === 'object') {
+    const fname = clean(resume.name, 200).replace(/[\\/]/g, '_');
+    const data = typeof resume.data === 'string' ? resume.data : '';
+    if (!RESUME_EXT.test(fname) || !/^[A-Za-z0-9+/]+={0,2}$/.test(data)) {
+      return res.status(400).json({ ok: false, error: 'Resume must be a PDF, Word, RTF, ODT, Pages, or text file.' });
+    }
+    if (Buffer.byteLength(data, 'base64') > RESUME_MAX_BYTES) return res.status(400).json({ ok: false, error: 'Resume must be 5 MB or smaller.' });
+    resumeName = fname; resumeType = clean(resume.type, 100); resumeData = data;
+  }
+
+  const notes = [role && `Role: ${clean(role, 200)}`, message && String(message).trim().slice(0, 5000)].filter(Boolean).join('\n\n');
+  try {
+    const rec = await signupStore.create({
+      kind: 'apply', name: clean(name, 120), business: '', phone: clean(phone, 40), email: email.trim(), notes,
+      resumeName, resumeType, resumeData, ip: req.ip, userAgent: req.get('user-agent') || '',
+    });
+    setImmediate(() => deliverNotification('apply', rec.id));
+    res.json({ ok: true, error: null, id: rec.id });
+  } catch (err) {
+    console.error('Apply save failed:', err.message || err);
+    res.status(500).json({ ok: false, error: 'Something went wrong saving your application. Please email hello@korvo.ai.' });
+  }
+});
+
+// API: download an applicant's resume (admin)
+app.get('/api/signups/:id/resume', requireAdmin, async (req, res) => {
+  const rec = await signupStore.get(req.params.id).catch(() => null);
+  if (!rec || !rec.resumeData) return res.status(404).json({ error: 'No resume on file.' });
+  res.set('Content-Type', 'application/octet-stream');
+  res.set('Content-Disposition', `attachment; filename="${rec.resumeName.replace(/[^\w.\- ]/g, '_')}"`);
+  res.send(Buffer.from(rec.resumeData, 'base64'));
+});
+
+// API: Signups list (admin) — every saved lead, newest first, each with notifyStatus
 // ('pending' = owner email not delivered yet), notifyError, notifyAttempts, notifyLastAttemptAt.
 // ?notify=pending → only leads whose notification hasn't gone out.
 app.get('/api/signups', requireAdmin, async (req, res) => {
