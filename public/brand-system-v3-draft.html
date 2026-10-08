@@ -7,11 +7,11 @@
 <!--
   DRAFT FOR OWNER REVIEW — Brand System v3.0
   Not official. Brand System v2.0 (May 2026) stays the standard until this is approved.
-  Every change from v2 is listed in section "What changed" and every open call is in "Decisions for Jack".
+  Every change from v2 is listed in section "What changed" and every call is recorded in "Decisions for Jack".
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <style>
   /* ════════════════════════════════════════════════════════════════
      v3 TOKENS — the single source of truth (copy this :root block)
@@ -26,15 +26,15 @@
     --cream:       #F0EBE2;
     --linen:       #E8DFD0;
 
-    /* Unified neutrals (v3 decision — replaces three conflicting sets) */
-    --pine-deep:   #132F1E;   /* "Night." was #143823 in the v2 guide */
+    /* Neutrals — the single approved scale. No other ink, rule, or paper values. */
+    --pine-deep:   #132F1E;   /* "Night." */
     --paper:       #FAF6ED;
     --ink:         #1E1E1E;
     --ink-mid:     #4A4542;
-    --ink-soft:    #68615E;   /* was #7A7370 / #6B6B6B — darkened to pass AA on Linen */
+    --ink-soft:    #68615E;   /* 4.6:1 on Linen, passes AA */
     --rule:        #CEC5B8;
 
-    /* Functional accents (new in v3 — accessibility, not decoration) */
+    /* Brand colors Kiln & Ember (approved v3) — accessible terracotta for text, not decoration */
     --kiln:        #9A4A2C;   /* terracotta for small text on light grounds; button hover */
     --ember:       #E08A63;   /* terracotta-family text/accent on dark grounds */
 
@@ -44,7 +44,7 @@
 
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: #D9D0C0; color: var(--ink); font: 400 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+  body { margin: 0; background: var(--rule); color: var(--ink); font: 400 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
   h1, h2, h3, h4, p, ul, ol, figure, blockquote, dl, dd { margin: 0; }
   ul, ol { padding: 0; list-style: none; }
   svg { display: block; }
@@ -105,6 +105,8 @@
   .tag.keep { background: rgba(26,74,46,.1); color: var(--pine); }
   .tag.fix  { background: rgba(184,92,58,.12); color: var(--kiln); }
   .tag.new  { background: var(--pine); color: var(--cream); }
+  .tag.ok   { background: rgba(26,74,46,.1); color: var(--pine); }
+  .night .tag.ok { background: rgba(224,138,99,.16); color: var(--ember); }
 
   /* ── 01 Essence ── */
   .essence { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
@@ -130,7 +132,10 @@
   .reg .ex { margin-top: 10px; font-size: 15px; }
   .reg.rent .ex { font-weight: 700; color: var(--cream); }
   .reg.art .ex { font: italic 400 18px/1.35 var(--serif); }
-  @media (max-width: 760px) { .essence, .quote-band { grid-template-columns: 1fr; } }
+  .brand-line { margin-top: clamp(48px, 6vw, 72px); padding-top: clamp(32px, 4vw, 48px); border-top: 1px solid rgba(240,235,226,.18); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px 56px; align-items: start; }
+  .brand-line .bl { margin-top: 14px; font: 700 clamp(34px, 4.8vw, 58px)/1.04 var(--serif); letter-spacing: -0.025em; color: var(--cream); }
+  .brand-line .bl em { display: block; font-style: italic; font-weight: 400; color: var(--ember); }
+  @media (max-width: 760px) { .essence, .quote-band, .brand-line { grid-template-columns: 1fr; } }
 
   /* ── Changelog table ── */
   table { width: 100%; border-collapse: collapse; font-size: 15px; }
@@ -188,6 +193,10 @@
   .lockup .wm em { color: var(--kiln); }
   .night .lockup .wm { color: var(--cream); }
   .night .lockup .wm em { color: var(--ember); }
+  .lock-stage { border-radius: 4px; border: 1px solid var(--rule); padding: clamp(28px, 4vw, 44px) 28px 44px; position: relative; display: grid; place-items: center; }
+  .lock-stage.v-night { border-color: var(--pine-deep); }
+  .lock-stage .lbl { position: absolute; left: 12px; bottom: 10px; right: 12px; font-size: 13px; font-weight: 700; line-height: 1.3; }
+  @media (max-width: 480px) { .lockup svg { width: 40px; height: 40px; margin-right: 16px; } .lockup .wm { font-size: 34px; } }
 
   /* ── 03 Color ── */
   .clock { display: grid; grid-template-columns: 3fr 2fr; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); }
@@ -209,7 +218,8 @@
   .sw .meta code { font-size: 12.5px; }
   .sw.wide { grid-column: span 2; }
   .sw.wide .chip { height: 140px; }
-  @media (max-width: 760px) { .swatches { grid-template-columns: 1fr 1fr; } }
+  .swatches.neutrals { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 760px) { .swatches, .swatches.neutrals { grid-template-columns: 1fr 1fr; } }
   .ratio { display: flex; height: 40px; border-radius: 4px; overflow: hidden; border: 1px solid var(--rule); }
   .ratio span { display: grid; place-items: center; font-size: 13px; font-weight: 700; }
 
@@ -405,7 +415,7 @@
       <svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#132F1E; --cross:5;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg>
       <span class="wm">Korvo<em> AI</em></span>
     </div>
-    <h1><span>We handle the rent.</span><span class="art">You make the art.</span></h1>
+    <h1><span>We handle the busywork.</span><span class="art">You get your life back.</span></h1>
     <p class="cover-sub">Brand System v3.0. The same earth-and-iron bones as v2, rebuilt around one idea: Korvo exists to give people their life back. This version is louder about that, and stricter about everything else.</p>
     <div class="cover-meta">
       <div>Owner<b>Jack Eliason</b></div>
@@ -439,6 +449,17 @@
       </ul>
     </div>
 
+    <div class="brand-line">
+      <div>
+        <h3 class="h">The brand line <span class="tag ok">Approved</span></h3>
+        <p class="bl">We handle the busywork. <em>You get your life back.</em></p>
+      </div>
+      <ul class="ledger" aria-label="Where the brand line goes">
+        <li><b>Use it</b><span>Covers, social, Hero C statements, and other brand moments.</span></li>
+        <li><b>Not here</b><span>The homepage hero. It stays outcome-first: "Never miss an after-hours call again." The line follows the facts; it never replaces them.</span></li>
+      </ul>
+    </div>
+
     <div class="quote-band">
       <blockquote>
         <p>Everyone is an artist until the rent is due.</p>
@@ -467,19 +488,19 @@
   <section class="s paper pad" aria-labelledby="tc">
     <div class="s-head">
       <div><p class="s-num">At a glance</p><h2 class="s-title" id="tc">What changed from v2</h2></div>
-      <p class="s-intro">Kept the bones, fixed the gaps, added the energy. Each change below is a decision you can accept or reject; the open ones are collected in section 08.</p>
+      <p class="s-intro">Kept the bones, fixed the gaps, added the energy. Each change below traces to a call recorded in section 08.</p>
     </div>
     <div class="tablewrap">
       <table>
         <thead><tr><th>Area</th><th>Status</th><th>What happened</th></tr></thead>
         <tbody>
           <tr><td>Palette</td><td><span class="tag keep">Kept</span></td><td>Earth &amp; Iron is unchanged: Pine, Terracotta, Sage, Deep Teal, Clay, Cream, Linen.</td></tr>
-          <tr><td>Neutrals</td><td><span class="tag fix">Fixed</span></td><td>The v2 guide, admin.html, and korvo_core_four.html used three different ink and rule sets. v3 picks one (mostly the core-four set) and darkens Ink Soft so it passes WCAG AA.</td></tr>
+          <tr><td>Neutrals</td><td><span class="tag fix">Fixed</span></td><td>The v2 guide, admin.html, and korvo_core_four.html used three different ink and rule sets. v3 keeps one scale (mostly the core-four set), darkens Ink Soft to #68615E so it passes WCAG AA, and drops the other two.</td></tr>
           <tr><td>Kiln &amp; Ember</td><td><span class="tag new">New</span></td><td>Two functional terracotta tints. Terracotta text at small sizes fails contrast on Cream (3.8:1) and on Pine. Kiln and Ember fix that without adding a new hue.</td></tr>
           <tr><td>The mark</td><td><span class="tag fix">Fixed</span></td><td>Same geometry. Added clear space, minimum size, cross weight, a reversed version for dark grounds (in v2's "on green" tile the pine facets vanish), and misuse rules.</td></tr>
-          <tr><td>Type</td><td><span class="tag keep">Kept</span> <span class="tag fix">Fixed</span></td><td>Playfair Display + Lato stay. Body moves from Lato Light 300 to Regular 400 for legibility. Tracked all-caps eyebrow labels are retired from public work.</td></tr>
+          <tr><td>Type</td><td><span class="tag keep">Kept</span> <span class="tag fix">Fixed</span></td><td>Playfair Display + Lato stay. Lato Light 300 is retired everywhere; body is Regular 400. All-caps eyebrow treatments are removed from public-facing styles.</td></tr>
           <tr><td>Voice</td><td><span class="tag keep">Kept</span> <span class="tag new">New</span></td><td>The four v2 principles stay. Added the Rent/Art registers, a banned-word list, and "name what's not included."</td></tr>
-          <tr><td>Essence</td><td><span class="tag new">New</span></td><td>"Life" is now written down as the brand's center, with a proposed line: "We handle the rent. You make the art."</td></tr>
+          <tr><td>Essence</td><td><span class="tag new">New</span></td><td>"Life" is now written down as the brand's center, with an approved brand line: "We handle the busywork. You get your life back."</td></tr>
           <tr><td>Applications</td><td><span class="tag new">New</span></td><td>Hero treatments, the demo-line widget, proof rows, social templates, and an email signature, all built from the live korvo.ai landing page.</td></tr>
         </tbody>
       </table>
@@ -522,12 +543,27 @@
 
     <div class="sub">
       <h3 class="h">Four versions, chosen by the ground</h3>
-      <p class="body" style="margin-bottom:16px;">Primary on light grounds. Reversed on Pine, Pine Deep, and Teal, where the pine facets turn Cream so the shape doesn't disappear. On Terracotta the terracotta facet would vanish too, so use Mono Cream there. Mono Pine for one-color print.</p>
+      <p class="body" style="margin-bottom:16px;">Primary on light grounds. Reversed (approved) on Pine, Pine Deep, and Teal, where the pine facets turn Cream so the shape doesn't disappear; it's the only full-color mark for dark grounds. On Terracotta the terracotta facet would vanish too, so use Mono Cream there. Mono Pine for one-color print.</p>
       <div class="grid4">
         <div class="variant v-light"><svg viewBox="6 4 88 92" style="--ground:#F0EBE2;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Primary, on Cream</span></div>
-        <div class="variant v-night"><svg viewBox="6 4 88 92" style="--ground:#132F1E;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Reversed, on Pine Deep</span></div>
+        <div class="variant v-night"><svg viewBox="6 4 88 92" style="--ground:#132F1E;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Reversed, on Pine Deep · approved</span></div>
         <div class="variant v-terra"><svg viewBox="6 4 88 92" style="--ground:#B85C3A; --ink-fill:#F0EBE2;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Mono Cream, on Terracotta</span></div>
         <div class="variant v-paper"><svg viewBox="6 4 88 92" style="--ground:#FAF6ED; --ink-fill:#1A4A2E;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><span class="lbl">Mono Pine, one-color print</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3 class="h">Lockups <span class="tag ok">Reversed approved</span></h3>
+      <p class="body" style="margin-bottom:16px;">Mark plus wordmark. Primary on light grounds; reversed on dark, with "AI" switching from Kiln to Ember.</p>
+      <div class="grid2">
+        <div class="lock-stage v-light">
+          <div class="lockup"><svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#F0EBE2;"><use href="#mk-primary" x="6" y="4" width="88" height="92"/></svg><span class="wm">Korvo<em> AI</em></span></div>
+          <span class="lbl">Primary lockup, on Cream</span>
+        </div>
+        <div class="lock-stage v-night night">
+          <div class="lockup"><svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#132F1E;"><use href="#mk-reversed" x="6" y="4" width="88" height="92"/></svg><span class="wm">Korvo<em> AI</em></span></div>
+          <span class="lbl">Reversed lockup, on Pine Deep</span>
+        </div>
       </div>
     </div>
 
@@ -593,26 +629,21 @@
         <div class="sw"><div class="chip" style="background:#C96B47"></div><div class="meta"><b>Clay</b>Highlight, gradients' warm end. <code>#C96B47</code></div></div>
         <div class="sw"><div class="chip" style="background:#F0EBE2"></div><div class="meta"><b>Cream</b>Surface. <code>#F0EBE2</code></div></div>
         <div class="sw"><div class="chip" style="background:#E8DFD0"></div><div class="meta"><b>Linen</b>Surface, alt. <code>#E8DFD0</code></div></div>
-        <div class="sw"><div class="chip" style="background:#9A4A2C"></div><div class="meta"><b>Kiln</b> <span class="tag new">New</span><br>Small terracotta text on light; hover. <code>#9A4A2C</code></div></div>
-        <div class="sw"><div class="chip" style="background:#E08A63"></div><div class="meta"><b>Ember</b> <span class="tag new">New</span><br>Terracotta-family text on dark. <code>#E08A63</code></div></div>
+        <div class="sw"><div class="chip" style="background:#9A4A2C"></div><div class="meta"><b>Kiln</b> <span class="tag ok">Approved</span><br>Small terracotta text on light; hover. <code>#9A4A2C</code></div></div>
+        <div class="sw"><div class="chip" style="background:#E08A63"></div><div class="meta"><b>Ember</b> <span class="tag ok">Approved</span><br>Terracotta-family text on dark. <code>#E08A63</code></div></div>
       </div>
     </div>
 
     <div class="sub">
       <h3 class="h">One set of neutrals</h3>
-      <p class="body" style="margin-bottom:16px;">Three files, three answers. v3 keeps the warm-tinted set that admin.html and korvo_core_four.html already share, with one change: Ink Soft is darkened so small text passes AA on Linen.</p>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Token</th><th>v2 guide</th><th>admin.html</th><th>core_four.html</th><th>v3</th></tr></thead>
-          <tbody>
-            <tr><td>Ink</td><td>#2A2A2A</td><td>#1E1E1E</td><td>#1E1E1E</td><td><code>#1E1E1E</code></td></tr>
-            <tr><td>Ink Mid</td><td>#4A4A4A</td><td>#4A4542</td><td>#4A4542</td><td><code>#4A4542</code></td></tr>
-            <tr><td>Ink Soft</td><td>#6B6B6B</td><td>#7A7370</td><td>#7A7370</td><td><code>#68615E</code> 4.6:1 on Linen</td></tr>
-            <tr><td>Rule</td><td>#C9C0B0</td><td>#CEC5B8</td><td>#CEC5B8</td><td><code>#CEC5B8</code></td></tr>
-            <tr><td>Paper</td><td>#FAF6ED</td><td>#FAF6ED</td><td>none</td><td><code>#FAF6ED</code></td></tr>
-            <tr><td>Pine Deep</td><td>#143823</td><td>#132F1E</td><td>#132F1E</td><td><code>#132F1E</code></td></tr>
-          </tbody>
-        </table>
+      <p class="body" style="margin-bottom:16px;">One warm-tinted scale, everywhere. It replaces the three conflicting sets in the v2 guide, admin.html, and korvo_core_four.html; their values are retired. Ink Soft is darkened so small text passes AA on Linen.</p>
+      <div class="swatches neutrals">
+        <div class="sw"><div class="chip" style="background:#1E1E1E"></div><div class="meta"><b>Ink</b>Strongest text: labels, table heads, emphasis. <code>#1E1E1E</code></div></div>
+        <div class="sw"><div class="chip" style="background:#4A4542"></div><div class="meta"><b>Ink Mid</b>Body copy. <code>#4A4542</code></div></div>
+        <div class="sw"><div class="chip" style="background:#68615E"></div><div class="meta"><b>Ink Soft</b>Captions and meta. 4.6:1 on Linen. <code>#68615E</code></div></div>
+        <div class="sw"><div class="chip" style="background:#CEC5B8"></div><div class="meta"><b>Rule</b>Borders and dividers. <code>#CEC5B8</code></div></div>
+        <div class="sw"><div class="chip" style="background:#FAF6ED; border-bottom:1px solid var(--rule);"></div><div class="meta"><b>Paper</b>Cards, tables, raised surfaces. <code>#FAF6ED</code></div></div>
+        <div class="sw"><div class="chip" style="background:#132F1E"></div><div class="meta"><b>Pine Deep</b>Night ground. <code>#132F1E</code></div></div>
       </div>
     </div>
 
@@ -652,7 +683,7 @@
     </div>
     <div class="specimen">
       <div class="spec-card"><p class="aa">Aa</p><p class="nm">Playfair Display</p><p>700/800 for headlines and figures. Italic 400 for the one human line per piece. Lining figures on every price and phone number.</p></div>
-      <div class="spec-card"><p class="aa sans">Aa</p><p class="nm">Lato</p><p>400 for body (was Light 300; too thin under 18px). 700 for labels, buttons, and the Rent register. 300 only at 20px and up.</p></div>
+      <div class="spec-card"><p class="aa sans">Aa</p><p class="nm">Lato</p><p>400 for body. 700 for labels, buttons, and the Rent register. Two weights only; Light 300 is retired everywhere and no longer loaded.</p></div>
     </div>
     <div class="sub">
       <ul class="scale">
@@ -664,7 +695,7 @@
         <li><span class="k"><b>Body</b>Lato 400 · 16–19 · 1.6</span><span class="v" style="font:400 17px/1.6 var(--sans); color:var(--ink-mid);">Plain, honest, unhurried. Short sentences. Real numbers.</span></li>
         <li><span class="k"><b>Label</b>Lato 700 · 13–15 · sentence case</span><span class="v" style="font:700 14px/1.4 var(--sans); color:var(--kiln);">Sample call, Bright Smile Dental</span></li>
       </ul>
-      <p class="body" style="margin-top:16px;"><b style="color:var(--ink);">Retired:</b> tracked-out ALL-CAPS eyebrows above every heading. They were v2's signature tic and read as template. Use a sentence-case label only when it carries information the heading doesn't.</p>
+      <p class="body" style="margin-top:16px;"><b style="color:var(--ink);">Retired:</b> Lato Light 300, everywhere; it was too thin for body text. And tracked-out all-caps eyebrows above headings, removed from every public-facing style; they were v2's signature tic and read as template. Use a sentence-case label only when it carries information the heading doesn't.</p>
     </div>
   </section>
 
@@ -702,7 +733,7 @@
       <p class="s-intro">v2 showed swatches. v3 shows the work. Everything here is pulled from the rebuilt korvo.ai landing page, so the guide and the site can't drift apart.</p>
     </div>
 
-    <div class="app-label"><h3 class="h">Hero A: Night</h3><span>The default. Outcome headline, buyer, price, one CTA, demo line.</span></div>
+    <div class="app-label"><h3 class="h">Hero A: Night</h3><span>The default and the homepage hero. Outcome headline, buyer, price, one CTA, demo line. The brand line never replaces this headline.</span></div>
     <div class="frame">
       <div class="heroA">
         <div>
@@ -725,7 +756,7 @@
       </div>
       <div>
         <div class="app-label"><h3 class="h">Hero C: Statement</h3><span>Art register. Brand moments only.</span></div>
-        <div class="frame"><div class="heroC"><svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#B85C3A; --ink-fill:#F0EBE2;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><h4>Everyone is an artist until the rent is due.</h4><p>We handle the rent.</p></div></div>
+        <div class="frame"><div class="heroC"><svg viewBox="6 4 88 92" aria-hidden="true" style="--ground:#B85C3A; --ink-fill:#F0EBE2;"><use href="#mk-mono" x="6" y="4" width="88" height="92"/></svg><h4>Everyone is an artist until the rent is due.</h4><p>We handle the busywork. You get your life back.</p></div></div>
       </div>
     </div>
 
@@ -824,14 +855,14 @@
   <section class="s night pad" aria-labelledby="t8">
     <div class="s-head">
       <div><p class="s-num">08</p><h2 class="s-title" id="t8">Decisions for Jack</h2></div>
-      <p class="s-intro">Nothing here is official until you say so. These are the calls that change something you or the team already use.</p>
+      <p class="s-intro">Every open call is closed. These are the decisions that change something you or the team already use.</p>
     </div>
     <ol class="decisions">
-      <li><span><b>Adopt "We handle the rent. You make the art." as the brand line?</b>Derived from your quote. Proposed for the cover, social, and brand moments; not for the landing hero, which stays outcome-first.</span></li>
-      <li><span><b>Approve the reversed mark for dark grounds?</b>Pine facets become Cream. Already live in the new site's nav and footer on the landing-rebuild branch.</span></li>
-      <li><span><b>Approve Kiln (#9A4A2C) and Ember (#E08A63)?</b>Functional tints of Terracotta for accessible text. No new hue.</span></li>
-      <li><span><b>Approve the neutral set, including Ink Soft moving to #68615E?</b>admin.html and korvo_core_four.html would update to match.</span></li>
-      <li><span><b>Retire Lato Light for body text and all-caps eyebrows in public work?</b>Internal docs can keep them until they're next edited.</span></li>
+      <li><span><b>Brand line: approved.</b>"We handle the busywork. You get your life back." Used on covers, social, and brand moments. The homepage hero stays outcome-first and is not replaced by the line.</span></li>
+      <li><span><b>Reversed mark: approved.</b>Pine facets become Cream on dark grounds. Shown in section 02 alongside the reversed lockup. Already live in the new site's nav and footer on the landing-rebuild branch.</span></li>
+      <li><span><b>Kiln #9A4A2C and Ember #E08A63: approved as brand colors.</b>Functional tints of Terracotta for accessible text. No new hue.</span></li>
+      <li><span><b>Neutrals: approved, one scale.</b>Ink, Ink Mid, Ink Soft #68615E, Rule, Paper, Pine Deep. Competing palettes are dropped; admin.html and korvo_core_four.html should update to match.</span></li>
+      <li><span><b>Lato Light and all-caps eyebrows: retired.</b>Lato Light 300 is gone everywhere, not just body text. All-caps eyebrow treatments are removed from public-facing styles.</span></li>
       <li><span><b>Guarantee: decided.</b>"If your agent isn't answering calls within 72 hours of signup, your first month is free." Approved Oct 7 and live on korvo.ai.</span></li>
     </ol>
   </section>
