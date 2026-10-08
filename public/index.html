@@ -99,6 +99,18 @@
     .brand svg { width: 30px; height: 30px; flex-shrink: 0; }
     .wordmark { font: 700 22px/1 var(--serif); letter-spacing: -0.01em; }
     .wordmark em { font-style: italic; font-weight: 400; color: var(--ember); }
+    /* Nav links: cream on the pine banner, set in the wordmark's serif so the bar reads as one brand line */
+    .nav-links { display: flex; align-items: center; gap: clamp(16px, 3vw, 32px); margin-left: auto; margin-right: clamp(8px, 2vw, 24px); }
+    .nav-links a {
+      color: var(--on-dark); text-decoration: none;
+      font: 600 17px/1 var(--serif); letter-spacing: 0.01em;
+      padding: 6px 0; border-bottom: 1px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .nav-links a:hover { color: var(--ember); border-bottom-color: currentColor; }
+    .nav-links a, .nav .btn { white-space: nowrap; }
+    /* Phones: no room for brand + two links + CTA on one bar; About/Join stay in the footer */
+    @media (max-width: 600px) { .nav-links { display: none; } }
 
     /* ── Hero ── */
     .hero {
@@ -392,7 +404,8 @@
       </svg>
       <span class="wordmark">Korvo<em> AI</em></span>
     </a>
-    <a href="/about">About</a><a href="/join">Join the team</a><a class="btn btn-sm" href="#signup">Get started</a>
+    <nav class="nav-links" aria-label="Primary"><a href="/about">About</a><a href="/join">Join the team</a></nav>
+    <a class="btn btn-sm" href="#signup">Get started</a>
   </div>
 </header>
 
