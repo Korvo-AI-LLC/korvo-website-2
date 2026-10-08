@@ -10,6 +10,10 @@ const discoveryStore = require('./lib/discoveryStore');
 const callStore = require('./lib/callStore');
 const signupStore = require('./lib/signupStore');
 const intakeSchema = require('./lib/intakeSchema'); // reads SCHEMA from public/admin.html (untouched)
+const Stripe = require('stripe');
+const stripe = process.env.STRIPE_SECRET_KEY ? Stripe(process.env.STRIPE_SECRET_KEY) : (console.warn('WARNING: STRIPE_SECRET_KEY not set — embedded checkout disabled; the Pay button falls back to the Payment Link'), null);
+// Live price: "Korvo AI — After-Hours Voice Agent", $997/month recurring.
+const STRIPE_PRICE_ID = 'price_1UOIf6AKX4nG3VRwywzOxlrJ';
 // Sender for all site email. onboarding@resend.dev only delivers to the Resend account
 // owner's own address; set MAIL_FROM to an address on a domain verified in Resend
 // (e.g. "Korvo AI <notify@korvo.ai>") so mail can reach any inbox, including hello@korvo.ai.
@@ -113,12 +117,13 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc:   ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:    ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc:     ["'self'", "'unsafe-inline'"],
-      scriptSrcElem: ["'self'", "'unsafe-inline'"],
+      // Stripe.js + Embedded Checkout (js.stripe.com loads it; checkout.stripe.com hosts the form iframe)
+      scriptSrc:     ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://checkout.stripe.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://checkout.stripe.com"],
       imgSrc:     ["'self'", "data:", "https:"],
-      frameSrc:   ["https://forms.office.com"],
+      frameSrc:   ["https://forms.office.com", "https://js.stripe.com", "https://hooks.stripe.com", "https://checkout.stripe.com"],
     },
   },
 }));
@@ -376,6 +381,33 @@ app.post('/api/signup', async (req, res) => {
   if (sent.ok) return res.json({ success: true, saved: false, id: null, notify: sent.route });
   console.error(`[signup] NOT SAVED AND NOT EMAILED at ${new Date().toISOString()}: ${describeSendFailure(sent)} | lead: ${JSON.stringify(lead)}`);
   return res.status(500).json({ error: 'We couldn’t record your signup just now. Please try again in a minute, or email hello@korvo.ai.' });
+});
+
+// API: Stripe Embedded Checkout. Creates a subscription Checkout Session for the $997/mo plan and
+// returns its client_secret; the homepage mounts the form inline with stripe.initEmbeddedCheckout.
+// After payment Stripe sends the browser to return_url (/?paid=1), which opens the full intake.
+// publishable_key is echoed from STRIPE_PUBLISHABLE_KEY so the key lives in one place (env).
+const checkoutLimiter = makeLimiter({ windowMs: 60 * 1000, max: 10 });
+app.post('/api/create-checkout-session', async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Checkout is not configured.' });
+  if (checkoutLimiter(req.ip)) return res.status(429).json({ error: 'Too many requests. Please try again in a minute.' });
+  const { email, signupId } = req.body || {};
+  const emailOk = typeof email === 'string' && email.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const refOk = typeof signupId === 'string' && /^[A-Za-z0-9_-]{1,200}$/.test(signupId);
+  try {
+    const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
+      mode: 'subscription',
+      line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
+      return_url: 'https://korvo.ai/?paid=1&session_id={CHECKOUT_SESSION_ID}',
+      ...(emailOk ? { customer_email: email.trim() } : {}),
+      ...(refOk ? { client_reference_id: signupId } : {}),
+    });
+    res.json({ client_secret: session.client_secret, publishable_key: process.env.STRIPE_PUBLISHABLE_KEY || null });
+  } catch (err) {
+    console.error('Stripe checkout session failed:', err.message || err);
+    res.status(502).json({ error: 'Could not start checkout.' });
+  }
 });
 
 const applyLimiter = makeLimiter({ windowMs: 60 * 1000, max: 3 }); app.post('/api/apply', async (req, res) => { if (applyLimiter(req.ip)) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again in a minute.' }); const { name, phone, email, role, website } = req.body || {}; if (website) return res.json({ ok: true, error: null }); const emailOk = typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()); const nameOk = typeof name === 'string' && name.trim().length >= 2; if (!nameOk || !emailOk) return res.status(400).json({ ok: false, error: 'Please provide your name and a valid email address.' }); const rec = await signupStore.create({ kind: 'apply', name: name.trim(), business: '', phone: (phone || '').toString().trim(), email: email.trim(), notes: (role || '').toString().trim(), ip: req.ip, userAgent: req.get('user-agent') || '', }); setImmediate(() => deliverNotification('apply', rec.id)); res.json({ ok: true, error: null, id: rec.id }); }); // API: Signups list (admin) — every saved lead, newest first, each with notifyStatus

@@ -16,7 +16,8 @@
     "express": "^4.18.2",
     "helmet": "^7.1.0",
     "pg": "^8.21.0",
-    "resend": "^6.9.4"
+    "resend": "^6.9.4",
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

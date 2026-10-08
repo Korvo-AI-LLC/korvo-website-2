@@ -13,6 +13,11 @@ services:
         sync: false
       - key: ADMIN_PASS
         sync: false
+      # Stripe Embedded Checkout (live keys). Unset → Pay falls back to the Payment Link.
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
       # Shared secret the Trillet post-call webhook must present to POST /api/calls.
       - key: CALL_WEBHOOK_SECRET
         sync: false

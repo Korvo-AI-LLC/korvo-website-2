@@ -642,10 +642,13 @@
           <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
         </form>
 
-        <!-- Step 2: payment. The script below sets href from PAYMENT_URL in /js/config.js (the source of truth).
-             The static href is the same live Stripe link, so checkout still works if config.js fails to load. -->
+        <!-- Step 2: payment. Stripe Embedded Checkout mounts into #checkoutMount (POST /api/create-checkout-session),
+             so the visitor pays without leaving korvo.ai. #payLink is the fallback: it stays hidden while the
+             embedded form loads and reappears if it can't (no Stripe keys, network error, Stripe.js blocked).
+             Its href comes from PAYMENT_URL in /js/config.js; the static href is the same live Payment Link. -->
         <div class="step-two" id="stepTwo" hidden>
           <div class="panel-step"><b>2</b><h3>Pay and start setup</h3></div>
+          <div id="checkoutMount" class="checkout-mount" hidden style="margin-top: 16px; min-height: 120px;"></div>
           <a class="btn btn-pine btn-block" id="payLink" data-pay href="https://buy.stripe.com/6oU14m4QNgaObDEh1B08g00" style="margin-top: 16px;">Pay $997/month</a>
           <p class="pay-note">Secure checkout through Stripe. Billed monthly. Cancel anytime.</p>
         </div>
@@ -736,6 +739,63 @@
   }
   wirePay();
 
+  /* Embedded Checkout: fetch a client_secret from our server, load Stripe.js, mount the form inline.
+     One instance at a time (a Stripe rule). Moving an iframe in the DOM reloads it, so the form is torn
+     down whenever the panel moves (modal open/close) and rebuilt on the next showCheckout(). */
+  var checkoutMount = document.getElementById('checkoutMount');
+  var checkout = null;
+  var checkoutGen = 0;      // bumps on every teardown so a late-resolving init is discarded
+  var stripeLoading = null;
+  function publishableKey(serverKey) {
+    var k = (typeof STRIPE_PUBLISHABLE_KEY === 'string' && STRIPE_PUBLISHABLE_KEY.trim()) || serverKey || '';
+    return /^pk_(live|test)_/.test(k) ? k : '';
+  }
+  function loadStripe() {
+    if (window.Stripe) return Promise.resolve();
+    return stripeLoading || (stripeLoading = loadScript('https://js.stripe.com/v3/').catch(function (e) { stripeLoading = null; throw e; }));
+  }
+  function checkoutFallback(gen) {
+    if (gen !== checkoutGen) return;
+    checkoutMount.hidden = true;
+    checkoutMount.textContent = '';
+    wirePay();
+    pay.style.display = '';
+  }
+  function showCheckout() {
+    if (checkout || checkoutMount.childNodes.length || !window.fetch || !window.Promise) return;
+    var gen = ++checkoutGen;
+    pay.style.display = 'none';   // not .hidden: .btn's display rule overrides the hidden attribute
+    checkoutMount.hidden = false;
+    checkoutMount.innerHTML = '<p class="pay-note">Loading secure checkout…</p>';
+    fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: state && state.email, signupId: state && state.id ? String(state.id) : undefined })
+    })
+      .then(function (res) { if (!res.ok) throw new Error('session ' + res.status); return res.json(); })
+      .then(function (data) {
+        var key = publishableKey(data && data.publishable_key);
+        if (!data || !data.client_secret || !key) throw new Error('checkout not configured');
+        return loadStripe().then(function () {
+          return window.Stripe(key).initEmbeddedCheckout({ clientSecret: data.client_secret });
+        });
+      })
+      .then(function (instance) {
+        if (gen !== checkoutGen) { instance.destroy(); return; }
+        checkout = instance;
+        checkoutMount.textContent = '';
+        checkout.mount(checkoutMount);
+      })
+      .catch(function () { checkoutFallback(gen); });
+  }
+  function hideCheckout() {
+    checkoutGen++;
+    if (checkout) { try { checkout.destroy(); } catch (_) {} checkout = null; }
+    checkoutMount.textContent = '';
+    checkoutMount.hidden = true;
+    pay.style.display = '';
+  }
+
   /* ── Modal: "Get started" → 4-field form → full intake, all in one dialog ── */
   var dialog = document.getElementById('startModal');
   var slot = document.getElementById('modalSlot');
@@ -748,14 +808,14 @@
   var intakeMounted = false;
   var intakeLoading = null;
 
-  function panelHome() { if (panel.parentNode === slot) home.parentNode.insertBefore(panel, home.nextSibling); }
+  function panelHome() { if (panel.parentNode === slot) { hideCheckout(); home.parentNode.insertBefore(panel, home.nextSibling); } }
   function openDialog() {
     if (!dialog.open) { dialog.showModal(); document.documentElement.classList.add('modal-open'); }
   }
   function showSignup() {
     intakeView.hidden = true;
     slot.hidden = false;
-    if (panel.parentNode !== slot) slot.appendChild(panel);
+    if (panel.parentNode !== slot) { hideCheckout(); slot.appendChild(panel); }
     openDialog();
     dialog.querySelector('.modal-body').scrollTop = 0;
     if (state) {
@@ -763,7 +823,7 @@
       wirePay();
       stepTwo.hidden = false;
       stepTwo.classList.add('ready');
-      pay.focus();
+      showCheckout();
       return;
     }
     var first = document.getElementById('f-name');
@@ -820,7 +880,8 @@
     });
   }
 
-  // Back from Stripe (MODE 'payment'): the Payment Link redirects to https://korvo.ai/?paid=1
+  // Back from Stripe (MODE 'payment'): Embedded Checkout's return_url (and the fallback Payment Link)
+  // land on https://korvo.ai/?paid=1[&session_id=...]
   if (/[?&]paid=1(&|$)/.test(location.search)) {
     if (state) { state.paid = true; saveState(); }
     store(function () { history.replaceState(null, '', location.pathname + location.hash); });
@@ -881,7 +942,7 @@
         saveState();
         form.reset();
         btn.textContent = 'Sent';
-        wirePay();                            // ← Pay button → Stripe (PAYMENT_URL) as soon as the capture succeeds
+        wirePay();                            // ← fallback Pay link → PAYMENT_URL, used only if embedded checkout can't load
         stepTwo.hidden = false;
         stepTwo.classList.add('ready');
         msg.className = 'form-msg ok';
@@ -890,7 +951,7 @@
           showIntake();                       // ← intake right after signup (MODE 'signup')
         } else {
           form.hidden = true;
-          pay.focus({ preventScroll: true }); // ← MODE 'payment': intake opens when Stripe sends them back (?paid=1)
+          showCheckout();                     // ← MODE 'payment': embedded checkout inline; Stripe returns to /?paid=1 → intake
           stepTwo.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
         }
       })
