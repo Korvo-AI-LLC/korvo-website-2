@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About — Korvo AI</title>
-  <meta name="description" content="Why Korvo exists, where it is right now, and what we should build next." />
+  <meta name="description" content="Korvo AI is a team of BYU students building and testing practical AI products, starting with an after-hours voice agent for dental and medical practices." />
   <meta property="og:title" content="About Korvo AI" />
-  <meta property="og:description" content="We are probably going to change the world." />
+  <meta property="og:description" content="BYU students building and testing practical AI products." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://korvo.ai/about" />
   <meta name="theme-color" content="#132F1E" />
@@ -46,8 +46,7 @@
     .story { padding: 96px 0 88px; background: #F0EBE2; }
     .story h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(40px, 6.5vw, 72px); line-height: 1.08; margin: 0 0 48px; color: #132F1E; font-weight: 700; max-width: 900px; }
     .story p { font-size: 20px; line-height: 1.7; color: #3E3A38; margin: 0 0 22px; }
-    .story .nah { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 4vw, 40px); color: #9A4A2C; font-weight: 700; line-height: 1.2; margin: 36px 0 8px; }
-    .story .sign { font-family: "Playfair Display", Georgia, serif; font-size: 24px; color: #132F1E; margin-top: 36px; }
+    .story .note { font-size: 14px; color: #68615E; margin: 40px 0 0; }
 
     .section { padding: 80px 0; }
     .section h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 4.5vw, 44px); line-height: 1.15; margin: 0 0 32px; color: #132F1E; font-weight: 700; }
@@ -120,22 +119,19 @@
 <main>
   <section class="story">
     <div class="wrap">
-      <h1>We are probably going to change the world.</h1>
+      <h1>BYU students testing practical AI products.</h1>
       <div class="narrow">
-        <p>My name is Jack. I love everything about Korvo. I started it because I know what AI can do.</p>
-        <p>We've grown a ton. We've helped a lot of people, hired a lot of people, and made loads of money. But seriously, it's not just about the money.</p>
-        <p>Korvo frees people from the soul-sucking, energy-draining, mind-numbing busy work. People have always said, "Well, somebody's got to do it… right?"</p>
-        <p class="nah">Nah. That used to be true.</p>
-        <p>Now we give AI all of that stuff so you can get back to what you actually love to do. Plus, AI is better at that stuff than you anyway.</p>
-        <p>So take it easy. It's all up from here.</p>
-        <p class="sign">— Jack</p>
+        <p>Korvo AI is a small team of students at Brigham Young University. The idea came out of a class at BYU, where we saw how much of the routine work in a small business AI can now handle well.</p>
+        <p>We wanted to know whether that holds up outside the classroom, so we're testing it. We pick one specific problem, build a focused product for it, and put it in front of real businesses to learn what works.</p>
+        <p>Our first project is an after-hours voice agent for dental and medical practices. Calls that come in after the front desk closes are easy to measure and costly to miss, which makes them a good first test.</p>
+        <p class="note">Korvo AI is an independent company and is not affiliated with or endorsed by Brigham Young University.</p>
       </div>
     </div>
   </section>
 
   <section class="section now">
     <div class="wrap">
-      <h2>Where we're at right now</h2>
+      <h2>What we're testing now</h2>
       <div class="ones">
         <div class="one"><b>One product.</b><span>Korvo, an AI voice agent for dental and medical practices.</span></div>
         <div class="one"><b>One service.</b><span>It answers your phone after hours.</span></div>
@@ -147,19 +143,19 @@
 
   <section class="section ideas">
     <div class="wrap narrow">
-      <h2>Think we should work on something else? Let us know below.</h2>
+      <h2>Have a problem you'd like us to look at next?</h2>
       <form id="ideaForm" novalidate>
         <label for="f-idea" class="hp">Your idea</label>
-        <textarea id="f-idea" name="idea" maxlength="5000" required placeholder="What should Korvo take off people's plates next?"></textarea>
+        <textarea id="f-idea" name="idea" maxlength="5000" required placeholder="Describe a repetitive task or workflow you'd like to hand off to AI."></textarea>
         <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <div class="row">
-          <button class="btn" type="submit" id="ideaBtn">Send it</button>
+          <button class="btn" type="submit" id="ideaBtn">Submit</button>
           <p class="idea-msg" id="ideaMsg" role="alert" hidden></p>
         </div>
       </form>
       <div class="idea-thanks" id="ideaThanks" hidden tabindex="-1">
-        Got it. Thanks — we read every one.
-        <button type="button" id="ideaAgain">Send another idea</button>
+        Thank you. We review every submission.
+        <button type="button" id="ideaAgain">Submit another idea</button>
       </div>
     </div>
   </section>
@@ -198,12 +194,12 @@
   var btn = document.getElementById('ideaBtn');
   var msg = document.getElementById('ideaMsg');
   var thanks = document.getElementById('ideaThanks');
-  function fail(t) { msg.hidden = false; msg.textContent = t; btn.disabled = false; btn.textContent = 'Send it'; }
+  function fail(t) { msg.hidden = false; msg.textContent = t; btn.disabled = false; btn.textContent = 'Submit'; }
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     msg.hidden = true;
     var idea = box.value.trim();
-    if (idea.length < 3) return fail('Tell us a little more first.');
+    if (idea.length < 3) return fail('Please add a little more detail.');
     btn.disabled = true; btn.textContent = 'Sending…';
     fetch('/api/idea', {
       method: 'POST',
@@ -218,7 +214,7 @@
       .catch(function () { fail('Something went wrong. Please try again.'); });
   });
   document.getElementById('ideaAgain').addEventListener('click', function () {
-    form.reset(); btn.disabled = false; btn.textContent = 'Send it';
+    form.reset(); btn.disabled = false; btn.textContent = 'Submit';
     thanks.hidden = true; form.hidden = false; box.focus();
   });
 })();

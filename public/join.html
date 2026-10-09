@@ -37,7 +37,8 @@
     /* Application */
     .apply-section { padding: 96px 0 112px; background: #F0EBE2; min-height: calc(100vh - 220px); }
     .apply-inner { max-width: 640px; margin: 0 auto; }
-    .apply-section h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(34px, 5.5vw, 54px); line-height: 1.12; font-weight: 700; margin-bottom: 48px; color: #132F1E; }
+    .apply-section h1 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(34px, 5.5vw, 54px); line-height: 1.12; font-weight: 700; margin-bottom: 16px; color: #132F1E; }
+    .apply-intro { font-size: 18px; color: #3E3A38; margin-bottom: 48px; }
     .apply-form label { display: block; font-weight: 700; margin: 24px 0 8px; color: #132F1E; font-size: 16px; }
     .apply-form label:first-of-type { margin-top: 0; }
     .apply-form input, .apply-form textarea { width: 100%; padding: 14px 16px; font-size: 16px; border: 2px solid #cfc8bd; border-radius: 8px; font-family: inherit; background: #fff; color: #132F1E; transition: border-color 0.2s; }
@@ -97,7 +98,7 @@
     @media (max-width: 768px) {
       .nav-links { display: none; }
       .apply-section { padding: 56px 0 72px; }
-      .apply-section h1 { margin-bottom: 32px; }
+      .apply-intro { margin-bottom: 32px; }
       .foot-row { flex-direction: column; align-items: flex-start; }
     }
   </style>
@@ -129,7 +130,8 @@
     <div class="wrap">
       <div class="apply-inner">
         <form class="apply-form" id="applyForm" novalidate>
-          <h1>If you want to actually change the world, drop your info below.</h1>
+          <h1>Join the team</h1>
+          <p class="apply-intro">Korvo AI is a small, early-stage team building and testing practical AI products. If you'd like to be part of it, tell us a bit about yourself and we'll follow up.</p>
 
           <label for="f-name">Name</label>
           <input id="f-name" name="name" type="text" autocomplete="name" maxlength="120" required />
@@ -141,12 +143,12 @@
           <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" required />
 
           <label for="f-role">What role interests you?</label>
-          <input id="f-role" name="role" type="text" maxlength="200" required placeholder="e.g., Full-Stack Engineer, Sales Lead, etc." />
+          <input id="f-role" name="role" type="text" maxlength="200" required placeholder="e.g., Engineering, Sales, Operations" />
 
-          <label for="f-message">Why Korvo? What would you build here?</label>
+          <label for="f-message">Why are you interested in joining Korvo?</label>
           <textarea id="f-message" name="message" maxlength="5000" required></textarea>
 
-          <label for="f-resume">Resume</label>
+          <label for="f-resume">Resume (optional)</label>
           <div class="drop" id="drop">
             <input id="f-resume" name="resume" type="file" accept=".pdf,.doc,.docx,.rtf,.txt,.odt,.pages" />
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/></svg>
@@ -169,7 +171,7 @@
             <path d="M30 52 L44 65 L71 37"/>
           </svg>
           <h2 tabindex="-1" id="thanksTitle">Thank you for your application.</h2>
-          <button class="btn" type="button" id="againBtn">Begin another application</button>
+          <button class="btn" type="button" id="againBtn">Submit another application</button>
         </div>
       </div>
     </div>
